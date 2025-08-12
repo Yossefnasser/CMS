@@ -4,10 +4,10 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     """Custom user model with roles for clinic staff"""
     class UserType(models.TextChoices):
-        MANAGER = 'MANAGER', 'Manager'
-        ADMIN = 'ADMIN', 'Admin'
-        SECRETARY = 'SECRETARY', 'Secretary'
-        DOCTOR = 'DOCTOR', 'Doctor'
+        MANAGER         = 'MANAGER', 'Manager'
+        ADMIN           = 'ADMIN', 'Admin'
+        SECRETARY       = 'SECRETARY', 'Secretary'
+        DOCTOR          = 'DOCTOR', 'Doctor'
     
     # Remove username field and use email instead
     username = models.CharField(max_length=150, unique=True, blank=True, null=True)
@@ -18,8 +18,8 @@ class User(AbstractUser):
         choices=UserType.choices,
         default=UserType.SECRETARY
     )
-    phone_number = models.CharField(max_length=15, blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    phone_number    = models.CharField(max_length=15, blank=True, null=True)
+    is_active       = models.BooleanField(default=True)
 
     REQUIRED_FIELDS = ['full_name']
 
@@ -29,11 +29,11 @@ class User(AbstractUser):
 
 class Patient(models.Model):
     """Patient information model"""
-    full_name = models.CharField(max_length=100)
-    phone_number = models.CharField(max_length=15)
-    notes = models.TextField(blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    full_name            = models.CharField(max_length=100)
+    phone_number         = models.CharField(max_length=15)
+    notes                = models.TextField(blank=True, null=True)
+    created_at           = models.DateTimeField(auto_now_add=True)
+    updated_at           = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.full_name
@@ -41,9 +41,9 @@ class Patient(models.Model):
 
 class Clinic(models.Model):
     """Medical departments/clinics"""
-    name = models.CharField(max_length=50)
-    description = models.TextField(blank=True, null=True)
-    is_active = models.BooleanField(default=True)
+    name            = models.CharField(max_length=50)
+    description     = models.TextField(blank=True, null=True)
+    is_active       = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name

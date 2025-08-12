@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block content %}
+    <!-- Main Content -->
+    <main class="flex-grow-1 container-fluid my-4">
+        <!-- Welcome Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card-enhanced animate-fade-up">
+                    <div class="card-body p-4">
+                        <div class="row align-items-center">
+                            <div class="col-md-8">
+                                <h2 class="card-title text-primary mb-2">
+                                    <i class="fas fa-sun text-warning me-2"></i>
+                                    صباح الخير، د. أحمد محمد
+                                </h2>
+                                <p class="card-text text-muted mb-0">
+                                    اليوم لديك <strong class="text-primary">8 مواعيد</strong> و <strong class="text-success">3 مرضى جدد</strong>
+                                    <br>
+                                    <small><i class="fas fa-calendar me-1"></i> الثلاثاء، 12 أغسطس 2025</small>
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button class="btn btn-primary">
+                                        <i class="fas fa-plus me-1"></i> موعد جديد
+                                    </button>
+                                    <button class="btn btn-success">
+                                        <i class="fas fa-user-plus me-1"></i> مريض جديد
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card patients animate-fade-up">
+                    <div class="stat-icon text-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-number">1,247</div>
+                    <div class="stat-label text-muted">إجمالي المرضى</div>
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up me-1"></i>+12% هذا الشهر
+                    </small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card appointments animate-fade-up">
+                    <div class="stat-icon text-success">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div class="stat-number">86</div>
+                    <div class="stat-label text-muted">المواعيد هذا الأسبوع</div>
+                    <small class="text-info">
+                        <i class="fas fa-clock me-1"></i>15 موعد اليوم
+                    </small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card doctors animate-fade-up">
+                    <div class="stat-icon text-info">
+                        <i class="fas fa-user-md"></i>
+                    </div>
+                    <div class="stat-number">12</div>
+                    <div class="stat-label text-muted">الأطباء النشطون</div>
+                    <small class="text-success">
+                        <i class="fas fa-check-circle me-1"></i>جميعهم متاحون
+                    </small>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stat-card revenue animate-fade-up">
+                    <div class="stat-icon text-warning">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="stat-number">45,280</div>
+                    <div class="stat-label text-muted">الإيرادات (ريال)</div>
+                    <small class="text-success">
+                        <i class="fas fa-arrow-up me-1"></i>+8% من الأسبوع الماضي
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3 class="mb-3">
+                    <i class="fas fa-bolt text-warning me-2"></i>
+                    إجراءات سريعة
+                </h3>
+                <div class="quick-actions">
+                    <a href="#" class="action-btn">
+                        <div class="action-icon text-primary">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h5>إضافة مريض جديد</h5>
+                        <p class="text-muted mb-0">تسجيل مريض جديد في النظام</p>
+                    </a>
+                    <a href="#" class="action-btn">
+                        <div class="action-icon text-success">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        <h5>حجز موعد</h5>
+                        <p class="text-muted mb-0">حجز موعد جديد مع الطبيب</p>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    </main>
+
+{% endblock %}
