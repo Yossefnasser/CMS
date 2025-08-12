@@ -11,6 +11,8 @@ class User(AbstractUser):
     
     # Remove username field and use email instead
     username = models.CharField(max_length=150, unique=True, blank=True, null=True)
+    password = models.CharField(max_length=128)
+    fullname = models.CharField(max_length=100)
     user_type = models.CharField(
         max_length=10,
         choices=UserType.choices,
