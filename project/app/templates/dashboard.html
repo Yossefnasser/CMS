@@ -9,16 +9,25 @@
                     <div class="card-body p-4">
                         <div class="row align-items-center">
                             <div class="col-md-8">
-                                <h2 class="card-title text-primary mb-2">
-                                    <i class="fas fa-sun text-warning me-2"></i>
-                                    صباح الخير، د. أحمد محمد
-                                </h2>
-                                <p class="card-text text-muted mb-0">
-                                    اليوم لديك <strong class="text-primary">8 مواعيد</strong> و <strong class="text-success">3 مرضى جدد</strong>
-                                    <br>
-                                    <small><i class="fas fa-calendar me-1"></i> الثلاثاء، 12 أغسطس 2025</small>
-                                </p>
+                            <h2 class="card-title text-primary mb-2">
+                                <i class="fas fa-sun text-warning me-2"></i>
+                                {% if user.is_authenticated %}
+                                    صباح الخير، {{ user.get_full_name }}
+                                    <span class="badge bg-info text-dark ms-2">{{ user.get_user_type_display }}</span>
+                                {% else %}
+                                    <i class="fas fa-sign-in-alt text-secondary me-2"></i>
+                                    مرحباً، الرجاء تسجيل الدخول
+                                {% endif %}
+                            </h2>
+                            <p class="card-text text-muted mb-0">
+
+
+                                <br>
+                                <small><i class="fas fa-calendar me-1"></i> <span id="client-date"></span></small>
+                            </p>
                             </div>
+                            {% if user.is_authenticated %}
+
                             <div class="col-md-4 text-end">
                                 <div class="d-flex gap-2 justify-content-end">
                                     <button class="btn btn-primary">
@@ -113,7 +122,14 @@
             </div>
         </div>
 
+                                {% endif %}
 
     </main>
 
+<script>
+  document.getElementById('client-date').textContent = new Date().toLocaleDateString('ar-EG', {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+  });
+</script>
 {% endblock %}
+

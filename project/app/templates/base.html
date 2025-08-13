@@ -33,19 +33,23 @@
                 </div>
                 <div class="col-lg-4 text-start">
                     <div class="d-flex justify-content-start align-items-center">
-                        <div class="user-info me-3">
-                            <div class="d-flex align-items-center">
-                                <img src="https://via.placeholder.com/40x40/0066cc/ffffff?text=د" 
-                                     class="rounded-circle me-2" alt="User Avatar">
-                                <div>
-                                    <div class="fw-bold">د. أحمد محمد</div>
-                                    <small class="opacity-75">مدير النظام</small>
+                        {% if user.is_authenticated %}
+                            <div class="user-info me-3">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <div class="fw-bold">{{ user.get_full_name }}</div>
+                                        <small class="opacity-75">{{ user.get_user_type_display }}</small>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <a href="#" class="btn btn-light btn-sm">
-                            <i class="fas fa-sign-out-alt"></i> خروج
-                        </a>
+                            <a href="{% url 'logout' %}" class="btn btn-light btn-sm">
+                                <i class="fas fa-sign-out-alt"></i> خروج
+                            </a>
+                        {% else %}
+                            <a href="{% url 'login' %}" class="btn btn-light btn-sm">
+                                <i class="fas fa-sign-in-alt"></i> دخول
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

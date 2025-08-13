@@ -2,30 +2,27 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    """Custom user model with roles for clinic staff"""
     class UserType(models.TextChoices):
-        MANAGER         = 'MANAGER', 'Manager'
-        ADMIN           = 'ADMIN', 'Admin'
-        SECRETARY       = 'SECRETARY', 'Secretary'
-        DOCTOR          = 'DOCTOR', 'Doctor'
-    
-    # Remove username field and use email instead
-    username = models.CharField(max_length=150, unique=True, blank=True, null=True)
-    password = models.CharField(max_length=128)
-    fullname = models.CharField(max_length=100)
+        MANAGER   = 'MANAGER', 'Manager'
+        ADMIN     = 'ADMIN', 'Admin'
+        SECRETARY = 'SECRETARY', 'Secretary'
+        DOCTOR    = 'DOCTOR', 'Doctor'
+
+    # Keep username for login
+    fullname = models.CharField(max_length=100, null=True, blank=True)
     user_type = models.CharField(
         max_length=10,
         choices=UserType.choices,
-        default=UserType.SECRETARY
+        default=UserType.SECRETARY,
+        null=True
     )
-    phone_number    = models.CharField(max_length=15, blank=True, null=True)
-    is_active       = models.BooleanField(default=True)
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    is_active = models.BooleanField(default=True)
 
-    REQUIRED_FIELDS = ['full_name']
+    REQUIRED_FIELDS = ['fullname']  # for createsuperuser
 
     def __str__(self):
-        return f"{self.get_full_name()} ({self.get_user_type_display()})"
-
+        return f"{self.fullname or self.username} ({self.get_user_type_display()})"
 
 class Patient(models.Model):
     """Patient information model"""
