@@ -1,0 +1,53 @@
+<form id="appointmentForm" method="post" action="{% url 'save_appointment' %}">
+  {% csrf_token %}
+  <input type="hidden" name="patient_id" value="{{ patient.id }}">
+  
+  <div class="mb-3">
+    <label class="form-label">المريض</label>
+    <input type="text" class="form-control" value="{{ patient.full_name }}" readonly>
+  </div>
+  
+  <div class="mb-3">
+    <label class="form-label">الطبيب</label>
+    <select name="doctor_id" class="form-select" required>
+      <option value="">اختر الطبيب...</option>
+      {% for doctor in doctors %}
+      <option value="{{ doctor.id }}">{{ doctor.get_full_name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  
+  <div class="mb-3">
+    <label class="form-label">العيادة</label>
+    <select name="clinic_id" class="form-select" required>
+      <option value="">اختر العيادة...</option>
+      {% for clinic in clinics %}
+      <option value="{{ clinic.id }}">{{ clinic.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <label class="form-label">التاريخ</label>
+      <input type="date" name="date" class="form-control" required>
+    </div>
+    <div class="col-md-6 mb-3">
+      <label class="form-label">الوقت</label>
+      <input type="time" name="time" class="form-control" required>
+    </div>
+  </div>
+  
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+    <button type="submit" class="btn btn-primary">حفظ الموعد</button>
+  </div>
+</form>
+
+<script>
+// Add appointment form submission handling
+document.getElementById('appointmentForm')?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  // Add your appointment saving logic here
+});
+</script>
