@@ -2,6 +2,7 @@
 <div class="modal fade" id="patientModal" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
+      
       <div class="modal-header bg-primary text-white">
         <h5 class="modal-title" id="patientModalLabel">
           <i class="fas fa-user-plus me-2"></i>
@@ -9,6 +10,7 @@
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
+      
       <div class="modal-body">
         <form id="patientForm" method="post" action="{% url 'add_patient' %}">
           {% csrf_token %}
@@ -18,7 +20,7 @@
               <input type="text" class="form-control" id="full_name" name="full_name" required>
             </div>
             <div class="col-md-6 mb-3">
-              <label for="phone" class="form-label">رقم الجوال</label>
+              <label for="phone" class="form-label">رقم الهاتف</label>
               <input type="tel" class="form-control" id="phone" name="phone" required>
             </div>
           </div>
@@ -36,18 +38,21 @@
           </div>
         </form>
       </div>
-    <div  id="patientModal" >
-  <!-- ... (keep existing modal header and form fields) ... -->
-  
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
-    <button type="submit" name="action" value="save" class="btn btn-primary">
-      حفظ البيانات
-    </button>
-    <button type="submit" name="action" value="save_and_book" class="btn btn-success">
-      <i class="fas fa-calendar-plus me-1"></i> حفظ وحجز موعد
-    </button>
+      
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+        <button type="submit" form="patientForm" name="action" value="save" class="btn btn-primary">
+          حفظ البيانات
+        </button>
+        <button type="submit" form="patientForm" name="action" value="save_and_book" class="btn btn-success">
+          <i class="fas fa-calendar-plus me-1"></i> حفظ وحجز موعد
+        </button>
+      </div>
+      
+    </div>
   </div>
+</div>
+
 
 <!-- Add this hidden appointment modal (will be triggered after save) -->
 <div class="modal fade" id="appointmentModal" tabindex="-1" aria-hidden="true">
