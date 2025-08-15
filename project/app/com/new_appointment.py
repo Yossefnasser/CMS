@@ -19,3 +19,4 @@ def new_appointment(request):
             pass
     
     return HttpResponse('Patient not found', status=404)
+

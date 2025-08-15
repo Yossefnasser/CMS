@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styles %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --primary-hover: #3a56d4;
+        --secondary-color: #3f37c9;
+        --success-color: #4cc9f0;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        --hover-shadow: 0 8px 32px rgba(67, 97, 238, 0.15);
+        --border-radius: 12px;
+    }
+
+    /* Modern Card Styles */
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .card:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(-4px);
+    }
+
+    .card-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1.25rem 1.5rem;
+        border-bottom: none;
+    }
+
+    .card-title {
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    /* Form Styles */
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+
+    .floating-label-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .floating-label {
+        position: absolute;
+        top: 0.75rem;
+        right: 1rem;
+        color: #6c757d;
+        transition: all 0.2s ease;
+        pointer-events: none;
+        background: white;
+        padding: 0 0.25rem;
+    }
+
+    .form-control:focus ~ .floating-label,
+    .form-control:not(:placeholder-shown) ~ .floating-label {
+        top: -0.5rem;
+        right: 0.75rem;
+        font-size: 0.75rem;
+        color: var(--primary-color);
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    }
+
+    .btn-outline-secondary {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0.5rem 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+
+    /* Content Header */
+    .content-header-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Success Message */
+    .alert-success {
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--success-color);
+    }
+
+    /* Editor Styles */
+    .editor-section {
+        border: 1px solid #e0e0e0;
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        min-height: 200px;
+        background: white;
+    }
+
+    .editor-placeholder {
+        color: #6c757d;
+        padding: 2rem 1rem;
+        text-align: center;
+        cursor: text;
+    }
+
+    /* Radio Buttons */
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .content-header-title {
+            font-size: 1.5rem;
+        }
+        
+        .card-header {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-xxl p-0">
+        <!-- Breadcrumb and Header -->
+        <div class="content-header py-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <div class="d-flex flex-column">
+                            <h1 class="content-header-title mb-2">إدارة المرضى</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                                    <li class="breadcrumb-item"><a href="/list-of-city">المرضى</a></li>
+                                    {% if typeOfReq == 'new' %}
+                                        <li class="breadcrumb-item active">إضافة مريض جديد</li>
+                                    {% else %}
+                                        <li class="breadcrumb-item active">تعديل بيانات مريض: {{data_to_insert.full_name}}</li>
+                                    {% endif %}
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <!-- Success Message -->
+                        <div class="alert alert-success d-flex align-items-center d-none" id="successMessage" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <div>تم حفظ بيانات المريض بنجاح!</div>
+                        </div>
+
+                        <!-- Patient Form Card -->
+                        <div class="card animate-fade-in mb-5">
+                            <div class="card-header d-flex align-items-center">
+                                <i class="fas fa-user-edit me-2"></i>
+                                <h5 class="card-title mb-0">البيانات الأساسية للمريض</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" id="patientForm" class="needs-validation" novalidate>
+                                    {% csrf_token %}
+                                    <input type="hidden" id="id" name="id" value="">
+
+                                    <div class="row g-4">
+                                        <!-- Patient Name -->
+                                        <div class="col-md-6">
+                                            <div class="floating-label-group">
+                                                <input 
+                                                    type="text" 
+                                                    class="form-control" 
+                                                    id="full_name" 
+                                                    name="full_name" 
+                                                    placeholder=" "
+                                                    required
+                                                    pattern="^[\u0600-\u06FFa-zA-Z\s]{2,50}$"
+                                                >
+                                                <label class="floating-label">الاسم الكامل</label>
+                                                <div class="invalid-feedback">
+                                                    يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Phone Number -->
+                                        <div class="col-md-6">
+                                            <div class="floating-label-group">
+                                                <input 
+                                                    type="tel" 
+                                                    class="form-control" 
+                                                    id="phone" 
+                                                    name="phone" 
+                                                    placeholder=" "
+                                                    pattern="^[0-9+\-\s]{10,15}$"
+                                                >
+                                                <label class="floating-label">رقم الهاتف</label>
+                                                <div class="invalid-feedback">
+                                                    يرجى إدخال رقم هاتف صحيح
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Age -->
+                                        <div class="col-md-6">
+                                            <div class="floating-label-group">
+                                                <input 
+                                                    type="number" 
+                                                    class="form-control" 
+                                                    id="age" 
+                                                    name="age" 
+                                                    placeholder=" "
+                                                    min="1" 
+                                                    max="120"
+                                                >
+                                                <label class="floating-label">العمر</label>
+                                                <div class="invalid-feedback">
+                                                    يرجى إدخال عمر صحيح (1-120)
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Gender -->
+                                        <div class="col-md-6">
+                                            <label class="form-label">الجنس</label>
+                                            <div class="d-flex gap-4 mt-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="gender" id="male" value="male">
+                                                    <label class="form-check-label" for="male">ذكر</label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                                                    <label class="form-check-label" for="female">أنثى</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Notes Section -->
+                                    <div class="mt-4">
+                                        <label class="form-label">
+                                            <i class="fas fa-sticky-note me-2"></i>الملاحظات الطبية
+                                        </label>
+                                        <div class="editor-section">
+                                            <div class="editor-placeholder">
+                                                <i class="fas fa-pen-alt mb-2"></i>
+                                                <p class="mb-0">انقر هنا لإضافة الملاحظات الطبية</p>
+                                            </div>
+                                            <textarea 
+                                                class="form-control mt-3 d-none" 
+                                                id="notes" 
+                                                name="notes" 
+                                                rows="5"
+                                                placeholder="أدخل الملاحظات الطبية هنا..."
+                                            ></textarea>
+                                        </div>
+                                    </div>
+
+                                    <!-- Form Actions -->
+                                    <div class="d-flex gap-3 mt-5 justify-content-end">
+                                        <button type="submit" class="btn btn-success" name="action" value="save_and_book">
+                                            <i class="fas fa-save me-2"></i>حفظ البيانات و حجز موعد
+                                        </button>
+
+                                        <button type="submit" class="btn btn-primary" name="action" value="save">
+                                            <i class="fas fa-save me-2"></i>حفظ البيانات
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block Extrajavascripts %}
+
+
+
+<script>
+  $(document).ready(function() {
+    $('#nav-home').addClass('active');
+  });
+</script>
+
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        // Activate current nav item
+        $('#nav-patients').addClass('active');
+        
+        // Initialize floating labels
+        $('.form-control').each(function() {
+            if ($(this).val() !== '') {
+                $(this).siblings('.floating-label').addClass('active');
+            }
+        });
+
+        // Form validation
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+        
+        // Enhanced validation for Arabic/English names
+        $('#full_name').on('input', function() {
+            const regex = /^[\u0600-\u06FFa-zA-Z\s]{2,50}$/;
+            if (!regex.test($(this).val())) {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        // Phone number validation
+        $('#phone').on('input', function() {
+            const regex = /^[0-9+\-\s]{10,15}$/;
+            if (!regex.test($(this).val())) {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        // Age validation
+        $('#age').on('input', function() {
+            const age = parseInt($(this).val());
+            if (age < 1 || age > 120) {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        // Editor placeholder click handler
+        $('.editor-placeholder').on('click', function() {
+            $(this).addClass('d-none');
+            $('#notes').removeClass('d-none').focus();
+        });
+    });
+</script>
+{% endblock %}

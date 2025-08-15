@@ -141,3 +141,13 @@ if (notificationBadge) {
         }, 1000);
     }, 5000);
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  var date = document.getElementById('client-date');
+  if (date) {
+    date.textContent = new Date().toLocaleDateString('ar-EG', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+    alert(date.textContent);
+  }
+});

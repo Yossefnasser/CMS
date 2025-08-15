@@ -1,5 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils import timezone
+
+
+
+
+
+
 
 class User(AbstractUser):
     class UserType(models.TextChoices):
@@ -24,19 +31,37 @@ class User(AbstractUser):
     def __str__(self):
         return f"{self.fullname or self.username} ({self.get_user_type_display()})"
 
-class Patient(models.Model):
+
+class BaseModel(models.Model):
+    added_date   = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    deleted_date = models.DateTimeField(null=True, blank=True)
+    updated_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    added_by     = models.ForeignKey(User, on_delete=models.PROTECT, related_name='%(class)s_added_by', null=True, blank=True)
+    deleted_by   = models.ForeignKey(User, on_delete=models.PROTECT, related_name='%(class)s_deleted_by', null=True, blank=True)
+    updated_by   = models.ForeignKey(User, on_delete=models.PROTECT, related_name='%(class)s_updated_by', null=True, blank=True)
+
+    class Meta:
+        abstract = True
+
+
+class Patient(BaseModel):
     """Patient information model"""
     full_name            = models.CharField(max_length=100)
     phone_number         = models.CharField(max_length=15)
+    age                  = models.PositiveIntegerField(null=True, blank=True)
+    gender               = models.CharField(max_length=10, choices=[
+        ('MALE', 'Male'),
+        ('FEMALE', 'Female'),
+        ('OTHER', 'Other')
+    ])
     notes                = models.TextField(blank=True, null=True)
-    created_at           = models.DateTimeField(auto_now_add=True)
-    updated_at           = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.full_name
 
 
-class Clinic(models.Model):
+class Clinic(BaseModel):
     """Medical departments/clinics"""
     name            = models.CharField(max_length=50)
     description     = models.TextField(blank=True, null=True)
@@ -46,7 +71,7 @@ class Clinic(models.Model):
         return self.name
 
 
-class DoctorSchedule(models.Model):
+class DoctorSchedule(BaseModel):
     """Doctor availability schedule"""
     doctor = models.ForeignKey(
         User,
@@ -67,7 +92,7 @@ class DoctorSchedule(models.Model):
         return f"{self.doctor} at {self.clinic} on {self.date} ({self.start_time}-{self.end_time})"
 
 
-class Appointment(models.Model):
+class Appointment(BaseModel):
     """Patient appointment records"""
     class Status(models.TextChoices):
         OPEN = 'OPEN', 'Open'
@@ -99,7 +124,7 @@ class Appointment(models.Model):
         return f"{self.patient} with {self.doctor} at {self.time} on {self.date}"
 
 
-class Invoice(models.Model):
+class Invoice(BaseModel):
     """Clinic invoices"""
     class Status(models.TextChoices):
         OPEN = 'OPEN', 'Open'
