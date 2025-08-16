@@ -13,7 +13,6 @@ class User(AbstractUser):
         MANAGER   = 'MANAGER', 'Manager'
         ADMIN     = 'ADMIN', 'Admin'
         SECRETARY = 'SECRETARY', 'Secretary'
-        DOCTOR    = 'DOCTOR', 'Doctor'
 
     # Keep username for login
     fullname = models.CharField(max_length=100, null=True, blank=True)
@@ -43,6 +42,30 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+class Doctor(BaseModel):
+    """Doctor information model"""
+    full_name = models.CharField(max_length=100)
+    class Specialization(models.TextChoices):
+        CARDIOLOGY = 'CARDIOLOGY', 'Cardiology'#أمراض القلب
+        DERMATOLOGY = 'DERMATOLOGY', 'Dermatology' #أمراض الجلدية
+        PEDIATRICS = 'PEDIATRICS', 'Pediatrics' #طب الأطفال
+        ORTHOPEDICS = 'ORTHOPEDICS', 'Orthopedics' #جراحة العظام
+        Gynecology = 'GYNECOLOGY', 'Gynecology' #أمراض النساء
+        ENT = 'ENT', 'ENT' #أمراض الأنف والأذن والحنجرة
+        Dentisitry = 'DENTISTRY', 'Dentistry' #طب الأسنان
+        OPHTHALMOLOGY = 'OPHTHALMOLOGY', 'Ophthalmology' #طب العيون
+        cosmatic = 'COSMETIC', 'Cosmetic' #التجميل
+        GENERAL = 'GENERAL', 'General Medicine'
+    
+    specialization = models.CharField(
+        max_length=20,
+        choices=Specialization.choices,
+        default=Specialization.GENERAL
+    )
+    phone_number = models.CharField(max_length=15, blank=True, null=True)
+    email = models.EmailField(unique=True, blank=True, null=True)
+    def __str__(self):
+        return f"{self.full_name} ({self.specialization}) - {self.phone_number})"
 
 class Patient(BaseModel):
     """Patient information model"""
@@ -58,7 +81,7 @@ class Patient(BaseModel):
 
 
     def __str__(self):
-        return self.full_name
+        return f"{self.full_name} ({self.phone_number})"
 
 
 class Clinic(BaseModel):
@@ -68,16 +91,12 @@ class Clinic(BaseModel):
     is_active       = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name
+        return self.name 
 
 
 class DoctorSchedule(BaseModel):
     """Doctor availability schedule"""
-    doctor = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        limit_choices_to={'user_type': User.UserType.DOCTOR}
-    )
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)
     date = models.DateField()
     start_time = models.TimeField()
@@ -100,11 +119,7 @@ class Appointment(BaseModel):
         CANCELLED = 'CANCELLED', 'Cancelled'
     
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        limit_choices_to={'user_type': User.UserType.DOCTOR}
-    )
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)
     date = models.DateField()
     time = models.TimeField()

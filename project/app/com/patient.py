@@ -39,16 +39,19 @@ def add_new_patient(request):
 
 
         if typeOfReq == 'edit':
-            idOfObject      = get_id_of_object(request.GET['id'])
-            data_to_insert  = Patient.objects.filter(Q(id=idOfObject) & Q(deleted_date=None))
-            data_to_insert.update(
-                full_name    = full_name,
-                phone_number = phone_number,
-                notes        = notes,
-                updated_by   = updated_by,
-                updated_date = updated_date
-            )
-            data_to_insert  = Patient.objects.get(id=idOfObject)
+            patient_obj = Patient.objects.filter(id=idOfObject).first()
+            if not patient_obj:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'المريض غير موجود',
+                })
+
+            patient_obj.full_name    = full_name
+            patient_obj.phone_number = phone_number
+            patient_obj.notes        = notes
+            patient_obj.updated_by   = updated_by
+            patient_obj.updated_date = updated_date
+            patient_obj.save()
 
         elif typeOfReq == 'new':
             patient_obj = Patient.objects.filter(phone_number=phone_number).first()
