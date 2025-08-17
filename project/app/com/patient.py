@@ -36,15 +36,14 @@ def add_new_patient(request):
         full_name            = check_if_post_input_valid(request.POST['full_name'], CHAR_100)
         phone_number         = check_if_post_input_valid(request.POST['phone'], CHAR_100)
         notes                = check_valid_text(request.POST['notes'])
+        age                  = check_if_post_input_valid(request.POST['age'], CHAR_100)
+        gender               = request.POST['gender']
+
+        print(" ------------------------------------    data   ----------------------------" , full_name , phone_number ,  notes ,  age  , gender)
 
 
         if typeOfReq == 'edit':
             patient_obj = Patient.objects.filter(id=idOfObject).first()
-            if not patient_obj:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'المريض غير موجود',
-                })
 
             patient_obj.full_name    = full_name
             patient_obj.phone_number = phone_number
@@ -55,16 +54,12 @@ def add_new_patient(request):
 
         elif typeOfReq == 'new':
             patient_obj = Patient.objects.filter(phone_number=phone_number).first()
-            if patient_obj:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'المريض مسجل بالفعل',
-                })
-            
             data_to_insert =  Patient.objects.create(
                 full_name    = full_name,
                 phone_number = phone_number,
                 notes        = notes,
+                age          = age , 
+                gender       = gender ,
                 added_by     = added_by,
                 added_date   = added_date,
                 updated_by   = updated_by,
@@ -76,3 +71,15 @@ def add_new_patient(request):
 
     elif request.method == 'GET':
         return render(request, 'patient/add.html', context)
+
+
+def chech_if_patient_exists(request):
+    phone_number = request.GET.get('phone_number', None)
+    if not phone_number:
+        return JsonResponse({'exists': False})
+
+    patient = Patient.objects.filter(phone_number=phone_number).first()
+    if patient:
+        return JsonResponse({'exists': True, 'id': patient.id})
+    else:
+        return JsonResponse({'exists': False})

@@ -236,7 +236,9 @@
 
                                     <div class="row g-4">
                                         <!-- Patient Name -->
+
                                         <div class="col-md-6">
+                                            <label class="floating-label">الاسم الكامل</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="text" 
@@ -247,7 +249,6 @@
                                                     required
                                                     pattern="^[\u0600-\u06FFa-zA-Z\s]{2,50}$"
                                                 >
-                                                <label class="floating-label">الاسم الكامل</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)
                                                 </div>
@@ -256,16 +257,18 @@
 
                                         <!-- Phone Number -->
                                         <div class="col-md-6">
+                                            <label class="floating-label">رقم الهاتف</label>
+
                                             <div class="floating-label-group">
                                                 <input 
-                                                    type="tel" 
-                                                    class="form-control" 
-                                                    id="phone" 
-                                                    name="phone" 
-                                                    placeholder=" "
-                                                    pattern="^[0-9+\-\s]{10,15}$"
-                                                >
-                                                <label class="floating-label">رقم الهاتف</label>
+                                                type="tel" 
+                                                class="form-control" 
+                                                id="phone" 
+                                                name="phone" 
+                                                placeholder=" "
+                                                pattern="^\d{11}$"
+                                                required
+                                            >
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال رقم هاتف صحيح
                                                 </div>
@@ -274,6 +277,8 @@
 
                                         <!-- Age -->
                                         <div class="col-md-6">
+                                            <label class="floating-label">العمر</label>
+
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="number" 
@@ -284,7 +289,6 @@
                                                     min="1" 
                                                     max="120"
                                                 >
-                                                <label class="floating-label">العمر</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال عمر صحيح (1-120)
                                                 </div>
@@ -296,11 +300,11 @@
                                             <label class="form-label">الجنس</label>
                                             <div class="d-flex gap-4 mt-2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="gender" id="male" value="male">
+                                                    <input class="form-check-input" type="radio" name="gender" id="male" value="MALE">
                                                     <label class="form-check-label" for="male">ذكر</label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="gender" id="female" value="female">
+                                                    <input class="form-check-input" type="radio" name="gender" id="female" value="FEMALE">
                                                     <label class="form-check-label" for="female">أنثى</label>
                                                 </div>
                                             </div>
@@ -310,21 +314,15 @@
                                     <!-- Notes Section -->
                                     <div class="mt-4">
                                         <label class="form-label">
-                                            <i class="fas fa-sticky-note me-2"></i>الملاحظات الطبية
+                                            <i class="fas fa-sticky-note me-2"></i>ملاحظات المريض
                                         </label>
-                                        <div class="editor-section">
-                                            <div class="editor-placeholder">
-                                                <i class="fas fa-pen-alt mb-2"></i>
-                                                <p class="mb-0">انقر هنا لإضافة الملاحظات الطبية</p>
-                                            </div>
-                                            <textarea 
-                                                class="form-control mt-3 d-none" 
-                                                id="notes" 
-                                                name="notes" 
-                                                rows="5"
-                                                placeholder="أدخل الملاحظات الطبية هنا..."
-                                            ></textarea>
-                                        </div>
+                                        <textarea 
+                                            class="form-control" 
+                                            id="notes" 
+                                            name="notes" 
+                                            rows="3"
+                                            placeholder="أدخل ملاحظات المريض هنا..."
+                                        ></textarea>
                                     </div>
 
                                     <!-- Form Actions -->
@@ -423,11 +421,60 @@
             }
         });
 
-        // Editor placeholder click handler
-        $('.editor-placeholder').on('click', function() {
-            $(this).addClass('d-none');
-            $('#notes').removeClass('d-none').focus();
-        });
     });
 </script>
+
+<script>
+    $(document).ready(function() {
+        let phoneValid = false; // flag to track if phone is OK
+    
+        $('#phone').on('blur', function() {
+            let phone = $(this).val();
+    
+            if (phone.length !== 11) return; // optional: only check valid length
+    
+            // AJAX request to check if patient exists
+            $.ajax({
+                url: "{% url 'chech-if-patient-exists' %}", // use Django URL template
+                data: { phone_number: phone },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.exists) {
+                        phoneValid = false;
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'المريض موجود بالفعل!',
+                            text: 'رقم الهاتف هذا مسجل بالفعل في النظام.',
+                            confirmButtonText: 'حسنًا'
+                        });
+                    } else {
+                        phoneValid = true;
+                    }
+                },
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'حدث خطأ',
+                        text: 'تعذر التحقق من رقم الهاتف. حاول مرة أخرى لاحقًا.'
+                    });
+                }
+            });
+        });
+    
+        // Prevent form submission if phone is already registered
+        $('#patientForm').on('submit', function(e) {
+            if (!phoneValid) {
+                e.preventDefault();
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'الرجاء تصحيح رقم الهاتف',
+                    text: 'رقم الهاتف هذا مسجل بالفعل أو غير صالح.'
+                });
+            }
+        });
+    });
+    </script>
+    
+
+
 {% endblock %}

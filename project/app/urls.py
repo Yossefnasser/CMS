@@ -12,6 +12,11 @@ urlpatterns = [
     path('doctors/add', doctors.add_new_doctor, name='add-new-doctor'),
     
     path('add-patient',      patient.add_new_patient, name='add-patient'),
-    path('add-appointment', appointment.new_appointment, name='add-appointment'),
     path('list-of-patients', patient.list_of_patient, name='list-of-patients'),
+    path('check-patient/',   patient.chech_if_patient_exists, name='chech-if-patient-exists'),
+
+
+    path('add-appointment', appointment.new_appointment, name='add-appointment'),
+
+
 ]
