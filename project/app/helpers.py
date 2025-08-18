@@ -55,25 +55,6 @@ def delete(request, model_name, condition):
     deleted_date            = dt.datetime.now()
     object                  = model_name.objects.filter(condition)
     _id                     = '_' + str(object[0].id)  + '_DELETED'
-    _name                   = object[0].name  + _id
-
-    object.update(deleted_by=request.user, deleted_date = deleted_date, name = _name)
-
-    allJson = {"Result": "Fail"}
-    
-    allJson['Result'] = "Success"
-
-
-    if allJson != None:
-        return JsonResponse(allJson, safe=False)
-    else:
-        allJson['Result'] = "Fail"
-        return JsonResponse(allJson, safe=False)
-
-def delete_without_name(request, model_name, condition):
-    deleted_date            = dt.datetime.now()
-    object                  = model_name.objects.filter(condition)
-    _id                     = '_' + str(object[0].id)  + '_DELETED'
 
     object.update(deleted_by=request.user, deleted_date = deleted_date)
 
