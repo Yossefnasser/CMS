@@ -120,7 +120,7 @@ CHAR_20   = 20
 CHAR_50   = 50
 CHAR_100  = 100
 
-key_hashing = b'v3WwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQwQw='
+key_hashing = b'53P8Le_9WLNK2d6ezPPL9xMvM7dLEcGyk54wuWRjzZw='
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 

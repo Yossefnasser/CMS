@@ -1,7 +1,10 @@
+// Initialize tooltips only if elements exist
 var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-    return new bootstrap.Tooltip(tooltipTriggerEl);
-});
+if (tooltipTriggerList.length > 0) {
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+}
 
 // Animate elements on scroll
 const observerOptions = {
@@ -18,48 +21,58 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe all animate-fade-up elements
-document.querySelectorAll('.animate-fade-up').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
-    observer.observe(el);
-});
+
+
+// Observe all animate-fade-up elements if they exist
+const fadeUpElements = document.querySelectorAll('.animate-fade-up');
+if (fadeUpElements.length > 0) {
+    fadeUpElements.forEach(el => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(30px)';
+        el.style.transition = 'opacity 0.8s ease, transform 0.8s ease';
+        observer.observe(el);
+    });
+}
 
 // Auto-hide alerts after 5 seconds
-setTimeout(() => {
-    const alerts = document.querySelectorAll('.alert');
-    alerts.forEach(alert => {
-        if (alert.classList.contains('alert-dismissible')) {
-            const bsAlert = new bootstrap.Alert(alert);
-            bsAlert.close();
-        }
-    });
-}, 5000);
+const alerts = document.querySelectorAll('.alert');
+if (alerts.length > 0) {
+    setTimeout(() => {
+        alerts.forEach(alert => {
+            if (alert.classList.contains('alert-dismissible')) {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }
+        });
+    }, 5000);
+}
 
-// Add loading state to buttons
-document.querySelectorAll('.action-btn').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        // Add loading state
-        const originalContent = this.innerHTML;
-        this.innerHTML = `
-            <div class="loading mx-auto mb-2"></div>
-            <div>جاري التحميل...</div>
-        `;
-        this.style.pointerEvents = 'none';
-        
-        // Simulate loading
-        setTimeout(() => {
-            this.innerHTML = originalContent;
-            this.style.pointerEvents = 'auto';
+
+const actionButtons = document.querySelectorAll('.action-btn');
+if (actionButtons.length > 0) {
+    actionButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
             
-            // Show success message
-            showNotification('تم بنجاح!', 'success');
-        }, 2000);
+            // Add loading state
+            const originalContent = this.innerHTML;
+            this.innerHTML = `
+                <div class="loading mx-auto mb-2"></div>
+                <div>جاري التحميل...</div>
+            `;
+            this.style.pointerEvents = 'none';
+            
+            // Simulate loading
+            setTimeout(() => {
+                this.innerHTML = originalContent;
+                this.style.pointerEvents = 'auto';
+                
+                // Show success message
+                showNotification('تم بنجاح!', 'success');
+            }, 2000);
+        });
     });
-});
+}
 
 // Notification function
 function showNotification(message, type = 'info') {
@@ -80,20 +93,24 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
+
 // Search functionality
-document.querySelector('.search-enhanced input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        e.preventDefault();
-        const query = this.value.trim();
-        if (query) {
-            showNotification(`جاري البحث عن: "${query}"`, 'info');
-            // Simulate search
-            setTimeout(() => {
-                showNotification('تم العثور على 3 نتائج', 'success');
-            }, 1000);
+const searchInput = document.querySelector('.search-enhanced input');
+if (searchInput) {
+    searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const query = this.value.trim();
+            if (query) {
+                showNotification(`جاري البحث عن: "${query}"`, 'info');
+                // Simulate search
+                setTimeout(() => {
+                    showNotification('تم العثور على 3 نتائج', 'success');
+                }, 1000);
+            }
         }
-    }
-});
+    });
+}
 
 // Real-time clock update
 function updateClock() {
@@ -108,30 +125,35 @@ function updateClock() {
     
     // Update any clock elements if they exist
     const clockElements = document.querySelectorAll('.live-clock');
-    clockElements.forEach(el => {
-        el.textContent = `${timeString} - ${dateString}`;
-    });
+    if (clockElements.length > 0) {
+        clockElements.forEach(el => {
+            el.textContent = `${timeString} - ${dateString}`;
+        });
+    }
 }
 
 // Update clock every second
 setInterval(updateClock, 1000);
 updateClock(); // Initial call
 
-// Smooth scrolling for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
+// Smooth scrolling for anchor links if they exist
+const anchorLinks = document.querySelectorAll('a[href^="#"]');
+if (anchorLinks.length > 0) {
+    anchorLinks.forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
     });
-});
+}
 
-// Add pulse animation to notification badge
+// Add pulse animation to notification badge if it exists
 const notificationBadge = document.querySelector('.notification-badge');
 if (notificationBadge) {
     setInterval(() => {
@@ -142,12 +164,16 @@ if (notificationBadge) {
     }, 5000);
 }
 
+// Client date display
 document.addEventListener('DOMContentLoaded', function() {
-  var date = document.getElementById('client-date');
-  if (date) {
-    date.textContent = new Date().toLocaleDateString('ar-EG', {
-      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-    });
-    alert(date.textContent);
-  }
+    var date = document.getElementById('client-date');
+    if (date) {
+        date.textContent = new Date().toLocaleDateString('ar-EG', {
+            weekday: 'long', 
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric'
+        });
+        // Removed alert - was causing popup on page load
+    }
 });

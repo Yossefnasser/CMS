@@ -1,20 +1,78 @@
 from datetime import datetime
+from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
-from django.shortcuts import render
-from app.helpers import check_if_post_input_valid, check_valid_text, get_id_of_object
+from django.shortcuts import redirect, render
+from app.helpers import check_if_post_input_valid, check_valid_text, get_id_of_object , delete
 from app.models import Patient
+from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.settings import CHAR_100
 ####################  Patient  #################3
 
 
 def list_of_patient(request):
 
-    return render(request,'patient/list.html',None)
+    total_patients_count = Patient.objects.filter(deleted_date__isnull=True).count()
+    context = {
+        'total_patients_count': total_patients_count
+    }
+    return render(request,'patient/list.html',context)
 
+def get_list_of_patients(request):
+    try:
+        draw = int(request.GET.get('draw', 1))
+        start = int(request.GET.get('start', 0))
+        length = int(request.GET.get('length', 10))
+        search_value = request.GET.get('search[value]', '').strip()
 
+        page_number = (start // length) + 1
 
+        # Add ordering to avoid pagination warning
+        queryset = Patient.objects.filter(deleted_date__isnull=True).order_by('id')
+        
+        if search_value:
+            queryset = queryset.filter(
+                Q(name__icontains=search_value) |
+                Q(phone_number__icontains=search_value) |
+                Q(id__icontains=search_value)
+            )
+
+        paginator = Paginator(queryset, length)
+        
+        try:
+            page_obj = paginator.page(page_number)
+        except (PageNotAnInteger, EmptyPage):
+            page_obj = paginator.page(1)
+
+        # Try-catch around to_json() in case that's where the Fernet error occurs
+        data = []
+        for patient in page_obj:
+            try:
+                data.append(patient.to_json())
+            except Exception as e:
+                print(f"Error serializing patient {patient.id}: {str(e)}")
+                continue
+
+        return JsonResponse({
+            "draw": draw,
+            "recordsTotal": queryset.count(),
+            "recordsFiltered": queryset.count(),
+            "data": data
+        })
+
+    except Exception as e:
+        print(f"Error in get_list_of_patients: {str(e)}", exc_info=True)
+        return JsonResponse({
+            "draw": draw if 'draw' in locals() else 0,
+            "recordsTotal": 0,
+            "recordsFiltered": 0,
+            "data": [],
+            "error": str(e)  # Include error message for debugging
+        }, status=500)
+    
 
 def add_new_patient(request):
+    
     added_by     = request.user
     added_date   = datetime.now()
     updated_date = datetime.now()
@@ -33,29 +91,42 @@ def add_new_patient(request):
     }
 
     if request.method == 'POST':
-        full_name            = check_if_post_input_valid(request.POST['full_name'], CHAR_100)
+        name            = check_if_post_input_valid(request.POST['name'], CHAR_100)
         phone_number         = check_if_post_input_valid(request.POST['phone'], CHAR_100)
+        if typeOfReq == 'edit':
+            if Patient.objects.filter(phone_number=phone_number).exclude(id=idOfObject).exists():
+                # Return error response or add form error
+                messages.error(request, 'هذا الرقم مسجل مسبقاً لمريض آخر')
+                return redirect('/add-patient?new')
+        else:
+            if Patient.objects.filter(phone_number=phone_number).exists():
+                messages.error(request, 'هذا الرقم مسجل مسبقاً لمريض آخر')
+                return redirect('/add-patient?new')
+            
         notes                = check_valid_text(request.POST['notes'])
-        age                  = check_if_post_input_valid(request.POST['age'], CHAR_100)
-        gender               = request.POST['gender']
+        age_str              = request.POST.get('age', '').strip()
+        age                  = int(age_str) if age_str.isdigit() else None
+        gender               = request.POST['gender'] if 'gender' in request.POST else None
 
-        print(" ------------------------------------    data   ----------------------------" , full_name , phone_number ,  notes ,  age  , gender)
+        print(" ------------------------------------    data   ----------------------------" , name , phone_number ,  notes ,  age  , gender)
 
 
         if typeOfReq == 'edit':
             patient_obj = Patient.objects.filter(id=idOfObject).first()
+            print(" ------------------------------------    patient_obj   ----------------------------" , patient_obj)
 
-            patient_obj.full_name    = full_name
+            patient_obj.name    = name
             patient_obj.phone_number = phone_number
             patient_obj.notes        = notes
+            patient_obj.age          = age
+            patient_obj.gender       = gender
             patient_obj.updated_by   = updated_by
             patient_obj.updated_date = updated_date
             patient_obj.save()
 
         elif typeOfReq == 'new':
-            patient_obj = Patient.objects.filter(phone_number=phone_number).first()
             data_to_insert =  Patient.objects.create(
-                full_name    = full_name,
+                name    = name,
                 phone_number = phone_number,
                 notes        = notes,
                 age          = age , 
@@ -72,14 +143,40 @@ def add_new_patient(request):
     elif request.method == 'GET':
         return render(request, 'patient/add.html', context)
 
+def delete_patient(request):
+    patient_id      = request.POST['id']
+    delete(request, Patient, Q(id = patient_id))
 
-def chech_if_patient_exists(request):
-    phone_number = request.GET.get('phone_number', None)
-    if not phone_number:
-        return JsonResponse({'exists': False})
+    allJson             = {"Result": "Fail"}
+    allJson['Result']   = "Success"
 
-    patient = Patient.objects.filter(phone_number=phone_number).first()
-    if patient:
-        return JsonResponse({'exists': True, 'id': patient.id})
+    if allJson != None:
+        return JsonResponse(allJson, safe=False)
     else:
-        return JsonResponse({'exists': False})
+        allJson['Result'] = "Fail"
+        return JsonResponse(allJson, safe=False)
+    
+
+def check_if_patient_exists(request):
+    if request.method == 'GET':
+        phone_number = request.GET.get('phone_number', '').strip()
+        patient_id = request.GET.get('id', None)
+        
+        if not phone_number:
+            return JsonResponse({'exists': False})
+        
+        query = Patient.objects.filter(phone_number=phone_number)
+        if patient_id:
+            query = query.exclude(id=patient_id)
+            
+        patient = query.first()
+        return JsonResponse({
+            'exists': patient is not None,
+            'patient'       : {
+                'id'        : patient.id if patient else None,
+                'name'      : patient.name if patient else None,
+                'age'       : patient.age if patient else None,
+                'gender'    : patient.get_gender_display() if patient else None
+            }
+        })
+    return JsonResponse({'exists': False})

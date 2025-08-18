@@ -30,10 +30,11 @@
 
                             <div class="col-md-4 text-end">
                                 <div class="d-flex gap-2 justify-content-end">
-                                    <a href="/add-patient" class="btn btn-success">
+                                    <a href="/add-patient?type=new" class="btn btn-success">
                                     <i class="fas fa-user-plus me-1"></i> مريض جديد
-                                    
-                                    <a href="/add-appointment" class="btn btn-primary">
+                                    </a>
+
+                                    <a href="/add-appointment?type=new" class="btn btn-primary">
                                     <i class="fas fa-plus me-1"></i> موعد جديد
 
                                     
@@ -53,10 +54,11 @@
                     <div class="stat-icon text-primary">
                         <i class="fas fa-users"></i>
                     </div>
-                    <div class="stat-number">1,247</div>
+                    <div class="stat-number">{{ total_patients_count }}</div>
                     <div class="stat-label text-muted">إجمالي المرضى</div>
-                    <small class="text-success">
-                        <i class="fas fa-arrow-up me-1"></i>+12% هذا الشهر
+                    <small class="{% if growth_rate >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        <i class="fas {% if patients_growth_rate >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %} me-1"></i>
+                        {{ patients_growth_rate }}% هذا الشهر
                     </small>
                 </div>
             </div>
@@ -106,14 +108,14 @@
                     إجراءات سريعة
                 </h3>
                 <div class="quick-actions">
-                    <a href="#" class="action-btn" data-bs-toggle="modal" data-bs-target="#patientModal">
+                    <a href="/add-patient?type=new" class="action-btn" data-bs-toggle="modal" data-bs-target="#patientModal">
                         <div class="action-icon text-primary">
                             <i class="fas fa-user-plus"></i>
                         </div>
                         <h5>إضافة مريض جديد</h5>
                         <p class="text-muted mb-0">تسجيل مريض جديد في النظام</p>
                     </a>
-                    <a href="#" class="action-btn">
+                    <a href="/add-appointment?type=new" class="action-btn">
                         <div class="action-icon text-success">
                             <i class="fas fa-calendar-plus"></i>
                         </div>
