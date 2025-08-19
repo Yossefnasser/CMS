@@ -48,6 +48,13 @@ class Specialization(BaseModel):
     """Specialization model"""
     name = models.CharField(max_length=100, unique=True)
 
+    def to_json(self):
+        return {
+            'id'        : self.id,
+            'hash_id'   : get_id_hashed_of_object(self.id),
+            'name'      : self.name,
+        }
+
     def __str__(self):
         return self.name
     
@@ -58,6 +65,16 @@ class Doctor(BaseModel):
     phone_number             = models.CharField(max_length=15, blank=True, null=True)
     email                    = models.EmailField(unique=True, blank=True, null=True)
 
+    def to_json(self):
+        return {
+            'id'            : self.id,
+            'hash_id'       : get_id_hashed_of_object(self.id),
+            'name'          : self.full_name,
+            'phone_number'  : self.phone_number,
+            'email'         : self.email,
+            'specialization': self.specialization.to_json()
+        }
+    
     def __str__(self):
         return f"{self.full_name}"
     

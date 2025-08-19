@@ -197,7 +197,7 @@
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb mb-0">
                                     <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
-                                    <li class="breadcrumb-item"><a href="/list-of-city">المرضى</a></li>
+                                    <li class="breadcrumb-item"><a href="/list-of-patients">المرضى</a></li>
                                     {% if typeOfReq == 'new' %}
                                         <li class="breadcrumb-item active">إضافة مريض جديد</li>
                                     {% else %}
@@ -232,98 +232,155 @@
                                 <form method="POST" id="patientForm" class="needs-validation" novalidate>
                                     {% csrf_token %}
                                     <input type="hidden" id="id" name="id" value="{{ data_to_insert.id|default:'' }}">
+                                    
+                                    <!-- Doctor & Specialization Section (Highlighted) -->
+                                    <div class="form-section highlighted-section">
+                                        <div class="section-header">
+                                            <div class="section-icon">
+                                                <i class="fas fa-user-md"></i>
+                                            </div>
+                                            <h3 class="section-title">بيانات الدكتور والتخصص</h3>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <label class="floating-label">التخصص</label>
+                                                    <select class="form-control" id="specialization" name="specialization" required>
+                                                        <option value="">اختر التخصص</option>
+                                                        {% for data in all_specializations %}
+                                                            <option value="{{ data.id }}">
+                                                                {{ data.name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <div class="invalid-feedback">
+                                                        يرجى اختيار التخصص
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                    <div class="row g-4">
-                                        <div class="col-md-6">
-                                            <label class="floating-label">الاسم الكامل</label>
-                                            <div class="floating-label-group">
-                                                <input 
-                                                    type="text" 
-                                                    class="form-control" 
-                                                    id="name" 
-                                                    name="name" 
-                                                    placeholder=" "
-                                                    value="{{ data_to_insert.name|default:'' }}"
-                                                    required
-                                                    pattern="^[\u0600-\u06FFa-zA-Z\s]{2,50}$"
-                                                >
-                                                <div class="invalid-feedback">
-                                                    يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <label class="floating-label">الدكتور</label>
+                                                    <select class="form-control" id="doctor" name="doctor" required>
+                                                        <option value="">اختر الدكتور</option>
+                                                        {% for data in all_doctors %}
+                                                            <option value="{{ data.id }}">
+                                                                {{ data.full_name }}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <div class="invalid-feedback">
+                                                        يرجى اختيار الدكتور
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
 
-                                        <!-- Phone Number -->
-                                        <div class="col-md-6">
-                                            <label class="floating-label">رقم الهاتف</label>
-
-                                            <div class="floating-label-group">
-                                                <input 
-                                                type="tel" 
-                                                class="form-control" 
-                                                id="phone" 
-                                                name="phone" 
-                                                placeholder=" "
-                                                pattern="^\d{11}$"
-                                                value="{{ data_to_insert.phone_number|default:'' }}"
-                                                required
-
-                                            >
-                                                <div class="invalid-feedback">
-                                                    يرجى إدخال رقم هاتف صحيح
+                                    <!-- Patient Information Section -->
+                                    <div class="form-section">
+                                        <div class="section-header">
+                                            <div class="section-icon">
+                                                <i class="fas fa-user-injured"></i>
+                                            </div>
+                                            <h3 class="section-title">بيانات المريض</h3>
+                                        </div>
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <label class="floating-label">الاسم الكامل</label>
+                                                    <input 
+                                                        type="text" 
+                                                        class="form-control" 
+                                                        id="name" 
+                                                        name="name" 
+                                                        placeholder=" "
+                                                        value="{{ data_to_insert.name|default:'' }}"
+                                                        required
+                                                        pattern="^[\u0600-\u06FFa-zA-Z\s]{2,50}$"
+                                                    >
+                                                    <div class="invalid-feedback">
+                                                        يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Age -->
-                                        <div class="col-md-6">
-                                            <label class="floating-label">العمر</label>
-
-                                            <div class="floating-label-group">
-                                                <input 
-                                                    type="number" 
-                                                    class="form-control" 
-                                                    id="age" 
-                                                    name="age" 
-                                                    placeholder=" "
-                                                    min="1" 
-                                                    max="120"
-                                                    value="{{ data_to_insert.age|default:'' }}"
-                                                >
-                                                <div class="invalid-feedback">
-                                                    يرجى إدخال عمر صحيح (1-120)
+                                            <!-- Phone Number -->
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <label class="floating-label">رقم الهاتف</label>
+                                                    <input 
+                                                        type="tel" 
+                                                        class="form-control" 
+                                                        id="phone" 
+                                                        name="phone" 
+                                                        placeholder=" "
+                                                        pattern="^\d{11}$"
+                                                        value="{{ data_to_insert.phone_number|default:'' }}"
+                                                        required
+                                                    >
+                                                    <div class="invalid-feedback">
+                                                        يرجى إدخال رقم هاتف صحيح
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
 
-                                        <!-- Gender -->
-                                        <div class="col-md-6">
-                                            <label class="form-label">الجنس</label>
-                                            <div class="d-flex gap-4 mt-2">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="gender" id="male" value="MALE" {% if data_to_insert.gender == 'MALE' %}checked{% endif %}>
-                                                    <label class="form-check-label" for="male">ذكر</label>
+                                            <!-- Age -->
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <label class="floating-label">العمر</label>
+                                                    <input 
+                                                        type="number" 
+                                                        class="form-control" 
+                                                        id="age" 
+                                                        name="age" 
+                                                        placeholder=" "
+                                                        min="1" 
+                                                        max="120"
+                                                        value="{{ data_to_insert.age|default:'' }}"
+                                                    >
+                                                    <div class="invalid-feedback">
+                                                        يرجى إدخال عمر صحيح (1-120)
+                                                    </div>
                                                 </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="gender" id="female" value="FEMALE" {% if data_to_insert.gender == 'FEMALE' %}checked{% endif %}>
-                                                    <label class="form-check-label" for="female">أنثى</label>
+                                            </div>
+
+                                            <!-- Gender -->
+                                            <div class="col-md-6">
+                                                <label class="form-label">الجنس</label>
+                                                <div class="gender-options">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="gender" id="male" value="MALE" {% if data_to_insert.gender == 'MALE' %}checked{% endif %}>
+                                                        <label class="form-check-label" for="male">ذكر</label>
+                                                    </div>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="radio" name="gender" id="female" value="FEMALE" {% if data_to_insert.gender == 'FEMALE' %}checked{% endif %}>
+                                                        <label class="form-check-label" for="female">أنثى</label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <!-- Notes Section -->
-                                    <div class="mt-4">
-                                        <label class="form-label">
-                                            <i class="fas fa-sticky-note me-2"></i>ملاحظات المريض
-                                        </label>
-                                        <textarea 
-                                            class="form-control" 
-                                            id="notes" 
-                                            name="notes" 
-                                            rows="3"
-                                            placeholder="أدخل ملاحظات المريض هنا..."
-                                        >{{ data_to_insert.notes|default:'' }}</textarea>
+                                    <div class="form-section notes-section">
+                                        <div class="section-header">
+                                            <div class="section-icon">
+                                                <i class="fas fa-sticky-note"></i>
+                                            </div>
+                                            <h3 class="section-title">ملاحظات إضافية</h3>
+                                        </div>
+                                        <label class="floating-label">ملاحظات المريض</label>
+                                        <div class="floating-label-group">
+                                            <textarea 
+                                                class="form-control" 
+                                                id="notes" 
+                                                name="notes" 
+                                                rows="3"
+                                                placeholder="أدخل ملاحظات المريض هنا..."
+                                            >{{ data_to_insert.notes|default:'' }}</textarea>
+                                        </div>
                                     </div>
 
                                     <!-- Form Actions -->

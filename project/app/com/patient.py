@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from app.helpers import check_if_post_input_valid, check_valid_text, get_id_of_object , delete
-from app.models import Patient
+from app.models import Doctor, Patient, Specialization
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.settings import CHAR_100
@@ -85,9 +85,14 @@ def add_new_patient(request):
     elif typeOfReq == 'new':
         data_to_insert = None
 
+    all_specializations = Specialization.objects.filter(deleted_date__isnull=True)
+    all_doctors         = Doctor.objects.filter(deleted_date__isnull=True)
+
     context = {
-        'data_to_insert': data_to_insert,
-        'typeOfReq': typeOfReq,
+        'all_specializations'   : all_specializations , 
+        'all_doctors'           : all_doctors , 
+        'data_to_insert'        : data_to_insert,
+        'typeOfReq'             : typeOfReq,
     }
 
     if request.method == 'POST':
