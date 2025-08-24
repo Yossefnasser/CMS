@@ -1,5 +1,7 @@
+import datetime
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.forms import ValidationError
 from django.utils import timezone
 
 from app.helpers import get_id_hashed_of_object
@@ -122,64 +124,96 @@ class DoctorSchedule(BaseModel):
     """Doctor availability schedule"""
     doctor                 = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
-    date                   = models.DateField()
+    day_of_week = models.CharField(max_length=10, choices=[
+        ('SATURDAY', 'Saturday'),
+        ('SUNDAY', 'Sunday'),
+        ('MONDAY', 'Monday'),
+        ('TUESDAY', 'Tuesday'),
+        ('WEDNESDAY', 'Wednesday'),
+        ('THURSDAY', 'Thursday'),
+        ('FRIDAY', 'Friday'),
+    ],default='Sunday')
     start_time             = models.TimeField()
     end_time               = models.TimeField()
-    is_available           = models.BooleanField(default=True)
+    valid_from             = models.DateField(default=datetime.date.today)
+    valid_to               = models.DateField(null=True, blank=True)
+    is_active              = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['day_of_week', 'start_time']
+        unique_together = ['doctor', 'day_of_week', 'start_time']
+    def clean(self):
+        if self.start_time >= self.end_time:
+            raise ValidationError("Start time must be before end time.")
+        if self.valid_from > self.valid_to:
+            raise ValidationError("Valid from date must be before valid to date.")
+        
+        clinic_hours = ClinicSchedule.objects.filter(
+            clinic = self.clinic,
+            day_of_week = self.day_of_week,
+            is_active = True
+        ).first()
+        if clinic_hours:
+            if not (clinic_hours.open_time <= self.start_time < self.end_time <= clinic_hours.close_time):
+                raise ValidationError(f"Doctor's schedule must be within clinic hours: {clinic_hours.open_time} - {clinic_hours.close_time}.")
+        
+        overlaps = DoctorSchedule.objects.filter(
+            clinic= self.clinic,
+            day_of_week = self.day_of_week,
+            is_active=True
+        ).exclude(id=self.id).filter(
+            start_time__lt=self.end_time,
+            end_time__gt=self.start_time
+        )
+        if overlaps.exists():
+            raise ValidationError("This schedule overlaps with another schedule for the same clinic.")
+        doctor_conflicts = DoctorSchedule.objects.filter(
+            doctor=self.doctor,
+            day_of_week=self.day_of_week,
+            is_active=True
+        ).exclude(id=self.id).filter(
+            start_time__lt=self.end_time,
+            end_time__gt=self.start_time
+        )
+        if doctor_conflicts.exists():
+            raise ValidationError("This schedule overlaps with another schedule for the same doctor.")
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()  # calls clean_fields(), clean(), and validate_unique()
+        super().save(*args, **kwargs)
+
+    
+    def __str__(self):
+        return f"{self.doctor} at {self.clinic} on {self.day_of_week} ({self.start_time}-{self.end_time})"
+
+class ClinicSchedule(BaseModel):
+    """Clinic working hours"""
+    clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
+    day_of_week          = models.CharField(max_length=10, choices=[
+        ('SATURDAY', 'Saturday'),
+        ('SUNDAY', 'Sunday'),
+        ('MONDAY', 'Monday'),
+        ('TUESDAY', 'Tuesday'),
+        ('WEDNESDAY', 'Wednesday'),
+        ('THURSDAY', 'Thursday'),
+        ('FRIDAY', 'Friday'),
+    ])
+    open_time              = models.TimeField()
+    close_time             = models.TimeField()
+    is_active              = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ['date', 'start_time']
-        unique_together = ['doctor', 'date', 'start_time']
+        ordering = ['day_of_week', 'open_time']
+        unique_together = ['clinic', 'day_of_week', 'open_time']
 
     def __str__(self):
-        return f"{self.doctor} at {self.clinic} on {self.date} ({self.start_time}-{self.end_time})"
+        return f"{self.clinic} on {self.day_of_week} ({self.open_time}-{self.close_time})"
 
 class Status(BaseModel):
     name = models.CharField(max_length=100, unique=True)
     def __str__(self):
         return self.name
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
-# DRY : Dont Repeat Yourself
+
 
 class Appointment(BaseModel):
     """Patient appointment records"""

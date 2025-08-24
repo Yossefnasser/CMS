@@ -1,7 +1,7 @@
 from datetime import datetime
 from urllib import request
 from django.shortcuts import render
-from app.models import Doctor, Specialization
+from app.models import Clinic, Doctor, DoctorSchedule, Specialization
 from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
@@ -85,11 +85,14 @@ def add_new_doctor(request):
 
     all_specializations = Specialization.objects.filter(deleted_date__isnull=True)
     print(" ------------------------------------    all_specializations   ----------------------------" , all_specializations)
-
+    clinics = Clinic.objects.filter(deleted_date__isnull=True)
+    doctor_schedules = DoctorSchedule.objects.filter(deleted_date__isnull=True)
     context = {
         'data_to_insert'        : data_to_insert,
         'typeOfReq'             : typeOfReq,
-        'all_specializations'   : all_specializations
+        'all_specializations'   : all_specializations,
+        'clinics'                : clinics,
+        'doctor_schedules'        : doctor_schedules
     }
 
     if request.method == 'POST':
@@ -133,7 +136,7 @@ def add_new_doctor(request):
             print("email is ", data_to_insert.email)
             data_to_insert.save()
 
-        return HttpResponseRedirect('/')
+        return HttpResponseRedirect('/list-of-doctors')
 
     elif request.method == 'GET':
         return render(request, 'doctors/add.html', context)
@@ -175,3 +178,46 @@ def check_if_doctor_exists(request):
             }
         })
     return JsonResponse({'exists': False})
+
+def doctor_schedule(request):
+    
+    
+    if request.method == 'POST':
+        doctor_id = request.POST.get('doctor_id')
+        clinic_id = request.POST.get('clinic')
+        day_of_week = request.POST.get('day_of_week')
+        start_time = request.POST.get('start_time')
+        end_time = request.POST.get('end_time')
+        valid_from = request.POST.get('valid_from')
+        valid_to = request.POST.get('valid_to')
+        doctor = Doctor.objects.get(id=doctor_id)
+        clinic = Clinic.objects.get(id=clinic_id)
+        typeofreq = request.POST.get('type', 'new')
+
+        if typeofreq == 'edit':
+            schedule_id = request.POST.get('schedule_id')
+            schedule = DoctorSchedule.objects.get(id=schedule_id)
+            schedule.doctor = doctor
+            schedule.clinic = clinic
+            schedule.day_of_week = day_of_week
+            schedule.start_time = start_time
+            schedule.end_time = end_time
+            schedule.valid_from = valid_from
+            schedule.valid_to = valid_to
+            schedule.save()
+            messages.success(request, 'Doctor schedule updated successfully.')
+        
+        elif typeofreq == 'new':
+            data_to_insert = DoctorSchedule.objects.create(
+                doctor=doctor,
+                clinic=clinic,
+                day_of_week=day_of_week,
+                start_time=start_time,
+                end_time=end_time,
+                valid_from=valid_from,
+                valid_to=valid_to
+            )
+            data_to_insert.save()
+            messages.success(request, 'Doctor schedule added successfully.')
+            return HttpResponseRedirect('/list-of-doctors')
+    return render(request, 'doctors/add_schedule.html')

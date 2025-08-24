@@ -13,7 +13,10 @@ urlpatterns = [
     path('add-doctor',  doctors.add_new_doctor, name='add-doctor'),
     path('delete-doctor',   doctors.delete_doctor, name='delete-doctor'),
     path('check-if-doctor-exists', doctors.check_if_doctor_exists, name='check-if-doctor-exists'),
-
+    
+    path('doctor-schedule/add', doctors.doctor_schedule, name='add-doctor-schedule'),
+    path('doctor-schedule/update/<int:schedule_id>/', doctors.doctor_schedule, name='update-doctor-schedule'),
+    
     path('add-patient',              patient.add_new_patient,           name='add-patient'),
     path('list-of-patients',         patient.list_of_patient,           name='list-of-patients'),
     path('get-list-of-patients',     patient.get_list_of_patients,      name='get-list-of-patients'),
