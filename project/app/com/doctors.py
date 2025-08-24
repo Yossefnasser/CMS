@@ -80,13 +80,13 @@ def add_new_doctor(request):
     if typeOfReq == 'edit':
         idOfObject      = get_id_of_object(request.GET.get('id'))
         data_to_insert  = Doctor.objects.get(id=idOfObject)
+        doctor_schedules = DoctorSchedule.objects.filter(doctor=data_to_insert, deleted_date__isnull=True)
     elif typeOfReq == 'new':
         data_to_insert = None
 
     all_specializations = Specialization.objects.filter(deleted_date__isnull=True)
     print(" ------------------------------------    all_specializations   ----------------------------" , all_specializations)
     clinics = Clinic.objects.filter(deleted_date__isnull=True)
-    doctor_schedules = DoctorSchedule.objects.filter(deleted_date__isnull=True)
     context = {
         'data_to_insert'        : data_to_insert,
         'typeOfReq'             : typeOfReq,
