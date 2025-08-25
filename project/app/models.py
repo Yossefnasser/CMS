@@ -66,7 +66,10 @@ class Doctor(BaseModel):
     specialization           = models.ForeignKey(Specialization, on_delete=models.PROTECT, related_name="doctors")
     phone_number             = models.CharField(max_length=15, blank=True, null=True)
     email                    = models.EmailField(unique=True, blank=True, null=True)
-
+    examination_price        = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    consultation_price       = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    is_active                = models.BooleanField(default=True)
+    
     def to_json(self):
         return {
             'id'            : self.id,

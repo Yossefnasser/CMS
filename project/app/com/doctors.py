@@ -101,7 +101,8 @@ def add_new_doctor(request):
         email                = request.POST.get('email', '').strip()
         phone_number         = check_if_post_input_valid(request.POST['phone_number'], CHAR_100)
         specialization_id       = request.POST.get('specialization')
-
+        examination_price    = request.POST.get('examination_price', '0.0').strip()
+        consultation_price   = request.POST.get('consultation_price', '0.0').strip()
         print(" -------------------------- all data --------------------------")
         print("Full Name:", full_name)
         print("Email:", email)
@@ -119,6 +120,8 @@ def add_new_doctor(request):
             doctor_obj.phone_number            = phone_number
             doctor_obj.email                   = email
             doctor_obj.specialization          = specialization_obj
+            doctor_obj.examination_price       = examination_price
+            doctor_obj.consultation_price      = consultation_price
             doctor_obj.updated_by              = updated_by
             doctor_obj.updated_date            = updated_date
             doctor_obj.save()
@@ -128,7 +131,9 @@ def add_new_doctor(request):
                 full_name           = full_name,
                 phone_number        = phone_number,
                 email               = email,
-                specialization      = specialization_obj , 
+                specialization      = specialization_obj ,
+                examination_price   = examination_price,
+                consultation_price  = consultation_price, 
                 added_by            = added_by,
                 added_date          = added_date,
                 updated_by          = updated_by,
