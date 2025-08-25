@@ -83,6 +83,7 @@ def add_new_doctor(request):
         doctor_schedules = DoctorSchedule.objects.filter(doctor=data_to_insert, deleted_date__isnull=True)
     elif typeOfReq == 'new':
         data_to_insert = None
+        doctor_schedules = None
 
     all_specializations = Specialization.objects.filter(deleted_date__isnull=True)
     print(" ------------------------------------    all_specializations   ----------------------------" , all_specializations)
