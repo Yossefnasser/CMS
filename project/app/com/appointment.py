@@ -6,7 +6,7 @@ from app.models import Appointment, Clinic, Doctor, Patient, User
 
 def new_appointment(request):
     if request.method == 'POST':
-        pateint = Patient.objects.f
+        pateint = Patient.objects
         doctor_id = request.POST.get('doctor')
         clinic_id = request.POST.get('clinic')
         date = request.POST.get('date')
@@ -30,6 +30,7 @@ def new_appointment(request):
         datato_insert.save()
         return HttpResponse("Appointment created successfully.")
     elif request.method == 'GET':
+        
         doctors = Doctor.objects.all()
         clinics = Clinic.objects.all()
         context = {
