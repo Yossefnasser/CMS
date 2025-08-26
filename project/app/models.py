@@ -168,8 +168,15 @@ class DoctorSchedule(BaseModel):
             start_time__lt=self.end_time,
             end_time__gt=self.start_time
         )
+
         if overlaps.exists():
-            raise ValidationError("This schedule overlaps with another schedule for the same clinic.")
+            conflicting = overlaps.first()  # just show one conflict (or loop if you want all)
+            raise ValidationError(
+                f"Schedule overlaps with another schedule for Dr. {conflicting.doctor.full_name} "
+                f"on {conflicting.day_of_week} from {conflicting.start_time.strftime('%H:%M')} "
+                f"to {conflicting.end_time.strftime('%H:%M')}."
+            )
+            
         doctor_conflicts = DoctorSchedule.objects.filter(
             doctor=self.doctor,
             day_of_week=self.day_of_week,
@@ -179,7 +186,7 @@ class DoctorSchedule(BaseModel):
             end_time__gt=self.start_time
         )
         if doctor_conflicts.exists():
-            raise ValidationError("This schedule overlaps with another schedule for the same doctor.")
+            raise ValidationError("هذا الجدول يتداخل مع جدول آخر لنفس الطبيب.")
     
     def save(self, *args, **kwargs):
         self.full_clean()  # calls clean_fields(), clean(), and validate_unique()
