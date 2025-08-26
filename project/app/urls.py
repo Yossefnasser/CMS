@@ -25,6 +25,6 @@ urlpatterns = [
 
     
     path('add-appointment', appointment.new_appointment, name='add-appointment'),
-
-
+    path('appointment/doctors/', appointment.api_get_doctors_by_specialization, name='api-get-doctors-by-specialization'),
+    path('appointment/patients/search/', appointment.api_search_patients, name='api-search-patients'),
 ]

@@ -384,8 +384,48 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <!-- كشف (Examination Fee) -->
+                                        <div class="col-md-6">
+                                        <label class="floating-label">كشف</label>
+                                        <div class="floating-label-group">
+                                            <input 
+                                            type="number" 
+                                                class="form-control" 
+                                                id="examination_price" 
+                                                name="examination_price" 
+                                                placeholder=" "
+                                                min="0"
+                                                step="0.01"
+                                                value="{{ data_to_insert.examination_price|default:'' }}"
+                                                required>
+                                                <div class="invalid-feedback">
+                                                    يرجى إدخال قيمة الكشف بشكل صحيح
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- استشارة (Follow-up Fee) -->
+                                        <div class="col-md-6">
+                                        <label class="floating-label">استشارة</label>
+                                        <div class="floating-label-group">
+                                            <input 
+                                                type="number" 
+                                                class="form-control" 
+                                                id="consultation_price" 
+                                                name="consultation_price" 
+                                                placeholder=" "
+                                                min="0"
+                                                step="0.01"
+                                                value="{{ data_to_insert.consultation_price|default:'' }}"
+                                                required>
+                                                <div class="invalid-feedback">
+                                                    يرجى إدخال قيمة الاستشارة بشكل صحيح
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-
+                                    
+                                    
                                     <!-- Form Actions -->
                                     <div class="d-flex gap-3 mt-5 justify-content-end">
                                         <button type="submit" class="btn btn-primary" name="action" value="save" id="saveButton">
@@ -837,25 +877,6 @@
             data: formData,
             headers: {
                 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-            },
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        title: 'تم!',
-                        text: isEditingSchedule ? 'تم تحديث الجدول بنجاح' : 'تم إضافة الجدول بنجاح',
-                        icon: 'success',
-                        confirmButtonText: 'حسناً'
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'خطأ!',
-                        text: response.message || 'حدث خطأ أثناء حفظ الجدول',
-                        icon: 'error',
-                        confirmButtonText: 'حسناً'
-                    });
-                }
             },
             error: function(xhr) {
                 let errorMessage = 'حدث خطأ أثناء حفظ الجدول';

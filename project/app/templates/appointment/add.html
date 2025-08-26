@@ -1,0 +1,1177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block styles %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --primary-hover: #3a56d4;
+        --secondary-color: #3f37c9;
+        --success-color: #4cc9f0;
+        --warning-color: #f8961e;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        --hover-shadow: 0 8px 32px rgba(67, 97, 238, 0.15);
+        --border-radius: 12px;
+    }
+
+    /* Modern Card Styles */
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .card:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(-2px);
+    }
+
+    .card-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1.25rem 1.5rem;
+        border-bottom: none;
+    }
+
+    .card-title {
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    /* Step Progress Indicator */
+    .step-progress {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 2rem;
+        position: relative;
+    }
+
+    .step {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        flex: 1;
+        position: relative;
+    }
+
+    .step-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background-color: #e9ecef;
+        color: #6c757d;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        margin-bottom: 0.5rem;
+    }
+
+    .step.active .step-circle {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .step.completed .step-circle {
+        background-color: var(--success-color);
+        color: white;
+    }
+
+    .step-label {
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #6c757d;
+        text-align: center;
+    }
+
+    .step.active .step-label {
+        color: var(--primary-color);
+    }
+
+    .step.completed .step-label {
+        color: var(--success-color);
+    }
+
+    .step-connector {
+        position: absolute;
+        top: 22px;
+        left: 60%;
+        right: -60%;
+        height: 2px;
+        background-color: #e9ecef;
+        z-index: -1;
+    }
+
+    .step.completed .step-connector {
+        background-color: var(--success-color);
+    }
+
+    .step:last-child .step-connector {
+        display: none;
+    }
+
+    /* Form Styles */
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .form-control, .form-select {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+        outline: none;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+        position: relative;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    }
+
+    .btn-success {
+        background-color: var(--success-color);
+        border: none;
+    }
+
+    .btn-warning {
+        background-color: var(--warning-color);
+        border: none;
+    }
+
+    /* Patient Identification Styles */
+    .patient-search {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .search-input-group {
+        max-width: 400px;
+        margin: 0 auto;
+        position: relative;
+    }
+
+    .search-input {
+        border: none;
+        border-radius: 25px;
+        padding: 1rem 3rem 1rem 1.5rem;
+        font-size: 1.1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-btn {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: none;
+        background: var(--primary-color);
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+    }
+
+    /* Patient Info Display */
+    .patient-info-card {
+        background: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+
+    .patient-avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: var(--primary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    /* Step Content Areas */
+    .step-content {
+        display: none;
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    .step-content.active {
+        display: block;
+    }
+
+    /* Time Slot Picker */
+    .time-slot-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    .time-slot {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .time-slot:hover {
+        background-color: #f8f9fa;
+    }
+
+    .time-slot.selected {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+
+    .time-slot.booked {
+        background-color: #f8d7da;
+        color: #721c24;
+        cursor: not-allowed;
+    }
+
+    /* Success/Error Messages */
+    .alert {
+        border-radius: var(--border-radius);
+        border: none;
+        padding: 1rem 1.5rem;
+    }
+
+    .alert-success {
+        background-color: #d4edda;
+        color: #155724;
+        border-left: 4px solid var(--success-color);
+    }
+
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    /* Loading Spinner */
+    .loading-spinner {
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary-color);
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .step-progress {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .step-connector {
+            display: none;
+        }
+        
+        .time-slot-container {
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-xxl p-0">
+        <!-- Header -->
+        <div class="content-header py-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <div class="d-flex flex-column">
+                            <h1 class="content-header-title mb-2">حجز موعد جديد</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                                    <li class="breadcrumb-item"><a href="/appointments">المواعيد</a></li>
+                                    <li class="breadcrumb-item active">حجز موعد جديد</li>
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <!-- Success/Error Messages -->
+                        <div class="alert alert-success d-flex align-items-center d-none" id="successMessage" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <div>تم حفظ بيانات الموعد بنجاح!</div>
+                        </div>
+
+                        <div class="alert alert-danger d-flex align-items-center d-none" id="errorMessage" role="alert">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <div id="errorText"></div>
+                        </div>
+
+                        <!-- Progress Steps -->
+                        <div class="card animate-fade-in mb-4">
+                            <div class="card-body">
+                                <div class="step-progress">
+                                    <div class="step active" id="step1">
+                                        <div class="step-circle">1</div>
+                                        <div class="step-label">تحديد المريض</div>
+                                        <div class="step-connector"></div>
+                                    </div>
+                                    <div class="step" id="step2">
+                                        <div class="step-circle">2</div>
+                                        <div class="step-label">بيانات الموعد</div>
+                                        <div class="step-connector"></div>
+                                    </div>
+                                    <div class="step" id="step3">
+                                        <div class="step-circle">3</div>
+                                        <div class="step-label">التأكيد والحفظ</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 1: Patient Identification -->
+                        <div class="card animate-fade-in step-content active" id="stepContent1">
+                            <div class="card-header patient-search">
+                                <i class="fas fa-user-search me-2"></i>
+                                <h5 class="card-title mb-3">البحث عن المريض</h5>
+                                <p class="mb-4">أدخل رقم الهاتف أو الهوية للبحث عن المريض</p>
+                                
+                                <div class="search-input-group">
+                                    <input type="text" class="form-control search-input" id="patientIdentifier" 
+                                           placeholder="رقم الهاتف أو الهوية الوطنية">
+                                    <button type="button" class="btn search-btn" id="searchPatientBtn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="card-body" id="patientSearchResults">
+                                <div class="text-center py-4">
+                                    <i class="fas fa-search text-muted mb-3" style="font-size: 3rem;"></i>
+                                    <p class="text-muted">ابدأ بإدخال رقم الهاتف أو الهوية للبحث عن المريض</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Appointment Details -->
+                        <div class="card animate-fade-in step-content" id="stepContent2">
+                            <div class="card-header d-flex align-items-center">
+                                <i class="fas fa-calendar-plus me-2"></i>
+                                <h5 class="card-title mb-0">بيانات الموعد</h5>
+                            </div>
+                            <div class="card-body">
+                                <!-- Selected Patient Info -->
+                                <div class="patient-info-card d-none" id="selectedPatientInfo">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <div class="patient-avatar" id="patientAvatar">A</div>
+                                        </div>
+                                        <div class="col">
+                                            <h6 class="mb-1" id="patientName">اسم المريض</h6>
+                                            <p class="text-muted mb-0" id="patientPhone">رقم الهاتف</p>
+                                        </div>
+                                        <div class="col-auto">
+                                            <button type="button" class="btn btn-outline-primary btn-sm" id="changePatientBtn">
+                                                <i class="fas fa-edit me-1"></i>تغيير المريض
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <form id="appointmentDetailsForm" class="needs-validation" novalidate>
+                                    <input type="hidden" id="selectedPatientId" name="patient_id">
+                                    
+                                    <div class="row g-4">
+                                        <!-- Specialization Selection -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="specialization">التخصص</label>
+                                                <select class="form-select" id="specialization" name="specialization" required>
+                                                    <option value="" selected disabled>اختر التخصص</option>
+                                                    {% for data in all_specializations %}
+                                                        <option value="{{ data.id }}">
+                                                            {{ data.name }}
+                                                        </option>
+                                                    {% endfor %}
+                                                </select>
+                                                <div class="invalid-feedback">يرجى اختيار التخصص</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Doctor Selection -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="doctor">الطبيب</label>
+                                                <select class="form-select" id="doctor" name="doctor" required>
+                                                    <option value="" selected disabled>اختر الطبيب</option>
+                                                </select>
+                                                <div class="invalid-feedback">يرجى اختيار الطبيب</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Clinic Selection -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="clinic">العيادة</label>
+                                                <select class="form-select" id="clinic" name="clinic" required>
+                                                    <option value="" selected disabled>اختر العيادة</option>
+                                                    <option value="1">العيادة الأولى</option>
+                                                    <option value="2">العيادة الثانية</option>
+                                                    <option value="3">العيادة الثالثة</option>
+                                                </select>
+                                                <div class="invalid-feedback">يرجى اختيار العيادة</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Appointment Date -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="appointment_date">تاريخ الموعد</label>
+                                                <input type="date" class="form-control" id="appointment_date" 
+                                                       name="appointment_date" required>
+                                                <div class="invalid-feedback">يرجى إدخال تاريخ صحيح</div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Time Slot Selection -->
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="form-label">اختر وقت الموعد</label>
+                                                <div class="time-slot-container" id="timeSlots">
+                                                    <div class="text-center py-4 col-12">
+                                                        <p class="text-muted">اختر تاريخ الموعد أولاً لعرض الأوقات المتاحة</p>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" id="selected_time" name="selected_time" required>
+                                                <div class="invalid-feedback d-block d-none" id="timeSlotError">
+                                                    يرجى اختيار وقت الموعد
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Appointment Type -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label class="form-label" for="appointment_type">نوع الموعد</label>
+                                                <select class="form-select" id="appointment_type" name="appointment_type">
+                                                    <option value="general" selected>عام</option>
+                                                    <option value="followup">متابعة</option>
+                                                    <option value="emergency">طارئ</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Notes -->
+                                        <div class="col-12">
+                                            <div class="form-group">
+                                                <label class="form-label" for="appointment_notes">ملاحظات الموعد</label>
+                                                <textarea class="form-control" id="appointment_notes" 
+                                                         name="appointment_notes" rows="3" 
+                                                         placeholder="أدخل ملاحظات الموعد هنا..."></textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div class="d-flex gap-3 mt-4 justify-content-end">
+                                    <button type="button" class="btn btn-secondary" id="backToStep1Btn">
+                                        <i class="fas fa-arrow-right me-2"></i>السابق
+                                    </button>
+                                    <button type="button" class="btn btn-primary" id="proceedToStep3Btn">
+                                        <i class="fas fa-arrow-left me-2"></i>التالي
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Confirmation -->
+                        <div class="card animate-fade-in step-content" id="stepContent3">
+                            <div class="card-header d-flex align-items-center">
+                                <i class="fas fa-check-circle me-2"></i>
+                                <h5 class="card-title mb-0">تأكيد بيانات الموعد</h5>
+                            </div>
+                            <div class="card-body">
+                                <div id="appointmentSummary">
+                                    <!-- Summary will be populated by JavaScript -->
+                                </div>
+
+                                <div class="d-flex gap-3 mt-4 justify-content-end">
+                                    <button type="button" class="btn btn-secondary" id="backToStep2Btn">
+                                        <i class="fas fa-arrow-right me-2"></i>السابق
+                                    </button>
+                                    <button type="button" class="btn btn-success" id="confirmAppointmentBtn">
+                                        <i class="fas fa-save me-2"></i>تأكيد وحفظ الموعد
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- New Patient Registration Modal -->
+                        <div class="modal fade" id="newPatientModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            <i class="fas fa-user-plus me-2"></i>تسجيل مريض جديد
+                                        </h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <form id="newPatientForm" class="needs-validation" novalidate>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">الاسم الأول *</label>
+                                                    <input type="text" class="form-control" name="first_name" required>
+                                                    <div class="invalid-feedback">يرجى إدخال الاسم الأول</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">الاسم الأخير *</label>
+                                                    <input type="text" class="form-control" name="last_name" required>
+                                                    <div class="invalid-feedback">يرجى إدخال الاسم الأخير</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">رقم الهاتف *</label>
+                                                    <input type="text" class="form-control" name="phone" required>
+                                                    <div class="invalid-feedback">يرجى إدخال رقم الهاتف</div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">الهوية الوطنية</label>
+                                                    <input type="text" class="form-control" name="national_id">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">تاريخ الميلاد</label>
+                                                    <input type="date" class="form-control" name="birth_date">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">الجنس</label>
+                                                    <select class="form-select" name="gender">
+                                                        <option value="">اختر الجنس</option>
+                                                        <option value="male">ذكر</option>
+                                                        <option value="female">أنثى</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label">العنوان</label>
+                                                    <textarea class="form-control" name="address" rows="2"></textarea>
+                                                </div>
+                                                <div class="col-12">
+                                                    <label class="form-label">ملاحظات طبية</label>
+                                                    <textarea class="form-control" name="medical_notes" rows="2"></textarea>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                                        <button type="button" class="btn btn-primary" id="saveNewPatientBtn">
+                                            <i class="fas fa-save me-2"></i>حفظ المريض
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block Extrajavascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    $(document).ready(function() {
+        let currentStep = 1;
+        let selectedPatient = null;
+        let appointmentData = {};
+
+        // Initialize
+        $('#nav-appointments').addClass('active');
+        setMinDate();
+
+        // Set minimum date to today
+        function setMinDate() {
+            const today = new Date().toISOString().split('T')[0];
+            $('#appointment_date').attr('min', today);
+        }
+
+        // Step Management
+        function goToStep(step) {
+            // Hide all steps
+            $('.step-content').removeClass('active');
+            $('.step').removeClass('active completed');
+            
+            // Show current step
+            $(`#stepContent${step}`).addClass('active');
+            $(`#step${step}`).addClass('active');
+            
+            // Mark completed steps
+            for (let i = 1; i < step; i++) {
+                $(`#step${i}`).addClass('completed');
+            }
+            
+            currentStep = step;
+        }
+
+        // Patient Search
+        $('#searchPatientBtn').click(function() {
+            const identifier = $('#patientIdentifier').val().trim();
+            if (!identifier) {
+                showError('يرجى إدخال رقم الهاتف أو الهوية');
+                return;
+            }
+
+            searchPatient(identifier);
+        });
+
+        $('#patientIdentifier').keypress(function(e) {
+            if (e.which === 13) { // Enter key
+                $('#searchPatientBtn').click();
+            }
+        });
+
+        function searchPatient(identifier) {
+            const searchResults = $('#patientSearchResults');
+            searchResults.html(`
+                <div class="text-center py-4">
+                    <div class="loading-spinner"></div>
+                    <p class="mt-3 text-muted">البحث عن المريض...</p>
+                </div>
+            `);
+
+            // Real API call to search for patient
+            $.ajax({
+                url: '/appointment/patients/search/',
+                method: 'GET',
+                data: { identifier: identifier },
+                success: function(response) {
+                    if (response.found && response.patient) {
+                        showPatientFound(response.patient);
+                    } else {
+                        showPatientNotFound(identifier);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Patient search error:', error);
+                    searchResults.html(`
+                        <div class="text-center py-4">
+                            <i class="fas fa-exclamation-triangle text-danger mb-3" style="font-size: 3rem;"></i>
+                            <h6 class="mb-3 text-danger">خطأ في البحث</h6>
+                            <p class="text-muted mb-3">حدث خطأ أثناء البحث عن المريض. يرجى المحاولة مرة أخرى.</p>
+                            <button type="button" class="btn btn-primary" onclick="$('#patientIdentifier').focus()">
+                                <i class="fas fa-redo me-2"></i>محاولة مرة أخرى
+                            </button>
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        function showPatientFound(patient) {
+            selectedPatient = patient;
+            const searchResults = $('#patientSearchResults');
+            
+            searchResults.html(`
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="patient-avatar">${patient.first_name.charAt(0)}</div>
+                    </div>
+                    <div class="col">
+                        <h6 class="mb-1">${patient.first_name} ${patient.last_name}</h6>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-phone me-1"></i>${patient.phone}
+                            ${patient.national_id ? `<br><i class="fas fa-id-card me-1"></i>${patient.national_id}` : ''}
+                        </p>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-success" id="confirmPatientBtn">
+                            <i class="fas fa-check me-2"></i>تأكيد واستمرار
+                        </button>
+                    </div>
+                </div>
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    تم العثور على المريض في النظام. يمكنك المتابعة لحجز الموعد.
+                </div>
+            `);
+
+            $('#confirmPatientBtn').click(function() {
+                proceedWithPatient(patient);
+            });
+        }
+
+        function showPatientNotFound(identifier) {
+            const searchResults = $('#patientSearchResults');
+            
+            searchResults.html(`
+                <div class="text-center py-4">
+                    <i class="fas fa-user-slash text-muted mb-3" style="font-size: 3rem;"></i>
+                    <h6 class="mb-3">لم يتم العثور على المريض</h6>
+                    <p class="text-muted mb-4">لم يتم العثور على مريض بالرقم: <strong>${identifier}</strong></p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-primary" id="registerNewPatientBtn">
+                            <i class="fas fa-user-plus me-2"></i>تسجيل مريض جديد
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="searchAgainBtn">
+                            <i class="fas fa-search me-2"></i>بحث مرة أخرى
+                        </button>
+                    </div>
+                </div>
+            `);
+
+            $('#registerNewPatientBtn').click(function() {
+                // Pre-fill phone number if it was used for search
+                if (identifier.match(/^05\d{8}$/)) {
+                    $('#newPatientModal input[name="phone"]').val(identifier);
+                } else if (identifier.match(/^\d{10}$/)) {
+                    $('#newPatientModal input[name="national_id"]').val(identifier);
+                }
+                $('#newPatientModal').modal('show');
+            });
+
+            $('#searchAgainBtn').click(function() {
+                $('#patientIdentifier').focus();
+            });
+        }
+
+        function proceedWithPatient(patient) {
+            selectedPatient = patient;
+            updatePatientInfo(patient);
+            goToStep(2);
+        }
+
+        function updatePatientInfo(patient) {
+            $('#selectedPatientId').val(patient.id);
+            $('#patientName').text(`${patient.first_name} ${patient.last_name}`);
+            $('#patientPhone').text(patient.phone);
+            $('#patientAvatar').text(patient.first_name.charAt(0));
+            $('#selectedPatientInfo').removeClass('d-none');
+        }
+
+        // New Patient Registration
+        $('#saveNewPatientBtn').click(function() {
+            const form = $('#newPatientForm')[0];
+            
+            if (!form.checkValidity()) {
+                form.classList.add('was-validated');
+                return;
+            }
+
+            const btn = $(this);
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>جاري الحفظ...');
+
+            const formData = new FormData(form);
+            
+            // Real API call to save new patient
+            $.ajax({
+                url: '/api/patients/',
+                method: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success && response.patient) {
+                        $('#newPatientModal').modal('hide');
+                        showSuccess('تم تسجيل المريض بنجاح!');
+                        proceedWithPatient(response.patient);
+                    } else {
+                        showError('حدث خطأ أثناء تسجيل المريض');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Patient registration error:', error);
+                    let errorMessage = 'حدث خطأ أثناء تسجيل المريض';
+                    
+                    if (xhr.responseJSON && xhr.responseJSON.error) {
+                        errorMessage = xhr.responseJSON.error;
+                    } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        // Handle field-specific errors
+                        const errors = xhr.responseJSON.errors;
+                        errorMessage = Object.values(errors).flat().join(', ');
+                    }
+                    
+                    showError(errorMessage);
+                },
+                complete: function() {
+                    btn.prop('disabled', false).html('<i class="fas fa-save me-2"></i>حفظ المريض');
+                }
+            });
+        });
+
+        // Navigation buttons
+        $('#changePatientBtn').click(() => goToStep(1));
+        $('#backToStep1Btn').click(() => goToStep(1));
+        $('#backToStep2Btn').click(() => goToStep(2));
+
+        $('#proceedToStep3Btn').click(function() {
+            if (validateAppointmentForm()) {
+                collectAppointmentData();
+                showAppointmentSummary();
+                goToStep(3);
+            }
+        });
+
+        // Form validation and data collection
+        function validateAppointmentForm() {
+            const form = $('#appointmentDetailsForm')[0];
+            let isValid = form.checkValidity();
+
+            // Check time slot selection
+            if (!$('#selected_time').val()) {
+                $('#timeSlotError').removeClass('d-none');
+                isValid = false;
+            } else {
+                $('#timeSlotError').addClass('d-none');
+            }
+
+            if (!isValid) {
+                form.classList.add('was-validated');
+            }
+
+            return isValid;
+        }
+
+        function collectAppointmentData() {
+            appointmentData = {
+                patient: selectedPatient,
+                specialization: $('#specialization').val(),
+                doctor: $('#doctor option:selected').text(),
+                doctor_id: $('#doctor').val(),
+                clinic: $('#clinic option:selected').text(),
+                clinic_id: $('#clinic').val(),
+                date: $('#appointment_date').val(),
+                time: $('#selected_time').val(),
+                type: $('#appointment_type option:selected').text(),
+                notes: $('#appointment_notes').val()
+            };
+        }
+
+        function showAppointmentSummary() {
+            const summary = $('#appointmentSummary');
+            
+            summary.html(`
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-user text-primary me-2"></i>بيانات المريض
+                                </h6>
+                                <p class="mb-1"><strong>الاسم:</strong> ${appointmentData.patient.first_name} ${appointmentData.patient.last_name}</p>
+                                <p class="mb-1"><strong>الهاتف:</strong> ${appointmentData.patient.phone}</p>
+                                ${appointmentData.patient.national_id ? `<p class="mb-0"><strong>الهوية:</strong> ${appointmentData.patient.national_id}</p>` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <i class="fas fa-calendar text-success me-2"></i>تفاصيل الموعد
+                                </h6>
+                                <p class="mb-1"><strong>التخصص:</strong> ${appointmentData.specialization}</p>
+                                <p class="mb-1"><strong>الطبيب:</strong> ${appointmentData.doctor}</p>
+                                <p class="mb-1"><strong>العيادة:</strong> ${appointmentData.clinic}</p>
+                                <p class="mb-1"><strong>التاريخ:</strong> ${formatDate(appointmentData.date)}</p>
+                                <p class="mb-0"><strong>الوقت:</strong> ${appointmentData.time}</p>
+                            </div>
+                        </div>
+                    </div>
+                    ${appointmentData.notes ? `
+                        <div class="col-12">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-sticky-note text-warning me-2"></i>ملاحظات
+                                    </h6>
+                                    <p class="mb-0">${appointmentData.notes}</p>
+                                </div>
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `);
+        }
+
+        // Load doctors based on specialization
+        $('#specialization').change(function() {
+            const specialization = $(this).val();
+            const doctorSelect = $('#doctor');
+            
+            if (!specialization) {
+                doctorSelect.html('<option value="" selected disabled>اختر الطبيب</option>');
+                return;
+            }
+            
+            doctorSelect.html('<option value="" selected disabled>جاري تحميل الأطباء...</option>');
+            
+            // Real API call to get doctors by specialization
+            $.ajax({
+                url: '/appointment/doctors/',
+                method: 'GET',
+                data: { specialization: specialization },
+                success: function(response) {
+                    doctorSelect.html('<option value="" selected disabled>اختر الطبيب</option>');
+                    
+                    if (response.doctors && response.doctors.length > 0) {
+                        response.doctors.forEach(doctor => {
+                            doctorSelect.append(`
+                                <option value="${doctor.id}">${doctor.full_name || doctor.name}</option>
+                            `);
+                        });
+                    } else {
+                        doctorSelect.append('<option value="" disabled>لا توجد أطباء متاحين في هذا التخصص</option>');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Doctors loading error:', error);
+                    doctorSelect.html('<option value="" selected disabled>خطأ في تحميل الأطباء</option>');
+                    showError('حدث خطأ أثناء تحميل قائمة الأطباء');
+                }
+            });
+        });
+
+        // Load available time slots
+        $('#appointment_date, #doctor, #clinic').change(function() {
+            const date = $('#appointment_date').val();
+            const doctorId = $('#doctor').val();
+            const clinicId = $('#clinic').val();
+            
+            if (date && doctorId && clinicId) {
+                loadTimeSlots(date, doctorId, clinicId);
+            }
+        });
+
+        function loadTimeSlots(date, doctorId, clinicId) {
+            const timeSlotsContainer = $('#timeSlots');
+            timeSlotsContainer.html(`
+                <div class="text-center py-4 col-12">
+                    <div class="loading-spinner"></div>
+                    <p class="mt-3 text-muted">جاري تحميل الأوقات المتاحة...</p>
+                </div>
+            `);
+
+            // Real API call to get available time slots
+            $.ajax({
+                url: '/api/availability/',
+                method: 'GET',
+                data: {
+                    date: date,
+                    doctor: doctorId,
+                    clinic: clinicId
+                },
+                success: function(response) {
+                    timeSlotsContainer.empty();
+                    
+                    if (response.available_times && response.available_times.length > 0) {
+                        const bookedTimes = response.booked_times || [];
+                        
+                        response.available_times.forEach(time => {
+                            const isBooked = bookedTimes.includes(time);
+                            const slot = $(`
+                                <div class="time-slot ${isBooked ? 'booked' : ''}" data-time="${time}">
+                                    ${time}
+                                </div>
+                            `);
+                            
+                            if (!isBooked) {
+                                slot.click(function() {
+                                    $('.time-slot').removeClass('selected');
+                                    $(this).addClass('selected');
+                                    $('#selected_time').val(time);
+                                    $('#timeSlotError').addClass('d-none');
+                                });
+                            }
+                            
+                            timeSlotsContainer.append(slot);
+                        });
+                    } else {
+                        timeSlotsContainer.html(`
+                            <div class="text-center py-4 col-12">
+                                <i class="fas fa-calendar-times text-muted mb-3" style="font-size: 2rem;"></i>
+                                <p class="text-muted">لا توجد أوقات متاحة في هذا التاريخ</p>
+                            </div>
+                        `);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Time slots loading error:', error);
+                    timeSlotsContainer.html(`
+                        <div class="text-center py-4 col-12">
+                            <i class="fas fa-exclamation-triangle text-danger mb-3" style="font-size: 2rem;"></i>
+                            <p class="text-danger">حدث خطأ أثناء تحميل الأوقات المتاحة</p>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadTimeSlots('${date}', '${doctorId}', '${clinicId}')">
+                                <i class="fas fa-redo me-1"></i>إعادة المحاولة
+                            </button>
+                        </div>
+                    `);
+                }
+            });
+        }
+
+        // Final appointment confirmation
+        $('#confirmAppointmentBtn').click(function() {
+            const btn = $(this);
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>جاري الحفظ...');
+
+            // Prepare appointment data
+            const appointmentData = {
+                patient_id: $('#selectedPatientId').val(),
+                specialization: $('#specialization').val(),
+                doctor: $('#doctor').val(),
+                clinic: $('#clinic').val(),
+                appointment_date: $('#appointment_date').val(),
+                selected_time: $('#selected_time').val(),
+                appointment_type: $('#appointment_type').val(),
+                appointment_notes: $('#appointment_notes').val(),
+                status: 'scheduled'
+            };
+
+            // Real API call to save appointment
+            $.ajax({
+                url: '/api/appointments/',
+                method: 'POST',
+                data: appointmentData,
+                headers: {
+                    'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showSuccess('تم حفظ الموعد بنجاح!');
+                        setTimeout(() => {
+                            window.location.href = '/appointments/';
+                        }, 1500);
+                    } else {
+                        showError(response.error || 'حدث خطأ أثناء حفظ الموعد');
+                        btn.prop('disabled', false).html('<i class="fas fa-save me-2"></i>تأكيد وحفظ الموعد');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Appointment save error:', error);
+                    let errorMessage = 'حدث خطأ أثناء حفظ الموعد';
+                    
+                    if (xhr.responseJSON) {
+                        if (xhr.responseJSON.error) {
+                            errorMessage = xhr.responseJSON.error;
+                        } else if (xhr.responseJSON.errors) {
+                            // Handle field-specific errors
+                            const errors = xhr.responseJSON.errors;
+                            errorMessage = Object.values(errors).flat().join(', ');
+                        }
+                    }
+                    
+                    showError(errorMessage);
+                    btn.prop('disabled', false).html('<i class="fas fa-save me-2"></i>تأكيد وحفظ الموعد');
+                }
+            });
+        });
+
+        // Utility functions
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-SA');
+        }
+
+        function showSuccess(message) {
+            $('#successMessage div').text(message);
+            $('#successMessage').removeClass('d-none');
+            setTimeout(() => $('#successMessage').addClass('d-none'), 5000);
+        }
+
+        function showError(message) {
+            $('#errorText').text(message);
+            $('#errorMessage').removeClass('d-none');
+            setTimeout(() => $('#errorMessage').addClass('d-none'), 5000);
+        }
+
+        // Form validation setup
+        (function() {
+            'use strict';
+            
+            var forms = document.querySelectorAll('.needs-validation');
+            
+            Array.prototype.slice.call(forms).forEach(function(form) {
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        })();
+    });
+</script>
+{% endblock %}
