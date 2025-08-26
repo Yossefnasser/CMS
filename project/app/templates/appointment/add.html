@@ -454,13 +454,11 @@
                                                 <label class="form-label" for="specialization">التخصص</label>
                                                 <select class="form-select" id="specialization" name="specialization" required>
                                                     <option value="" selected disabled>اختر التخصص</option>
-                                                    <option value="عام">طب عام</option>
-                                                    <option value="باطنة">باطنة</option>
-                                                    <option value="جراحة">جراحة عامة</option>
-                                                    <option value="أطفال">أطفال</option>
-                                                    <option value="نساء">نساء وولادة</option>
-                                                    <option value="عظام">عظام</option>
-                                                    <option value="قلب">قلب وأوعية دموية</option>
+                                                    {% for data in all_specializations %}
+                                                        <option value="{{ data.id }}">
+                                                            {{ data.name }}
+                                                        </option>
+                                                    {% endfor %}
                                                 </select>
                                                 <div class="invalid-feedback">يرجى اختيار التخصص</div>
                                             </div>
@@ -711,7 +709,7 @@
 
             // Real API call to search for patient
             $.ajax({
-                url: '/api/patients/search/',
+                url: '/appointment/patients/search/',
                 method: 'GET',
                 data: { identifier: identifier },
                 success: function(response) {
@@ -980,7 +978,7 @@
             
             // Real API call to get doctors by specialization
             $.ajax({
-                url: '/api/doctors/',
+                url: '/appointment/doctors/',
                 method: 'GET',
                 data: { specialization: specialization },
                 success: function(response) {

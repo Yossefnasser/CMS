@@ -176,7 +176,7 @@ class DoctorSchedule(BaseModel):
                 f"on {conflicting.day_of_week} from {conflicting.start_time.strftime('%H:%M')} "
                 f"to {conflicting.end_time.strftime('%H:%M')}."
             )
-            
+                
         doctor_conflicts = DoctorSchedule.objects.filter(
             doctor=self.doctor,
             day_of_week=self.day_of_week,

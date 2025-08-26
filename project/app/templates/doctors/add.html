@@ -878,25 +878,6 @@
             headers: {
                 'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
             },
-            success: function(response) {
-                if (response.success) {
-                    Swal.fire({
-                        title: 'تم!',
-                        text: isEditingSchedule ? 'تم تحديث الجدول بنجاح' : 'تم إضافة الجدول بنجاح',
-                        icon: 'success',
-                        confirmButtonText: 'حسناً'
-                    }).then(() => {
-                        location.reload();
-                    });
-                } else {
-                    Swal.fire({
-                        title: 'خطأ!',
-                        text: response.message || 'حدث خطأ أثناء حفظ الجدول',
-                        icon: 'error',
-                        confirmButtonText: 'حسناً'
-                    });
-                }
-            },
             error: function(xhr) {
                 let errorMessage = 'حدث خطأ أثناء حفظ الجدول';
                 try {
