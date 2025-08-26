@@ -68,72 +68,64 @@ def get_list_of_doctors(request):
             "error": str(e)  # Include error message for debugging
         }, status=500)
     
-
 def add_new_doctor(request):
-    
     added_by     = request.user
     added_date   = datetime.now()
     updated_date = datetime.now()
     updated_by   = request.user
     typeOfReq    = request.GET.get('type', 'new')
 
+    doctor_schedules = []
+
     if typeOfReq == 'edit':
-        idOfObject      = get_id_of_object(request.GET.get('id'))
-        data_to_insert  = Doctor.objects.get(id=idOfObject)
-        doctor_schedules = DoctorSchedule.objects.filter(doctor=data_to_insert, deleted_date__isnull=True)
+        idOfObject       = get_id_of_object(request.GET.get('id'))
+        data_to_insert   = Doctor.objects.get(id=idOfObject)
+        doctor_schedules = DoctorSchedule.objects.filter(
+            doctor=data_to_insert, deleted_date__isnull=True
+        )
     elif typeOfReq == 'new':
         data_to_insert = None
 
-    all_specializations = Specialization.objects.filter(deleted_date__isnull=True)
-    print(" ------------------------------------    all_specializations   ----------------------------" , all_specializations)
-    clinics = Clinic.objects.filter(deleted_date__isnull=True)
+    all_specializations     = Specialization.objects.filter(deleted_date__isnull=True)
+    clinics                 = Clinic.objects.filter(deleted_date__isnull=True)
+
     context = {
-        'data_to_insert'        : data_to_insert,
-        'typeOfReq'             : typeOfReq,
-        'all_specializations'   : all_specializations,
-        'clinics'                : clinics,
-        'doctor_schedules'        : doctor_schedules
+        'data_to_insert'      : data_to_insert,
+        'typeOfReq'           : typeOfReq,
+        'all_specializations' : all_specializations,
+        'clinics'             : clinics,
+        'doctor_schedules'    : doctor_schedules 
     }
 
     if request.method == 'POST':
-        full_name            = check_if_post_input_valid(request.POST['full_name'], CHAR_100)
-        email                = request.POST.get('email', '').strip()
-        phone_number         = check_if_post_input_valid(request.POST['phone_number'], CHAR_100)
-        specialization_id       = request.POST.get('specialization')
-
-        print(" -------------------------- all data --------------------------")
-        print("Full Name:", full_name)
-        print("Email:", email)
-        print("Phone Number:", phone_number)
-        print("Specialization ID:", specialization_id)
+        full_name        = check_if_post_input_valid(request.POST['full_name'], CHAR_100)
+        email            = request.POST.get('email', '').strip()
+        phone_number     = check_if_post_input_valid(request.POST['phone_number'], CHAR_100)
+        specialization_id = request.POST.get('specialization')
 
         specialization_obj = Specialization.objects.filter(id=specialization_id).first()
 
-    
-
         if typeOfReq == 'edit':
             doctor_obj = Doctor.objects.filter(id=idOfObject).first()
-
-            doctor_obj.full_name               = full_name
-            doctor_obj.phone_number            = phone_number
-            doctor_obj.email                   = email
-            doctor_obj.specialization          = specialization_obj
-            doctor_obj.updated_by              = updated_by
-            doctor_obj.updated_date            = updated_date
+            doctor_obj.full_name      = full_name
+            doctor_obj.phone_number   = phone_number
+            doctor_obj.email          = email
+            doctor_obj.specialization = specialization_obj
+            doctor_obj.updated_by     = updated_by
+            doctor_obj.updated_date   = updated_date
             doctor_obj.save()
 
         elif typeOfReq == 'new':
-            data_to_insert =  Doctor.objects.create(
-                full_name           = full_name,
-                phone_number        = phone_number,
-                email               = email,
-                specialization      = specialization_obj , 
-                added_by            = added_by,
-                added_date          = added_date,
-                updated_by          = updated_by,
-                updated_date        = updated_date
+            data_to_insert = Doctor.objects.create(
+                full_name      = full_name,
+                phone_number   = phone_number,
+                email          = email,
+                specialization = specialization_obj,
+                added_by       = added_by,
+                added_date     = added_date,
+                updated_by     = updated_by,
+                updated_date   = updated_date
             )
-            print("email is ", data_to_insert.email)
             data_to_insert.save()
 
         return HttpResponseRedirect('/list-of-doctors')
