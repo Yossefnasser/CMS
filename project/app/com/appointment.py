@@ -62,5 +62,5 @@ def api_search_patients(request):
     return JsonResponse({
         "success" : True,
         "found" : True,
-        'patient' : patient.to_json() if patient else None
+        'patient' : patient.to_json() if p0atient else None
     })
