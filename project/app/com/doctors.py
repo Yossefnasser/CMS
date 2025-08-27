@@ -1,12 +1,12 @@
 from datetime import datetime
 from urllib import request
 from django.shortcuts import render
-from app.models import Clinic, Doctor, DoctorSchedule, Specialization
+from app.models import Clinic, DaysOfWeek, Doctor, DoctorSchedule, Specialization
 from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from app.helpers import check_if_post_input_valid, check_valid_text, get_id_of_object , delete
+from app.helpers import check_if_post_input_valid, check_valid_text, get_id_hashed_of_object, get_id_of_object , delete
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.settings import CHAR_100, CHAR_50
@@ -67,7 +67,7 @@ def get_list_of_doctors(request):
             "data": [],
             "error": str(e)  # Include error message for debugging
         }, status=500)
-    
+
 def add_new_doctor(request):
     added_by     = request.user
     added_date   = datetime.now()
@@ -81,11 +81,13 @@ def add_new_doctor(request):
         idOfObject       = get_id_of_object(request.GET.get('id'))
         data_to_insert   = Doctor.objects.get(id=idOfObject)
         doctor_schedules = DoctorSchedule.objects.filter(
-            doctor=data_to_insert, deleted_date__isnull=True
+            doctor_id=idOfObject, deleted_date__isnull=True
         )
+        days_of_week = DaysOfWeek.objects.all()
+        print(" data to insert consultation_price , examination_price ", data_to_insert.consultation_price , data_to_insert.examination_price)
     elif typeOfReq == 'new':
-        data_to_insert = None
-        doctor_schedules = None
+        data_to_insert      = None
+        doctor_schedules    = None
 
     all_specializations     = Specialization.objects.filter(deleted_date__isnull=True)
     clinics                 = Clinic.objects.filter(deleted_date__isnull=True)
@@ -95,14 +97,32 @@ def add_new_doctor(request):
         'typeOfReq'           : typeOfReq,
         'all_specializations' : all_specializations,
         'clinics'             : clinics,
-        'doctor_schedules'    : doctor_schedules 
+        'doctor_schedules'    : doctor_schedules,
+        'days_of_week'        : days_of_week
     }
 
     if request.method == 'POST':
         full_name            = check_if_post_input_valid(request.POST['full_name'], CHAR_100)
         email                = request.POST.get('email', '').strip()
+        if email:
+            email = check_valid_text(email, CHAR_100)
+        else : 
+            email = None
+
         phone_number         = check_if_post_input_valid(request.POST['phone_number'], CHAR_100)
-        specialization_id       = request.POST.get('specialization')
+        specialization_id    = request.POST.get('specialization')
+        examination_price    = request.POST.get('examination_price', '').strip()
+        consultation_price   = request.POST.get('consultation_price', '').strip()
+
+        if examination_price  : 
+            examination_price = float(examination_price)
+        else : 
+            examination_price = None
+
+        if consultation_price:
+            consultation_price = float(consultation_price)
+        else:
+            consultation_price = None
 
         print(" -------------------------- all data --------------------------")
         print("Full Name:", full_name)
@@ -121,22 +141,30 @@ def add_new_doctor(request):
             doctor_obj.specialization          = specialization_obj
             doctor_obj.updated_by              = updated_by
             doctor_obj.updated_date            = updated_date
+            doctor_obj.examination_price      = examination_price
+            doctor_obj.consultation_price     = consultation_price
             doctor_obj.save()
+            
+            # For edit case, use the existing hashed ID
+            hashed_id = request.GET.get('id')  # This is already hashed
 
         elif typeOfReq == 'new':
-            data_to_insert =  Doctor.objects.create(
+            data_to_insert = Doctor.objects.create(
                 full_name           = full_name,
                 phone_number        = phone_number,
                 email               = email,
-                specialization      = specialization_obj , 
+                specialization      = specialization_obj, 
                 added_by            = added_by,
                 added_date          = added_date,
                 updated_by          = updated_by,
+                examination_price   = examination_price,
+                consultation_price  = consultation_price,
                 updated_date        = updated_date
             )
             data_to_insert.save()
+            hashed_id = get_id_hashed_of_object(data_to_insert.id)
 
-        return HttpResponseRedirect('/list-of-doctors')
+        return HttpResponseRedirect('/add-doctor?type=edit&id=%s' % hashed_id)
 
     elif request.method == 'GET':
         return render(request, 'doctors/add.html', context)
@@ -183,16 +211,17 @@ def doctor_schedule(request):
     
     if request.method == 'POST':
         try:
-            doctor_id = request.POST.get('doctor_id')
-            clinic_id = request.POST.get('clinic')
-            day_of_week = request.POST.get('day_of_week')
-            start_time = request.POST.get('start_time')
-            end_time = request.POST.get('end_time')
-            valid_from = request.POST.get('valid_from')
-            valid_to = request.POST.get('valid_to')
-            doctor = Doctor.objects.get(id=doctor_id)
-            clinic = Clinic.objects.get(id=clinic_id)
-            typeofreq = request.POST.get('type', 'new')
+            doctor_id       = request.POST.get('doctor_id')
+            clinic_id       = request.POST.get('clinic')
+            day_of_week_id  = request.POST.get('day_of_week')
+            start_time      = request.POST.get('start_time')
+            end_time        = request.POST.get('end_time')
+            valid_from      = request.POST.get('valid_from')
+            valid_to        = request.POST.get('valid_to')
+            doctor          = Doctor.objects.get(id=doctor_id)
+            clinic          = Clinic.objects.get(id=clinic_id)
+            day_of_week     = DaysOfWeek.objects.get(id=day_of_week_id)
+            typeofreq       = request.POST.get('type', 'new')
 
             if typeofreq == 'edit':
                 schedule_id = request.POST.get('schedule_id')
@@ -209,13 +238,13 @@ def doctor_schedule(request):
 
             else:  
                 schedule = DoctorSchedule.objects.create(
-                    doctor=doctor,
-                    clinic=clinic,
-                    day_of_week=day_of_week,
-                    start_time=start_time,
-                    end_time=end_time,
-                    valid_from=valid_from,
-                    valid_to=valid_to
+                    doctor              =  doctor,
+                    clinic              =  clinic,
+                    day_of_week         =  day_of_week,
+                    start_time          =  start_time,
+                    end_time            =  end_time,
+                    valid_from          =  valid_from,
+                    valid_to            =  valid_to
                 )
                 messages.success(request, 'Doctor schedule created successfully.')
 

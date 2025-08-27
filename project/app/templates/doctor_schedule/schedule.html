@@ -1,0 +1,221 @@
+{# partials/doctor_schedule.html #}
+
+<div class="card animate-fade-in mb-5">
+    <div class="card-header schedule-card d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-calendar-alt me-2"></i>
+            <h5 class="card-title mb-0">جدولة مواعيد الطبيب</h5>
+        </div>
+        <button type="button" class="btn btn-light btn-sm" id="addScheduleBtn">
+            <i class="fas fa-plus me-2"></i>إضافة جدول جديد
+        </button>
+    </div>
+    <div class="card-body">
+        <!-- Add Schedule Form -->
+        <div class="schedule-form d-none animate-slide-down" id="scheduleForm">
+            <h6 class="mb-3"><i class="fas fa-plus-circle me-2"></i>إضافة جدول جديد</h6>
+            <form id="addScheduleForm">
+                <div class="row g-3">
+                    <!-- Clinic -->
+                    <div class="col-md-4">
+                        <label class="form-label">العيادة</label>
+                        <select class="form-control" id="clinic" name="clinic" required>
+                            <option value="">اختر العيادة</option>
+                            {% for clinic in clinics %}
+                                <option value="{{ clinic.id }}">{{ clinic.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Day -->
+                    <div class="col-md-4">
+                        <label class="form-label">اليوم</label>
+                        <select class="form-control" id="day_of_week" name="day_of_week" required>
+                            {% for day in days_of_week %}
+                                <option value="{{ day.id }}">{{ day.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Time Range -->
+                    <div class="col-md-4">
+                        <div class="card shadow-sm rounded-3 p-3">
+                            <h6 class="mb-3 text-center">المعاد</h6>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <label for="start_time" class="form-label">من الساعة</label>
+                                    <input type="time" class="form-control time-input" id="start_time" name="start_time" required>
+                                </div>
+                                <div class="col-6">
+                                    <label for="end_time" class="form-label">إلى الساعة</label>
+                                    <input type="time" class="form-control time-input" id="end_time" name="end_time" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Validity Dates -->
+                    <div class="col-md-6">
+                        <label class="form-label">صالح من تاريخ</label>
+                        <input type="date" class="form-control date-input" id="valid_from" name="valid_from" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">صالح حتى تاريخ</label>
+                        <input type="date" class="form-control date-input" id="valid_to" name="valid_to" required>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="col-12">
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check me-1"></i>إضافة
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="cancelScheduleBtn">
+                                <i class="fas fa-times me-1"></i>إلغاء
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Existing Schedules Placeholder -->
+        <div id="existingSchedules">
+            {% if not doctor_schedules %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-calendar-times fa-2x mb-3"></i>
+                    <p>لا توجد جداول مواعيد مضافة حتى الآن</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Current Schedules Table -->
+<div class="mt-4">
+    <h6 class="mb-3"><i class="fas fa-list me-2"></i>الجداول الحالية</h6>
+    <div id="scheduleList">
+        {% if doctor_schedules %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>العيادة</th>
+                            <th>اليوم</th>
+                            <th>التوقيت</th>
+                            <th>فترة الصلاحية</th>
+                            <th>الحالة</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for schedule in doctor_schedules %}
+                        <tr data-schedule-id="{{ schedule.id }}" class="schedule-row">
+                            <td>
+                                <i class="fas fa-hospital text-primary me-2"></i>
+                                <strong>{{ schedule.clinic.name }}</strong>
+                            </td>
+                            <td>
+                                <i class="fas fa-calendar text-secondary me-2"></i>
+                                {{ schedule.day_of_week.name }}
+                            </td>
+                            <td>
+                                <i class="fas fa-clock text-info me-2"></i>
+                                <span class="fw-bold">{{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}</span>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    <i class="fas fa-calendar-check me-1"></i>
+                                    {{ schedule.valid_from|date:"Y-m-d" }} إلى {{ schedule.valid_to|date:"Y-m-d" }}
+                                </small>
+                            </td>
+                            <td>
+                                {% if schedule.is_active %}
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check-circle me-1"></i>نشط
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-pause-circle me-1"></i>غير نشط
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-sm btn-outline-primary edit-schedule-btn"
+                                            data-schedule-id="{{ schedule.id }}"
+                                            data-clinic="{{ schedule.clinic.id }}"
+                                            data-day-of-week="{{ schedule.day_of_week.id }}"
+                                            data-start-time="{{ schedule.start_time|time:'H:i' }}"
+                                            data-end-time="{{ schedule.end_time|time:'H:i' }}"
+                                            data-valid-from="{{ schedule.valid_from|date:'Y-m-d' }}"
+                                            data-valid-to="{{ schedule.valid_to|date:'Y-m-d' }}"
+                                            data-is-active="{{ schedule.is_active }}"
+                                            title="تعديل">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    {% if schedule.is_active %}
+                                        <button type="button" class="btn btn-sm btn-outline-warning toggle-schedule-btn"
+                                                data-schedule-id="{{ schedule.id }}"
+                                                data-action="deactivate"
+                                                title="إيقاف">
+                                            <i class="fas fa-pause"></i>
+                                        </button>
+                                    {% else %}
+                                        <button type="button" class="btn btn-sm btn-outline-success toggle-schedule-btn"
+                                                data-schedule-id="{{ schedule.id }}"
+                                                data-action="activate"
+                                                title="تنشيط">
+                                            <i class="fas fa-play"></i>
+                                        </button>
+                                    {% endif %}
+                                    <button type="button" class="btn btn-sm btn-outline-danger delete-schedule-btn"
+                                            data-schedule-id="{{ schedule.id }}"
+                                            title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-calendar-times fa-3x mb-3"></i>
+                <p class="h6">لا توجد جداول مضافة بعد</p>
+                <p class="small">استخدم الزر أعلاه لإضافة جداول العمل للطبيب</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Weekly Overview -->
+{% if doctor_schedules %}
+<div class="mt-4">
+    <h6 class="mb-3"><i class="fas fa-calendar-week me-2"></i>نظرة عامة على الأسبوع</h6>
+    <div class="row g-2">
+        {% for day, day_ar in day_choices %}
+        <div class="col-md-1 col-sm-2">
+            <div class="card text-center h-100 
+                 {% for schedule in doctor_schedules %}
+                     {% if schedule.day_of_week == day and schedule.is_active %}bg-light border-primary{% endif %}
+                 {% endfor %}">
+                <div class="card-body p-2">
+                    <small class="fw-bold d-block">{{ day_ar }}</small>
+                    {% for schedule in doctor_schedules %}
+                        {% if schedule.day_of_week == day and schedule.is_active %}
+                        <div class="mt-1">
+                            <small class="text-primary d-block">{{ schedule.clinic.name }}</small>
+                            <small class="text-muted">{{ schedule.start_time|time:"H:i" }}-{{ schedule.end_time|time:"H:i" }}</small>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}

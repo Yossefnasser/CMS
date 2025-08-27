@@ -121,21 +121,18 @@ class Clinic(BaseModel):
 
     def __str__(self):
         return self.name 
+class DaysOfWeek(BaseModel):
+    """Days of the week"""
+    name = models.CharField(max_length=10, unique=True)
 
+    def __str__(self):
+        return self.name
 
 class DoctorSchedule(BaseModel):
     """Doctor availability schedule"""
     doctor                 = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
-    day_of_week = models.CharField(max_length=10, choices=[
-        ('SATURDAY', 'Saturday'),
-        ('SUNDAY', 'Sunday'),
-        ('MONDAY', 'Monday'),
-        ('TUESDAY', 'Tuesday'),
-        ('WEDNESDAY', 'Wednesday'),
-        ('THURSDAY', 'Thursday'),
-        ('FRIDAY', 'Friday'),
-    ],default='Sunday')
+    day_of_week            = models.ForeignKey(DaysOfWeek, on_delete=models.CASCADE)
     start_time             = models.TimeField()
     end_time               = models.TimeField()
     valid_from             = models.DateField(default=datetime.date.today)
@@ -199,21 +196,14 @@ class DoctorSchedule(BaseModel):
 class ClinicSchedule(BaseModel):
     """Clinic working hours"""
     clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
-    day_of_week          = models.CharField(max_length=10, choices=[
-        ('SATURDAY', 'Saturday'),
-        ('SUNDAY', 'Sunday'),
-        ('MONDAY', 'Monday'),
-        ('TUESDAY', 'Tuesday'),
-        ('WEDNESDAY', 'Wednesday'),
-        ('THURSDAY', 'Thursday'),
-        ('FRIDAY', 'Friday'),
-    ])
+    day_of_week            = models.ForeignKey(DaysOfWeek, on_delete=models.CASCADE)
+
     open_time              = models.TimeField()
     close_time             = models.TimeField()
     is_active              = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ['day_of_week', 'open_time']
+        ordering        = ['day_of_week', 'open_time']
         unique_together = ['clinic', 'day_of_week', 'open_time']
 
     def __str__(self):
