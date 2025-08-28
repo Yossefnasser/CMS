@@ -100,7 +100,6 @@ def add_new_patient(request):
         phone_number         = check_if_post_input_valid(request.POST['phone'], CHAR_100)
         if typeOfReq == 'edit':
             if Patient.objects.filter(phone_number=phone_number).exclude(id=idOfObject).exists():
-                # Return error response or add form error
                 messages.error(request, 'هذا الرقم مسجل مسبقاً لمريض آخر')
                 return redirect('/add-patient?new')
         else:
@@ -181,7 +180,10 @@ def check_if_patient_exists(request):
                 'id'        : patient.id if patient else None,
                 'name'      : patient.name if patient else None,
                 'age'       : patient.age if patient else None,
-                'gender'    : patient.get_gender_display() if patient else None
+                'gender'    : patient.get_gender_display() if patient else None,
+                'phone'     : patient.phone_number if patient else None
             }
         })
     return JsonResponse({'exists': False})
+
+

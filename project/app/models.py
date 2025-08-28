@@ -121,6 +121,7 @@ class Clinic(BaseModel):
 
     def __str__(self):
         return self.name 
+
 class DaysOfWeek(BaseModel):
     """Days of the week"""
     name = models.CharField(max_length=10, unique=True)
@@ -225,7 +226,7 @@ class Appointment(BaseModel):
     status   = models.ForeignKey(Status, on_delete=models.CASCADE)
     date     = models.DateField()
     time     = models.TimeField()
-    notes      = models.TextField(blank=True, null=True)
+    notes    = models.TextField(blank=True, null=True)
 
 
 
