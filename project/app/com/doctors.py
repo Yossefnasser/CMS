@@ -145,8 +145,7 @@ def add_new_doctor(request):
             doctor_obj.consultation_price     = consultation_price
             doctor_obj.save()
             
-            # For edit case, use the existing hashed ID
-            hashed_id = request.GET.get('id')  # This is already hashed
+            hashed_id = request.GET.get('id')
 
         elif typeOfReq == 'new':
             data_to_insert = Doctor.objects.create(
@@ -207,8 +206,8 @@ def check_if_doctor_exists(request):
         })
     return JsonResponse({'exists': False})
 
-def doctor_schedule(request):
-    
+
+def doctor_schedule(request, schedule_id=None):
     if request.method == 'POST':
         try:
             doctor_id       = request.POST.get('doctor_id')
@@ -218,24 +217,22 @@ def doctor_schedule(request):
             end_time        = request.POST.get('end_time')
             valid_from      = request.POST.get('valid_from')
             valid_to        = request.POST.get('valid_to')
+            
             doctor          = Doctor.objects.get(id=doctor_id)
             clinic          = Clinic.objects.get(id=clinic_id)
             day_of_week     = DaysOfWeek.objects.get(id=day_of_week_id)
-            typeofreq       = request.POST.get('type', 'new')
-
-            if typeofreq == 'edit':
-                schedule_id = request.POST.get('schedule_id')
+            
+            if schedule_id is not None:
                 schedule = DoctorSchedule.objects.get(id=schedule_id)
-                schedule.doctor = doctor
-                schedule.clinic = clinic
-                schedule.day_of_week = day_of_week
-                schedule.start_time = start_time
-                schedule.end_time = end_time
-                schedule.valid_from = valid_from
-                schedule.valid_to = valid_to
+                schedule.doctor              = doctor
+                schedule.clinic              = clinic
+                schedule.day_of_week         = day_of_week
+                schedule.start_time          = start_time
+                schedule.end_time            = end_time
+                schedule.valid_from          = valid_from
+                schedule.valid_to            = valid_to
                 schedule.save()
-                messages.success(request, 'Doctor schedule updated successfully.')
-
+                message = 'Doctor schedule updated successfully.'
             else:  
                 schedule = DoctorSchedule.objects.create(
                     doctor              =  doctor,
@@ -246,11 +243,11 @@ def doctor_schedule(request):
                     valid_from          =  valid_from,
                     valid_to            =  valid_to
                 )
-                messages.success(request, 'Doctor schedule created successfully.')
+                message = 'Doctor schedule created successfully.'
 
             return JsonResponse({
                 "success": True,
-                "message": "Schedule saved successfully",
+                "message": message,
                 "id": schedule.id,
                 "doctor": schedule.doctor.full_name
             })
@@ -260,3 +257,8 @@ def doctor_schedule(request):
                 "success": False,
                 "message": str(e)
             }, status=500)
+    else:
+        return JsonResponse({
+            "success": False,
+            "message": "Method not allowed"
+        }, status=405)
