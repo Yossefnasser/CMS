@@ -88,7 +88,7 @@ def add_new_doctor(request):
     elif typeOfReq == 'new':
         data_to_insert      = None
         doctor_schedules    = None
-
+    days_of_week = DaysOfWeek.objects.all()
     all_specializations     = Specialization.objects.filter(deleted_date__isnull=True)
     clinics                 = Clinic.objects.filter(deleted_date__isnull=True)
 
@@ -105,7 +105,7 @@ def add_new_doctor(request):
         full_name            = check_if_post_input_valid(request.POST['full_name'], CHAR_100)
         email                = request.POST.get('email', '').strip()
         if email:
-            email = check_valid_text(email, CHAR_100)
+            email = check_valid_text(email)
         else : 
             email = None
 
