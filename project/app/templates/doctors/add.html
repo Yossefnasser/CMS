@@ -703,15 +703,34 @@ $(document).ready(function() {
                     data: {
                         clinic_id: clinicId,
                         day_of_week_id: dayId
-                    }
+                    },
+                    timeout: 10000 // 10 second timeout
                 });
                 
                 console.log('AJAX response:', response);
-                this.displayTimeSlots(response.slots || []);
+                
+                if (response && response.slots) {
+                    this.displayTimeSlots(response.slots);
+                } else {
+                    this.showError('استجابة غير متوقعة من الخادم');
+                }
                 
             } catch (error) {
                 console.error('AJAX Error:', error);
-                this.showError('حدث خطأ في تحميل المواعيد المتاحة');
+                
+                let errorMessage = 'حدث خطأ في تحميل المواعيد المتاحة';
+                
+                if (error.status === 0) {
+                    errorMessage = 'تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت';
+                } else if (error.status === 404) {
+                    errorMessage = 'لم يتم العثور على نقطة النهاية المطلوبة';
+                } else if (error.status === 500) {
+                    errorMessage = 'خطأ داخلي في الخادم';
+                } else if (error.statusText === 'timeout') {
+                    errorMessage = 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى';
+                }
+                
+                this.showError(errorMessage);
             }
         },
 
@@ -779,7 +798,7 @@ $(document).ready(function() {
             
             const validation = this.validateForm();
             if (!validation.isValid) {
-                alert(validation.message);
+                this.showAlert('خطأ في المدخلات', validation.message, 'error');
                 return;
             }
             
@@ -798,27 +817,45 @@ $(document).ready(function() {
                     data: formData,
                     headers: {
                         'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                    }
+                    },
+                    timeout: 15000 // 15 second timeout
                 });
                 
                 if (response.success) {
                     const message = this.isEditMode ? 'تم تحديث الجدول بنجاح' : 'تم إضافة الجدول بنجاح';
-                    alert(message);
-                    location.reload();
+                    this.showAlert('نجح', message, 'success').then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(response.message || 'حدث خطأ أثناء حفظ الجدول');
+                    this.showAlert('خطأ', response.message || 'حدث خطأ أثناء حفظ الجدول', 'error');
                 }
                 
             } catch (error) {
                 console.error('Error submitting form:', error);
-                alert('حدث خطأ أثناء حفظ الجدول');
+                
+                let errorMessage = 'حدث خطأ أثناء حفظ الجدول';
+                
+                if (error.status === 0) {
+                    errorMessage = 'تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت';
+                } else if (error.status === 400) {
+                    errorMessage = 'بيانات غير صالحة. يرجى التحقق من المدخلات';
+                } else if (error.status === 403) {
+                    errorMessage = 'غير مصرح لك بتنفيذ هذا الإجراء';
+                } else if (error.status === 404) {
+                    errorMessage = 'لم يتم العثور على المورد المطلوب';
+                } else if (error.status === 500) {
+                    errorMessage = error.responseJSON.message;
+                } else if (error.statusText === 'timeout') {
+                    errorMessage = 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى';
+                }
+                
+                this.showAlert('خطأ', errorMessage, 'error');
             } finally {
                 this.isProcessing = false;
                 this.updateSubmitButton();
             }
         },
 
-<<<<<<< HEAD
         getFormData() {
             // Get doctor ID from the main form
             const doctorId = $('#id').val();
@@ -827,7 +864,7 @@ $(document).ready(function() {
                 doctor_id: doctorId,
                 clinic: $('#clinic').val(),
                 day_of_week: $('#day_of_week').val(),
-                clinic_slot_id: this.selectedTimeSlot, // Changed to match backend
+                clinic_slot_id: this.selectedTimeSlot,
                 valid_from: $('#valid_from').val(),
                 valid_to: $('#valid_to').val()
             };
@@ -860,36 +897,28 @@ $(document).ready(function() {
 
         handleEdit(e) {
             const btn = $(e.currentTarget);
-            const data = btn.data();
+            const scheduleId = btn.data('schedule-id');
             
-            // Populate form
-            $('#clinic').val(data.clinic);
-            $('#day_of_week').val(data.dayOfWeek);
-            $('#valid_from').val(data.validFrom);
-            $('#valid_to').val(data.validTo);
-            
-            this.isEditMode = true;
-            this.editingScheduleId = data.scheduleId;
-            
-            // Update button text
-            $('#addScheduleForm button[type="submit"]').html('<i class="fas fa-save me-2"></i>تحديث الجدول');
-            
-            // Show form and load time slots
-            this.showForm();
-            this.handleFilterChange();
+            // For now, just show a message that edit functionality is not fully implemented
+            this.showAlert('معلومة', 'وظيفة التعديل قيد التطوير. يرجى حذف الجدول الحالي وإضافة جدول جديد.', 'info');
         },
 
         async handleToggle(e) {
             const btn = $(e.currentTarget);
-            const scheduleId = btn.data('scheduleId');
+            const scheduleId = btn.data('schedule-id');
             const action = btn.data('action');
             
             if (this.isProcessing) return;
             
-            if (!confirm(`هل أنت متأكد من ${action === 'activate' ? 'تنشيط' : 'إيقاف'} هذا الجدول؟`)) {
-                return;
-            }
+            const result = await this.showConfirm(
+                'هل أنت متأكد؟',
+                `سيتم ${action === 'activate' ? 'تنشيط' : 'إيقاف'} هذا الجدول`,
+                'question',
+                `${action === 'activate' ? 'تنشيط' : 'إيقاف'}`
+            );
             
+            if (!result) return;
+
             this.isProcessing = true;
             
             try {
@@ -899,18 +928,21 @@ $(document).ready(function() {
                     data: { action: action },
                     headers: {
                         'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                    }
+                    },
+                    timeout: 10000
                 });
                 
                 if (response.success) {
-                    location.reload();
+                    this.showAlert('نجح', `تم ${action === 'activate' ? 'تنشيط' : 'إيقاف'} الجدول بنجاح`, 'success').then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(response.message || 'حدث خطأ');
+                    this.showAlert('خطأ', response.message || `حدث خطأ أثناء ${action === 'activate' ? 'تنشيط' : 'إيقاف'} الجدول`, 'error');
                 }
                 
             } catch (error) {
                 console.error('Error toggling schedule:', error);
-                alert('حدث خطأ أثناء العملية');
+                this.showAlert('خطأ', `حدث خطأ أثناء ${action === 'activate' ? 'تنشيط' : 'إيقاف'} الجدول`, 'error');
             } finally {
                 this.isProcessing = false;
             }
@@ -918,14 +950,19 @@ $(document).ready(function() {
 
         async handleDelete(e) {
             const btn = $(e.currentTarget);
-            const scheduleId = btn.data('scheduleId');
+            const scheduleId = btn.data('schedule-id');
             
             if (this.isProcessing) return;
             
-            if (!confirm('هل أنت متأكد من حذف هذا الجدول نهائياً؟')) {
-                return;
-            }
+            const result = await this.showConfirm(
+                'هل أنت متأكد؟',
+                'سيتم حذف هذا الجدول نهائياً. لا يمكن التراجع عن هذا الإجراء.',
+                'warning',
+                'حذف'
+            );
             
+            if (!result) return;
+
             this.isProcessing = true;
             
             try {
@@ -934,18 +971,21 @@ $(document).ready(function() {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                    }
+                    },
+                    timeout: 10000
                 });
                 
                 if (response.success) {
-                    location.reload();
+                    this.showAlert('تم الحذف', 'تم حذف الجدول بنجاح', 'success').then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(response.message || 'حدث خطأ');
+                    this.showAlert('خطأ', response.message || 'حدث خطأ أثناء حذف الجدول', 'error');
                 }
                 
             } catch (error) {
                 console.error('Error deleting schedule:', error);
-                alert('حدث خطأ أثناء الحذف');
+                this.showAlert('خطأ', 'حدث خطأ أثناء حذف الجدول', 'error');
             } finally {
                 this.isProcessing = false;
             }
@@ -992,17 +1032,47 @@ $(document).ready(function() {
                 const iconClass = this.isEditMode ? 'fa-save' : 'fa-check';
                 submitBtn.html(`<i class="fas ${iconClass} me-2"></i>${buttonText}`);
             }
+        },
+
+        // Improved alert system with SweetAlert2
+        async showAlert(title, text, icon) {
+            return await Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                confirmButtonText: 'حسناً',
+                customClass: {
+                    confirmButton: 'btn btn-primary'
+                },
+                buttonsStyling: false,
+                allowOutsideClick: false
+            });
+        },
+
+        // Improved confirmation dialog
+        async showConfirm(title, text, icon, confirmButtonText) {
+            const result = await Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonText: confirmButtonText,
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-danger me-2',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false,
+                focusCancel: true,
+                allowOutsideClick: false
+            });
+            
+            return result.isConfirmed;
         }
     };
 
     // Initialize the schedule page manager
     SchedulePageManager.init();
 });
-=======
-        // Initialize the schedule manager
-        ScheduleManager.init();
-    });
- 
->>>>>>> 214db32b7adbaeb36b4dd58fdd7ce5b86c531661
 </script>
 {% endblock %}

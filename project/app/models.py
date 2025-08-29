@@ -64,8 +64,8 @@ class Doctor(BaseModel):
     """Doctor information model"""
     full_name                = models.CharField(max_length=100)
     specialization           = models.ForeignKey(Specialization, on_delete=models.PROTECT, related_name="doctors")
-    phone_number             = models.CharField(max_length=15, blank=True, null=True)
-    email                    = models.EmailField(unique=True, blank=True, null=True)
+    phone_number             = models.CharField(unique=True,max_length=15, blank=True, null=True)
+    email                    = models.EmailField( blank=True, null=True)
     examination_price        = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     consultation_price       = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     is_active                = models.BooleanField(default=True)
@@ -202,10 +202,17 @@ class DoctorSchedule(BaseModel):
             overlapping_schedules = overlapping_schedules.exclude(pk=self.pk)
         if overlapping_schedules.exists():
             raise ValidationError('This schedule overlaps with an existing schedule for the same doctor.')
+        overlapping_clinics = DoctorSchedule.objects.filter(
+            clinic= self.clinic,
+            day_of_week=self.day_of_week,
+            clinic_slot=self.clinic_slot,
+            deleted_date__isnull=True
+        ).exclude(pk=self.pk)
+        if overlapping_clinics :
+            raise ValidationError('This schedule overlaps with an existing schedule for the other doctor.')
     def save(self, *args, **kwargs):
         self.full_clean()  # calls clean_fields(), clean(), and validate_unique()
         super().save(*args, **kwargs)
-
     
     def __str__(self):
         return f"{self.doctor} at {self.clinic} on {self.day_of_week} ({self.clinic_slot}-)"
