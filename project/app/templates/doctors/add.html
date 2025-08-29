@@ -436,6 +436,7 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
     $(document).ready(function() {
         // Activate current nav item
@@ -446,100 +447,6 @@
             if ($(this).val() !== '') {
                 $(this).siblings('.floating-label').addClass('active');
             }
-        });
-
-        // Schedule Form Toggle
-        $('#addScheduleBtn').click(function() {
-            const scheduleForm = $('#scheduleForm');
-            if (scheduleForm.hasClass('d-none')) {
-                scheduleForm.removeClass('d-none').addClass('animate-slide-down');
-                $(this).html('<i class="fas fa-minus me-2"></i>إخفاء النموذج');
-            } else {
-                scheduleForm.addClass('d-none').removeClass('animate-slide-down');
-                $(this).html('<i class="fas fa-plus me-2"></i>إضافة جدول جديد');
-            }
-        });
-
-        $('#cancelScheduleBtn').click(function() {
-            const scheduleForm = $('#scheduleForm');
-            scheduleForm.addClass('d-none').removeClass('animate-slide-down');
-            $('#addScheduleBtn').html('<i class="fas fa-plus me-2"></i>إضافة جدول جديد');
-            $('#addScheduleForm')[0].reset();
-        });
-
-        // Schedule Form Submission
-        $('#addScheduleForm').submit(function(e) {
-            e.preventDefault();
-            
-            // Basic validation
-            const clinic = $('#clinic').val();
-            const dayOfWeek = $('#day_of_week').val();
-            const startTime = $('#start_time').val();
-            const endTime = $('#end_time').val();
-            const validFrom = $('#valid_from').val();
-            const validTo = $('#valid_to').val();
-
-            if (!clinic || !dayOfWeek || !startTime || !endTime || !validFrom || !validTo) {
-                Swal.fire({
-                    title: 'خطأ!',
-                    text: 'يرجى ملء جميع الحقول المطلوبة',
-                    icon: 'error',
-                    confirmButtonText: 'حسناً',
-                    customClass: {
-                        confirmButton: 'btn btn-primary'
-                    },
-                    buttonsStyling: false
-                });
-                return;
-            }
-
-            // Time validation
-            if (startTime >= endTime) {
-                Swal.fire({
-                    title: 'خطأ!',
-                    text: 'وقت البداية يجب أن يكون قبل وقت النهاية',
-                    icon: 'error',
-                    confirmButtonText: 'حسناً',
-                    customClass: {
-                        confirmButton: 'btn btn-primary'
-                    },
-                    buttonsStyling: false
-                });
-                return;
-            }
-
-            // Date validation
-            if (new Date(validFrom) > new Date(validTo)) {
-                Swal.fire({
-                    title: 'خطأ!',
-                    text: 'تاريخ البداية يجب أن يكون قبل تاريخ النهاية',
-                    icon: 'error',
-                    confirmButtonText: 'حسناً',
-                    customClass: {
-                        confirmButton: 'btn btn-primary'
-                    },
-                    buttonsStyling: false
-                });
-                return;
-            }
-
-            // Here you would typically submit the form data via AJAX
-            // For now, we'll just show a success message
-            Swal.fire({
-                title: 'تم الحفظ!',
-                text: 'تم إضافة الجدول بنجاح',
-                icon: 'success',
-                confirmButtonText: 'حسناً',
-                customClass: {
-                    confirmButton: 'btn btn-primary'
-                },
-                buttonsStyling: false
-            }).then(() => {
-                // Reset form and hide it
-                $('#addScheduleForm')[0].reset();
-                $('#scheduleForm').addClass('d-none').removeClass('animate-slide-down');
-                $('#addScheduleBtn').html('<i class="fas fa-plus me-2"></i>إضافة جدول جديد');
-            });
         });
 
         // Form validation for doctor form
@@ -659,415 +566,436 @@
     });
 </script>
 
-
-
+<!-- NEW Schedule JavaScript -->
 <script>
+$(document).ready(function() {
+    console.log('Schedule page script loaded');
+    const SchedulePageManager = {
+        selectedTimeSlot: null,
+        isEditMode: false,
+        editingScheduleId: null,
+        isProcessing: false,
 
-    $(document).ready(function() {
-        // Schedule management state
-        const ScheduleManager = {
-            isEditingSchedule: false,
-            editingScheduleId: null,
-            isProcessing: false, // Prevent duplicate requests
+        init() {
+            this.bindEvents();
+            this.setDateDefaults();
+        },
+
+        bindEvents() {
+            console.log('Binding events...');
+            const self = this;
+
+            // Form toggle
+            $('#addScheduleBtn').on('click', function() {
+                console.log('Add schedule button clicked');
+                self.showForm();
+            });
             
-            // Initialize the schedule manager
-            init() {
-                this.bindEvents();
-                this.setMinimumDates();
-                this.validateScheduleForm();
-            },
+            $('#cancelScheduleBtn').on('click', function() {
+                console.log('Cancel button clicked');
+                self.hideForm();
+            });
+            
+            // Filter changes
+            $('#clinic').on('change', function() {
+                console.log('Clinic changed to:', $(this).val());
+                self.handleFilterChange();
+            });
+            
+            $('#day_of_week').on('change', function() {
+                console.log('Day changed to:', $(this).val());
+                self.handleFilterChange();
+            });
+            
+            // Date validation
+            $('#valid_from').on('change', function() {
+                console.log('Valid from changed');
+                self.handleDateChange();
+            });
+            
+            // Form submission
+            $('#addScheduleForm').on('submit', function(e) {
+                console.log('Form submitted');
+                self.handleFormSubmit(e);
+            });
+            
+            // Schedule actions
+            $(document).on('click', '.edit-schedule-btn', function(e) {
+                console.log('Edit button clicked');
+                self.handleEdit(e);
+            });
+            
+            $(document).on('click', '.toggle-schedule-btn', function(e) {
+                console.log('Toggle button clicked');
+                self.handleToggle(e);
+            });
+            
+            $(document).on('click', '.delete-schedule-btn', function(e) {
+                console.log('Delete button clicked');
+                self.handleDelete(e);
+            });
+        },
 
-            // Bind all event handlers
-            bindEvents() {
-                $('#addScheduleBtn').off('click').on('click', () => this.showScheduleForm());
-                $('#cancelScheduleBtn').off('click').on('click', () => this.hideScheduleForm());
-                $('#addScheduleForm').off('submit').on('submit', (e) => this.handleScheduleSubmit(e));
-                
-                // Use event delegation for dynamic elements
-                $(document)
-                    .off('click', '.edit-schedule-btn').on('click', '.edit-schedule-btn', (e) => this.handleEditSchedule(e))
-                    .off('click', '.toggle-schedule-btn').on('click', '.toggle-schedule-btn', (e) => this.handleToggleSchedule(e))
-                    .off('click', '.delete-schedule-btn').on('click', '.delete-schedule-btn', (e) => this.handleDeleteSchedule(e));
+        showForm() {
+            $('#scheduleForm').removeClass('d-none');
+            $('#addScheduleBtn').addClass('d-none');
+            this.resetForm();
+        },
 
-                // Form validation events
-                $('#clinic, #day_of_week, #start_time, #end_time, #valid_from, #valid_to')
-                    .off('change input').on('change input', () => this.validateScheduleForm());
-                
-                $('#valid_from').off('change').on('change', () => this.handleValidFromChange());
-            },
+        hideForm() {
+            $('#scheduleForm').addClass('d-none');
+            $('#addScheduleBtn').removeClass('d-none');
+            this.resetForm();
+        },
 
-            // Show schedule form
-            showScheduleForm() {
-                $('#scheduleForm').removeClass('d-none');
-                $('#addScheduleBtn').addClass('d-none');
-                this.resetScheduleForm();
-                this.setDefaultDates();
-            },
+        resetForm() {
+            $('#addScheduleForm')[0].reset();
+            this.selectedTimeSlot = null;
+            this.isEditMode = false;
+            this.editingScheduleId = null;
+            this.showNoSlotsMessage();
+            this.updateSubmitButton();
+            this.setDateDefaults();
+            
+            // Clear any selected time slots
+            $('.time-slot-item').removeClass('selected');
+        },
 
-            // Hide schedule form
-            hideScheduleForm() {
-                $('#scheduleForm').addClass('d-none');
-                $('#addScheduleBtn').removeClass('d-none');
-                this.resetScheduleForm();
-            },
-
-            // Set default dates (today and 3 months later)
-            setDefaultDates() {
-                const today = new Date();
-                const threeMonthsLater = new Date();
-                threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
-                
-                $('#valid_from').val(today.toISOString().split('T')[0]);
+        setDateDefaults() {
+            const today = new Date().toISOString().split('T')[0];
+            const threeMonthsLater = new Date();
+            threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+            
+            $('#valid_from').attr('min', today);
+            if (!$('#valid_from').val()) {
+                $('#valid_from').val(today);
+            }
+            if (!$('#valid_to').val()) {
                 $('#valid_to').val(threeMonthsLater.toISOString().split('T')[0]);
-            },
+            }
+        },
 
-            // Reset schedule form
-            resetScheduleForm() {
-                $('#addScheduleForm')[0].reset();
-                this.isEditingSchedule = false;
-                this.editingScheduleId = null;
-                this.isProcessing = false;
-                $('#addScheduleForm button[type="submit"]').html('<i class="fas fa-check me-1"></i>إضافة');
-                $('.is-invalid').removeClass('is-invalid'); // Clear validation errors
-                this.validateScheduleForm();
-            },
+        handleFilterChange() {
+            const clinicId = $('#clinic').val();
+            const dayId = $('#day_of_week').val();
+            
+            console.log('Filter change - Clinic:', clinicId, 'Day:', dayId);
+            
+            if (clinicId && dayId) {
+                console.log('Both filters set, fetching time slots...');
+                this.fetchTimeSlots(clinicId, dayId);
+            } else {
+                console.log('Missing filters, showing no slots message');
+                this.showNoSlotsMessage();
+            }
+            this.updateSubmitButton();
+        },
 
-            // Handle schedule form submission
-            async handleScheduleSubmit(e) {
-                e.preventDefault();
-                
-                // Prevent duplicate submissions
-                if (this.isProcessing) {
-                    return;
-                }
-
-                const doctorId = $('#id').val();
-                if (!doctorId) {
-                    await this.showAlert('خطأ!', 'يجب حفظ بيانات الطبيب أولاً قبل إضافة المواعيد', 'warning');
-                    return;
-                }
-
-                // Get and validate form data
-                const formData = this.getFormData(doctorId);
-                const validation = this.validateFormData(formData);
-                
-                if (!validation.isValid) {
-                    await this.showAlert('خطأ!', validation.message, 'error');
-                    return;
-                }
-
-                this.isProcessing = true;
-                this.toggleSubmitButton(false);
-
-                try {
-                    const response = await this.submitSchedule(formData);
-                    
-                    if (response.success) {
-                        const message = this.isEditingSchedule ? 'تم تحديث الجدول بنجاح' : 'تم إضافة الجدول بنجاح';
-                        await this.showAlert('تم!', message, 'success');
-                        location.reload();
-                    } else {
-                        await this.showAlert('خطأ!', response.message || 'حدث خطأ أثناء حفظ الجدول', 'error');
+        async fetchTimeSlots(clinicId, dayId) {
+            this.showLoading();
+            
+            console.log('Making AJAX request with:', {clinic_id: clinicId, day_of_week_id: dayId});
+            
+            try {
+                const response = await $.ajax({
+                    url: '/api/time-slots/',
+                    method: 'GET',
+                    data: {
+                        clinic_id: clinicId,
+                        day_of_week_id: dayId
                     }
-                } catch (error) {
-                    const errorMessage = this.parseErrorMessage(error);
-                    await this.showAlert('خطأ!', errorMessage, 'error');
-                } finally {
-                    this.isProcessing = false;
-                    this.toggleSubmitButton(true);
+                });
+                
+                console.log('AJAX response:', response);
+                this.displayTimeSlots(response.slots || []);
+                
+            } catch (error) {
+                console.error('AJAX Error:', error);
+                this.showError('حدث خطأ في تحميل المواعيد المتاحة');
+            }
+        },
+
+        displayTimeSlots(slots) {
+            $('#slotsLoading').hide();
+            $('#noSlotsMessage').hide();
+            $('#timeSlotsGrid').show();
+            
+            const grid = $('#timeSlotsGrid');
+            grid.empty();
+            
+            if (slots.length === 0) {
+                this.showError('لا توجد مواعيد متاحة لهذا اليوم في العيادة المختارة');
+                return;
+            }
+            
+            slots.forEach(slot => {
+                const slotElement = this.createTimeSlotElement(slot);
+                grid.append(slotElement);
+            });
+            
+            this.updateSubmitButton();
+        },
+
+        createTimeSlotElement(slot) {
+            const slotDiv = $(`
+                <div class="time-slot-item" data-slot-id="${slot.id}">
+                    <input type="radio" name="time_slot" value="${slot.id}" style="display: none;">
+                    <i class="fas fa-clock me-1"></i>
+                    ${slot.start_time} - ${slot.end_time}
+                </div>
+            `);
+            
+            slotDiv.on('click', () => {
+                // Deselect all other slots
+                $('.time-slot-item').removeClass('selected');
+                
+                // Select this slot
+                slotDiv.addClass('selected');
+                $(`input[name="time_slot"][value="${slot.id}"]`).prop('checked', true);
+                
+                // Store the selected slot ID
+                this.selectedTimeSlot = slot.id;
+                this.updateSubmitButton();
+            });
+            
+            return slotDiv;
+        },
+
+        handleDateChange() {
+            const validFrom = $('#valid_from').val();
+            if (validFrom) {
+                $('#valid_to').attr('min', validFrom);
+                if ($('#valid_to').val() && $('#valid_to').val() <= validFrom) {
+                    $('#valid_to').val('');
                 }
-            },
+            }
+            this.updateSubmitButton();
+        },
 
-            // Get form data
-            getFormData(doctorId) {
-                return {
-                    doctor_id: doctorId,
-                    clinic: $('#clinic').val()?.trim(),
-                    day_of_week: $('#day_of_week').val(),
-                    start_time: $('#start_time').val(),
-                    end_time: $('#end_time').val(),
-                    valid_from: $('#valid_from').val(),
-                    valid_to: $('#valid_to').val()
-                };
-            },
-
-            // Validate form data
-            validateFormData(formData) {
-                const { clinic, day_of_week, start_time, end_time, valid_from, valid_to } = formData;
-
-                if (!clinic || !day_of_week || !start_time || !end_time || !valid_from || !valid_to) {
-                    return { isValid: false, message: 'يرجى ملء جميع الحقول المطلوبة' };
-                }
-
-                if (start_time >= end_time) {
-                    return { isValid: false, message: 'وقت البداية يجب أن يكون قبل وقت النهاية' };
-                }
-
-                if (new Date(valid_from) >= new Date(valid_to)) {
-                    return { isValid: false, message: 'تاريخ البداية يجب أن يكون قبل تاريخ النهاية' };
-                }
-
-                return { isValid: true };
-            },
-
-            // Submit schedule data
-            async submitSchedule(formData) {
-                const url = this.isEditingSchedule 
-                    ? `/doctor-schedule/update/${this.editingScheduleId}/` 
-                    : '/doctor-schedule/add';
-
+        async handleFormSubmit(e) {
+            e.preventDefault();
+            
+            if (this.isProcessing) return;
+            
+            const validation = this.validateForm();
+            if (!validation.isValid) {
+                alert(validation.message);
+                return;
+            }
+            
+            this.isProcessing = true;
+            this.updateSubmitButton();
+            
+            try {
+                const formData = this.getFormData();
+                const url = this.isEditMode 
+                    ? `/doctor-schedule/update/${this.editingScheduleId}/`
+                    : '/doctor-schedule/add/';
+                
                 const response = await $.ajax({
                     url: url,
-                    type: 'POST',
+                    method: 'POST',
                     data: formData,
                     headers: {
                         'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
                     }
                 });
-
-                return response;
-            },
-
-            // Handle edit schedule
-            handleEditSchedule(e) {
-                if (this.isProcessing) return;
-
-                const $btn = $(e.currentTarget);
-                const scheduleData = {
-                    id: $btn.data('schedule-id'),
-                    clinic: $btn.data('clinic'),
-                    dayOfWeek: $btn.data('day-of-week'),
-                    startTime: $btn.data('start-time'),
-                    endTime: $btn.data('end-time'),
-                    validFrom: $btn.data('valid-from'),
-                    validTo: $btn.data('valid-to')
-                };
-
-                this.populateFormForEdit(scheduleData);
-            },
-
-            // Populate form for editing
-            populateFormForEdit(scheduleData) {
-                $('#clinic').val(scheduleData.clinic);
-                $('#day_of_week').val(scheduleData.dayOfWeek);
-                $('#start_time').val(scheduleData.startTime);
-                $('#end_time').val(scheduleData.endTime);
-                $('#valid_from').val(scheduleData.validFrom);
-                $('#valid_to').val(scheduleData.validTo);
-
-                $('#scheduleForm').removeClass('d-none');
-                $('#addScheduleBtn').addClass('d-none');
-                this.isEditingSchedule = true;
-                this.editingScheduleId = scheduleData.id;
-                $('#addScheduleForm button[type="submit"]').html('<i class="fas fa-save me-1"></i>تحديث');
                 
-                this.validateScheduleForm();
-            },
-
-            // Handle toggle schedule status
-            async handleToggleSchedule(e) {
-                if (this.isProcessing) return;
-
-                const $btn = $(e.currentTarget);
-                const scheduleId = $btn.data('schedule-id');
-                const action = $btn.data('action');
-                const actionText = action === 'activate' ? 'تنشيط' : 'إيقاف';
-                
-                const result = await Swal.fire({
-                    title: 'هل أنت متأكد؟',
-                    text: `سيتم ${actionText} هذا الجدول`,
-                    icon: 'question',
-                    showCancelButton: true,
-                    confirmButtonText: `نعم، ${actionText}`,
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: action === 'activate' ? '#4cc9f0' : '#f72585',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                });
-
-                if (!result.isConfirmed) return;
-
-                this.isProcessing = true;
-
-                try {
-                    const response = await $.ajax({
-                        url: `/doctor-schedule/toggle/${scheduleId}/`,
-                        type: 'POST',
-                        data: { action: action },
-                        headers: {
-                            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                        }
-                    });
-
-                    if (response.success) {
-                        await this.showAlert('تم!', `تم ${actionText} الجدول بنجاح`, 'success');
-                        location.reload();
-                    } else {
-                        await this.showAlert('خطأ!', response.message || `حدث خطأ أثناء ${actionText} الجدول`, 'error');
-                    }
-                } catch (error) {
-                    await this.showAlert('خطأ!', `حدث خطأ أثناء ${actionText} الجدول`, 'error');
-                } finally {
-                    this.isProcessing = false;
-                }
-            },
-
-            // Handle delete schedule
-            async handleDeleteSchedule(e) {
-                if (this.isProcessing) return;
-
-                const $btn = $(e.currentTarget);
-                const scheduleId = $btn.data('schedule-id');
-                const $scheduleRow = $btn.closest('tr');
-                
-                const result = await Swal.fire({
-                    title: 'هل أنت متأكد؟',
-                    text: 'سيتم حذف هذا الجدول نهائياً',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'نعم، احذف',
-                    cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#f72585',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                });
-
-                if (!result.isConfirmed) return;
-
-                this.isProcessing = true;
-
-                try {
-                    const response = await $.ajax({
-                        url: `/doctor-schedule/delete/${scheduleId}/`,
-                        type: 'POST',
-                        data: { '_method': 'DELETE' },
-                        headers: {
-                            'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                        }
-                    });
-
-                    if (response.success) {
-                        await this.showAlert('تم الحذف!', 'تم حذف الجدول بنجاح', 'success');
-                        
-                        $scheduleRow.fadeOut(300, function() {
-                            $(this).remove();
-                            
-                            // Check if no schedules left
-                            if ($('tbody tr').length === 0) {
-                                $('#scheduleList').html(`
-                                    <div class="text-center py-5 text-muted">
-                                        <i class="fas fa-calendar-times fa-3x mb-3"></i>
-                                        <p class="h6">لا توجد جداول مضافة بعد</p>
-                                        <p class="small">استخدم الزر أعلاه لإضافة جداول العمل للطبيب</p>
-                                    </div>
-                                `);
-                            }
-                        });
-                    } else {
-                        await this.showAlert('خطأ!', response.message || 'حدث خطأ أثناء حذف الجدول', 'error');
-                    }
-                } catch (error) {
-                    await this.showAlert('خطأ!', 'حدث خطأ أثناء حذف الجدول', 'error');
-                } finally {
-                    this.isProcessing = false;
-                }
-            },
-
-            // Handle valid_from date change
-            handleValidFromChange() {
-                const validFromDate = $('#valid_from').val();
-                if (validFromDate) {
-                    $('#valid_to').attr('min', validFromDate);
-                    // If valid_to is before valid_from, clear it
-                    if ($('#valid_to').val() && $('#valid_to').val() <= validFromDate) {
-                        $('#valid_to').val('');
-                    }
-                }
-                this.validateScheduleForm();
-            },
-
-            // Validate schedule form
-            validateScheduleForm() {
-                const formData = this.getFormData('temp');
-                const { clinic, day_of_week, start_time, end_time, valid_from, valid_to } = formData;
-
-                let isValid = clinic && day_of_week && start_time && end_time && valid_from && valid_to;
-
-                // Check time validation
-                if (start_time && end_time && start_time >= end_time) {
-                    $('#end_time').addClass('is-invalid');
-                    isValid = false;
+                if (response.success) {
+                    const message = this.isEditMode ? 'تم تحديث الجدول بنجاح' : 'تم إضافة الجدول بنجاح';
+                    alert(message);
+                    location.reload();
                 } else {
-                    $('#end_time').removeClass('is-invalid');
+                    alert(response.message || 'حدث خطأ أثناء حفظ الجدول');
                 }
-
-                // Check date validation
-                if (valid_from && valid_to && new Date(valid_from) >= new Date(valid_to)) {
-                    $('#valid_to').addClass('is-invalid');
-                    isValid = false;
-                } else {
-                    $('#valid_to').removeClass('is-invalid');
-                }
-
-                // Enable/disable submit button
-                this.toggleSubmitButton(isValid);
-            },
-
-            // Set minimum dates
-            setMinimumDates() {
-                const today = new Date().toISOString().split('T')[0];
-                $('#valid_from, #valid_to').attr('min', today);
-            },
-
-            // Toggle submit button state
-            toggleSubmitButton(enabled) {
-                const $btn = $('#addScheduleForm button[type="submit"]');
-                $btn.prop('disabled', !enabled || this.isProcessing);
                 
-                if (this.isProcessing) {
-                    const originalHtml = $btn.html();
-                    $btn.data('original-html', originalHtml);
-                    $btn.html('<i class="fas fa-spinner fa-spin me-1"></i>جاري المعالجة...');
-                } else if ($btn.data('original-html')) {
-                    $btn.html($btn.data('original-html'));
-                }
-            },
-
-            // Parse error message from AJAX response
-            parseErrorMessage(xhr) {
-                let errorMessage = 'حدث خطأ أثناء العملية';
-                try {
-                    if (xhr.responseText) {
-                        const response = JSON.parse(xhr.responseText);
-                        if (response.message) {
-                            errorMessage = response.message;
-                        } else if (response.errors) {
-                            errorMessage = Object.values(response.errors).flat().join(', ');
-                        }
-                    }
-                } catch (e) {
-                    // Keep default error message
-                }
-                return errorMessage;
-            },
-
-            // Show SweetAlert with promise support
-            async showAlert(title, text, icon) {
-                return await Swal.fire({
-                    title: title,
-                    text: text,
-                    icon: icon,
-                    confirmButtonText: 'حسناً',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                });
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert('حدث خطأ أثناء حفظ الجدول');
+            } finally {
+                this.isProcessing = false;
+                this.updateSubmitButton();
             }
-        };
+        },
 
-        // Initialize the schedule manager
-        ScheduleManager.init();
-    });
+        getFormData() {
+            // Get doctor ID from the main form
+            const doctorId = $('#id').val();
+            
+            return {
+                doctor_id: doctorId,
+                clinic: $('#clinic').val(),
+                day_of_week: $('#day_of_week').val(),
+                clinic_slot_id: this.selectedTimeSlot, // Changed to match backend
+                valid_from: $('#valid_from').val(),
+                valid_to: $('#valid_to').val()
+            };
+        },
 
+        validateForm() {
+            const clinic = $('#clinic').val();
+            const dayOfWeek = $('#day_of_week').val();
+            const validFrom = $('#valid_from').val();
+            const validTo = $('#valid_to').val();
+            
+            if (!clinic || !dayOfWeek) {
+                return { isValid: false, message: 'يرجى اختيار العيادة واليوم' };
+            }
+            
+            if (!this.selectedTimeSlot) {
+                return { isValid: false, message: 'يرجى اختيار فترة زمنية' };
+            }
+            
+            if (!validFrom || !validTo) {
+                return { isValid: false, message: 'يرجى تحديد فترة صلاحية الجدول' };
+            }
+            
+            if (new Date(validFrom) >= new Date(validTo)) {
+                return { isValid: false, message: 'تاريخ البداية يجب أن يكون قبل تاريخ النهاية' };
+            }
+            
+            return { isValid: true };
+        },
+
+        handleEdit(e) {
+            const btn = $(e.currentTarget);
+            const data = btn.data();
+            
+            // Populate form
+            $('#clinic').val(data.clinic);
+            $('#day_of_week').val(data.dayOfWeek);
+            $('#valid_from').val(data.validFrom);
+            $('#valid_to').val(data.validTo);
+            
+            this.isEditMode = true;
+            this.editingScheduleId = data.scheduleId;
+            
+            // Update button text
+            $('#addScheduleForm button[type="submit"]').html('<i class="fas fa-save me-2"></i>تحديث الجدول');
+            
+            // Show form and load time slots
+            this.showForm();
+            this.handleFilterChange();
+        },
+
+        async handleToggle(e) {
+            const btn = $(e.currentTarget);
+            const scheduleId = btn.data('scheduleId');
+            const action = btn.data('action');
+            
+            if (this.isProcessing) return;
+            
+            if (!confirm(`هل أنت متأكد من ${action === 'activate' ? 'تنشيط' : 'إيقاف'} هذا الجدول؟`)) {
+                return;
+            }
+            
+            this.isProcessing = true;
+            
+            try {
+                const response = await $.ajax({
+                    url: `/doctor-schedule/toggle/${scheduleId}/`,
+                    method: 'POST',
+                    data: { action: action },
+                    headers: {
+                        'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                    }
+                });
+                
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.message || 'حدث خطأ');
+                }
+                
+            } catch (error) {
+                console.error('Error toggling schedule:', error);
+                alert('حدث خطأ أثناء العملية');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+
+        async handleDelete(e) {
+            const btn = $(e.currentTarget);
+            const scheduleId = btn.data('scheduleId');
+            
+            if (this.isProcessing) return;
+            
+            if (!confirm('هل أنت متأكد من حذف هذا الجدول نهائياً؟')) {
+                return;
+            }
+            
+            this.isProcessing = true;
+            
+            try {
+                const response = await $.ajax({
+                    url: `/doctor-schedule/delete/${scheduleId}/`,
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
+                    }
+                });
+                
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert(response.message || 'حدث خطأ');
+                }
+                
+            } catch (error) {
+                console.error('Error deleting schedule:', error);
+                alert('حدث خطأ أثناء الحذف');
+            } finally {
+                this.isProcessing = false;
+            }
+        },
+
+        showLoading() {
+            $('#slotsLoading').show();
+            $('#noSlotsMessage').hide();
+            $('#timeSlotsGrid').hide();
+        },
+
+        showNoSlotsMessage() {
+            $('#slotsLoading').hide();
+            $('#noSlotsMessage').show();
+            $('#timeSlotsGrid').hide();
+        },
+
+        showError(message) {
+            $('#slotsLoading').hide();
+            $('#timeSlotsGrid').hide();
+            $('#noSlotsMessage').show().html(`
+                <i class="fas fa-exclamation-triangle fa-2x mb-2 text-warning"></i>
+                <p>${message}</p>
+            `);
+        },
+
+        updateSubmitButton() {
+            const clinic = $('#clinic').val();
+            const dayOfWeek = $('#day_of_week').val();
+            const validFrom = $('#valid_from').val();
+            const validTo = $('#valid_to').val();
+            const hasTimeSlot = this.selectedTimeSlot !== null;
+            const datesValid = validFrom && validTo && new Date(validFrom) < new Date(validTo);
+            
+            const isValid = clinic && dayOfWeek && hasTimeSlot && datesValid && !this.isProcessing;
+            
+            const submitBtn = $('#addScheduleForm button[type="submit"]');
+            submitBtn.prop('disabled', !isValid);
+            
+            if (this.isProcessing) {
+                submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>جاري المعالجة...');
+            } else {
+                const buttonText = this.isEditMode ? 'تحديث الجدول' : 'إضافة الجدول';
+                const iconClass = this.isEditMode ? 'fa-save' : 'fa-check';
+                submitBtn.html(`<i class="fas ${iconClass} me-2"></i>${buttonText}`);
+            }
+        }
+    };
+
+    // Initialize the schedule page manager
+    SchedulePageManager.init();
+});
 </script>
-
 {% endblock %}

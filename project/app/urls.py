@@ -14,15 +14,15 @@ urlpatterns = [
     path('delete-doctor',   doctors.delete_doctor, name='delete-doctor'),
     path('check-if-doctor-exists', doctors.check_if_doctor_exists, name='check-if-doctor-exists'),
     
-    path('doctor-schedule/add', doctors.doctor_schedule, name='add-doctor-schedule'),
+    path('doctor-schedule/add/', doctors.doctor_schedule, name='add-doctor-schedule'),
     path('doctor-schedule/update/<int:schedule_id>/', doctors.doctor_schedule, name='update-doctor-schedule'),
+    path('api/time-slots/',doctors.api_get_slots, name='api-get-slots'),
     
     path('add-patient',              patient.add_new_patient,           name='add-patient'),
     path('list-of-patients',         patient.list_of_patient,           name='list-of-patients'),
     path('get-list-of-patients',     patient.get_list_of_patients,      name='get-list-of-patients'),
     path('delete-patient',           patient.delete_patient,            name='delete-patient'),
     path('check-if-patient-exists',  patient.check_if_patient_exists,   name='check-if-patient-exists'),
-
     
     path('add-appointment', appointment.new_appointment, name='add-appointment'),
     path('appointment/doctors/', appointment.api_get_doctors_by_specialization, name='api-get-doctors-by-specialization'),

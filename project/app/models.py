@@ -128,76 +128,11 @@ class DaysOfWeek(BaseModel):
     def __str__(self):
         return self.name
 
-class DoctorSchedule(BaseModel):
-    """Doctor availability schedule"""
-    doctor                 = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
-    day_of_week            = models.ForeignKey(DaysOfWeek, on_delete=models.CASCADE)
-    start_time             = models.TimeField()
-    end_time               = models.TimeField()
-    valid_from             = models.DateField(default=datetime.date.today)
-    valid_to               = models.DateField(null=True, blank=True)
-    is_active              = models.BooleanField(default=True)
-    
-    class Meta:
-        ordering = ['day_of_week', 'start_time']
-        unique_together = ['doctor', 'day_of_week', 'start_time']
-    def clean(self):
-        if self.start_time >= self.end_time:
-            raise ValidationError("Start time must be before end time.")
-        if self.valid_from > self.valid_to:
-            raise ValidationError("Valid from date must be before valid to date.")
-        
-        clinic_hours = ClinicSchedule.objects.filter(
-            clinic = self.clinic,
-            day_of_week = self.day_of_week,
-            is_active = True
-        ).first()
-        if clinic_hours:
-            if not (clinic_hours.open_time <= self.start_time < self.end_time <= clinic_hours.close_time):
-                raise ValidationError(f"Doctor's schedule must be within clinic hours: {clinic_hours.open_time} - {clinic_hours.close_time}.")
-        
-        overlaps = DoctorSchedule.objects.filter(
-            clinic= self.clinic,
-            day_of_week = self.day_of_week,
-            is_active=True
-        ).exclude(id=self.id).filter(
-            start_time__lt=self.end_time,
-            end_time__gt=self.start_time
-        )
-
-        if overlaps.exists():
-            conflicting = overlaps.first()  # just show one conflict (or loop if you want all)
-            raise ValidationError(
-                f"Schedule overlaps with another schedule for Dr. {conflicting.doctor.full_name} "
-                f"on {conflicting.day_of_week} from {conflicting.start_time.strftime('%H:%M')} "
-                f"to {conflicting.end_time.strftime('%H:%M')}."
-            )
-                
-        doctor_conflicts = DoctorSchedule.objects.filter(
-            doctor=self.doctor,
-            day_of_week=self.day_of_week,
-            is_active=True
-        ).exclude(id=self.id).filter(
-            start_time__lt=self.end_time,
-            end_time__gt=self.start_time
-        )
-        if doctor_conflicts.exists():
-            raise ValidationError("هذا الجدول يتداخل مع جدول آخر لنفس الطبيب.")
-    
-    def save(self, *args, **kwargs):
-        self.full_clean()  # calls clean_fields(), clean(), and validate_unique()
-        super().save(*args, **kwargs)
-
-    
-    def __str__(self):
-        return f"{self.doctor} at {self.clinic} on {self.day_of_week} ({self.start_time}-{self.end_time})"
 
 class ClinicSchedule(BaseModel):
     """Clinic working hours"""
     clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
     day_of_week            = models.ForeignKey(DaysOfWeek, on_delete=models.CASCADE)
-
     open_time              = models.TimeField()
     close_time             = models.TimeField()
     is_active              = models.BooleanField(default=True)
@@ -209,15 +144,74 @@ class ClinicSchedule(BaseModel):
     def __str__(self):
         return f"{self.clinic} on {self.day_of_week} ({self.open_time}-{self.close_time})"
 
+class ClinicSlot(BaseModel):
+    clinic_schedule = models.ForeignKey(ClinicSchedule, on_delete=models.CASCADE)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_active = models.BooleanField(default=True)
+    class Meta:
+        ordering = ['start_time']
+        unique_together = ['clinic_schedule', 'start_time']
+    def __str__(self):
+        return f"{self.clinic_schedule.clinic} Slot ({self.start_time}-{self.end_time})"
+    def clean(self):
+        if self.start_time >= self.end_time :
+            return ValidationError('Start time must be before end time. ')
+        clinic_hours = self.clinic_schedule
+        if not (clinic_hours.open_time <= self.start_time < self.end_time <= clinic_hours.close_time):
+            raise ValidationError(f"Clinic slot must be within clinic hours: {clinic_hours.open_time} - {clinic_hours.close_time}.")
+    def to_json(self):
+        return {
+            'id'        : self.id,
+            'hash_id'   : get_id_hashed_of_object(self.id),
+            'clinic'    : self.clinic_schedule.clinic.name,
+            'day_of_week': self.clinic_schedule.day_of_week.name,
+            'start_time': self.start_time.strftime('%H:%M'),
+            'end_time'  : self.end_time.strftime('%H:%M'),
+        }
+
 class Status(BaseModel):
     name = models.CharField(max_length=100, unique=True)
     def __str__(self):
         return self.name
 
+class DoctorSchedule(BaseModel):
+    """Doctor availability schedule"""
+    doctor                 = models.ForeignKey(Doctor, on_delete=models.CASCADE)
+    clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
+    day_of_week            = models.ForeignKey(DaysOfWeek, on_delete=models.CASCADE)
+    clinic_slot            = models.ForeignKey(ClinicSlot, on_delete=models.CASCADE, null=True, blank=True)
+    valid_from             = models.DateField(default=datetime.date.today)
+    valid_to               = models.DateField(null=True, blank=True)
+    is_active              = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['day_of_week', 'clinic_slot']
+        unique_together = ['doctor', 'day_of_week', 'clinic_slot']
+    def clean(self):
+        if self.valid_to and self.valid_from > self.valid_to:
+            raise ValidationError('valid_from must be before valid_to.')
+        overlapping_schedules = DoctorSchedule.objects.filter(
+            doctor=self.doctor,
+            day_of_week=self.day_of_week,
+            clinic_slot=self.clinic_slot,
+            deleted_date__isnull=True
+        )
+        if self.pk:
+            overlapping_schedules = overlapping_schedules.exclude(pk=self.pk)
+        if overlapping_schedules.exists():
+            raise ValidationError('This schedule overlaps with an existing schedule for the same doctor.')
+    def save(self, *args, **kwargs):
+        self.full_clean()  # calls clean_fields(), clean(), and validate_unique()
+        super().save(*args, **kwargs)
+
+    
+    def __str__(self):
+        return f"{self.doctor} at {self.clinic} on {self.day_of_week} ({self.clinic_slot}-)"
+
 
 class Appointment(BaseModel):
     """Patient appointment records"""
-
     
     patient  = models.ForeignKey(Patient, on_delete=models.CASCADE)
     doctor   = models.ForeignKey(Doctor, on_delete=models.CASCADE)

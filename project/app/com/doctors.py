@@ -1,7 +1,7 @@
 from datetime import datetime
 from urllib import request
 from django.shortcuts import render
-from app.models import Clinic, DaysOfWeek, Doctor, DoctorSchedule, Specialization
+from app.models import Clinic, ClinicSchedule, DaysOfWeek, Doctor, DoctorSchedule, Specialization,ClinicSlot
 from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
@@ -13,7 +13,6 @@ from project.settings import CHAR_100, CHAR_50
 
 
 def list_of_doctors(request):
-
     return render(request, 'doctors/list.html')
 
 def get_list_of_doctors(request):
@@ -91,14 +90,15 @@ def add_new_doctor(request):
     days_of_week = DaysOfWeek.objects.all()
     all_specializations     = Specialization.objects.filter(deleted_date__isnull=True)
     clinics                 = Clinic.objects.filter(deleted_date__isnull=True)
-
+    clinic_slots      = ClinicSlot.objects.filter()
     context = {
         'data_to_insert'      : data_to_insert,
         'typeOfReq'           : typeOfReq,
         'all_specializations' : all_specializations,
         'clinics'             : clinics,
         'doctor_schedules'    : doctor_schedules,
-        'days_of_week'        : days_of_week
+        'days_of_week'        : days_of_week,
+        'clinic_slots'        : clinic_slots,
     }
 
     if request.method == 'POST':
@@ -213,35 +213,33 @@ def doctor_schedule(request, schedule_id=None):
             doctor_id       = request.POST.get('doctor_id')
             clinic_id       = request.POST.get('clinic')
             day_of_week_id  = request.POST.get('day_of_week')
-            start_time      = request.POST.get('start_time')
-            end_time        = request.POST.get('end_time')
+            clinic_slot_id  = request.POST.get('clinic_slot_id')
             valid_from      = request.POST.get('valid_from')
             valid_to        = request.POST.get('valid_to')
             
             doctor          = Doctor.objects.get(id=doctor_id)
             clinic          = Clinic.objects.get(id=clinic_id)
             day_of_week     = DaysOfWeek.objects.get(id=day_of_week_id)
+            clinic_slot     = ClinicSlot.objects.get(id=clinic_slot_id)
             
             if schedule_id is not None:
                 schedule = DoctorSchedule.objects.get(id=schedule_id)
                 schedule.doctor              = doctor
                 schedule.clinic              = clinic
                 schedule.day_of_week         = day_of_week
-                schedule.start_time          = start_time
-                schedule.end_time            = end_time
+                schedule.clinic_slot         = clinic_slot
                 schedule.valid_from          = valid_from
                 schedule.valid_to            = valid_to
                 schedule.save()
                 message = 'Doctor schedule updated successfully.'
             else:  
                 schedule = DoctorSchedule.objects.create(
-                    doctor              =  doctor,
-                    clinic              =  clinic,
-                    day_of_week         =  day_of_week,
-                    start_time          =  start_time,
-                    end_time            =  end_time,
-                    valid_from          =  valid_from,
-                    valid_to            =  valid_to
+                    doctor              = doctor,
+                    clinic              = clinic,
+                    day_of_week         = day_of_week,
+                    clinic_slot         = clinic_slot,  # ADD THIS LINE
+                    valid_from          = valid_from,
+                    valid_to            = valid_to
                 )
                 message = 'Doctor schedule created successfully.'
 
@@ -262,3 +260,21 @@ def doctor_schedule(request, schedule_id=None):
             "success": False,
             "message": "Method not allowed"
         }, status=405)
+def api_get_slots(request):
+    clinic_id = request.GET.get('clinic_id')
+    day_of_week_id = request.GET.get('day_of_week_id')
+    print(f'clinic {clinic_id} , day of week {day_of_week_id}')
+    clinic_schedule = ClinicSchedule.objects.filter(
+        clinic_id=clinic_id,
+        day_of_week_id=day_of_week_id,
+        is_active=True,
+        deleted_date__isnull=True
+    ).first() 
+    clinic_slots = ClinicSlot.objects.filter(
+        clinic_schedule= clinic_schedule
+    )
+    print(f'clinic slots {clinic_slots.count()}')
+    return JsonResponse({
+        "success": True,
+        "slots":[slots.to_json() for slots in clinic_slots]
+    })
