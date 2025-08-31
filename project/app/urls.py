@@ -16,6 +16,7 @@ urlpatterns = [
     
     path('doctor-schedule/add/', doctors.doctor_schedule, name='add-doctor-schedule'),
     path('doctor-schedule/update/<int:schedule_id>/', doctors.doctor_schedule, name='update-doctor-schedule'),
+    path('doctor-schedule/delete/<int:schedule_id>/',doctors.delete_doctor_schedule, name='delete-doctor-schedule'),
     path('api/time-slots/',doctors.api_get_slots, name='api-get-slots'),
     
     path('add-patient',              patient.add_new_patient,           name='add-patient'),
@@ -25,7 +26,9 @@ urlpatterns = [
     path('check-if-patient-exists',  patient.check_if_patient_exists,   name='check-if-patient-exists'),
     
     path('add-appointment', appointment.new_appointment, name='add-appointment'),
+    path('list-of-oppointments',appointment.list_of_appointments , name= 'list-of-appointments'),
     path('api/new-appointment', appointment.new_appointment_api, name='api_new_appointment'),
+    path('schedules-overview/', appointment.schedules_overview, name='api_schedules-overview-refresh'),
     path('api/get-doctors-by-specialization', appointment.api_get_doctors_by_specialization, name='api_get_doctors_by_specialization'),
     path('api/get-doctor-schedule', appointment.get_doctor_schedule, name='get_doctor_schedule'),
 ]

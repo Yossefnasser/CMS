@@ -173,6 +173,135 @@
         color: #2c3e50;
         margin-bottom: 0.5rem;
     }
+    /* Time Slot Styles */
+.time-slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 15px 0;
+}
+
+.time-slot-item {
+    position: relative;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 15px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Available slots */
+.time-slot-item.available {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f5e8 100%);
+}
+
+.time-slot-item.available:hover,
+.time-slot-item.available.hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    border-color: #20c997;
+}
+
+.time-slot-item.available.selected {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-color: #28a745;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.time-slot-item.unavailable {
+            border-color: #dc3545 !important;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%) !important;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .time-slot-item.unavailable:hover {
+            transform: none !important;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2) !important;
+        }
+
+        .slot-content {
+            text-align: center;
+            width: 100%;
+        }
+
+        .slot-time {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .slot-doctor {
+            font-size: 12px;
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        .time-slot-item.available .slot-time {
+            color: #28a745;
+        }
+
+        .time-slot-item.available.selected .slot-time {
+            color: white;
+        }
+
+        /* Unavailable slot text color */
+        .time-slot-item.unavailable .slot-time {
+            color: #dc3545 !important;
+        }
+
+        .slot-overlay {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Loading and message states */
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .no-slots-message {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .time-slot-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .time-slot-item {
+        padding: 12px;
+        min-height: 70px;
+    }
+    
+    .slot-time {
+        font-size: 14px;
+    }
+}
 
     /* Success Message */
     .alert-success {
@@ -756,26 +885,56 @@ $(document).ready(function() {
         },
 
         createTimeSlotElement(slot) {
+            // Determine the CSS classes and click behavior based on availability
+            const availabilityClass = slot.is_available ? 'available' : 'unavailable';
+            const clickable = slot.is_available ? '' : 'disabled';
+            
+            // Create the slot element with conditional styling
             const slotDiv = $(`
-                <div class="time-slot-item" data-slot-id="${slot.id}">
-                    <input type="radio" name="time_slot" value="${slot.id}" style="display: none;">
-                    <i class="fas fa-clock me-1"></i>
-                    ${slot.start_time} - ${slot.end_time}
+                <div class="time-slot-item ${availabilityClass} ${clickable}" data-slot-id="${slot.id}">
+                    <input type="radio" name="time_slot" value="${slot.id}" style="display: none;" ${!slot.is_available ? 'disabled' : ''}>
+                    <div class="slot-content">
+                        <div class="slot-time">
+                            <i class="fas fa-clock me-1"></i>
+                            ${slot.start_time} - ${slot.end_time}
+                        </div>
+                        ${!slot.is_available ? `
+                            <div class="slot-doctor">
+                                <i class="fas fa-user-md me-1"></i>
+                                ${slot.doctor_name || 'محجوز'}
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${!slot.is_available ? '<div class="slot-overlay"><i class="fas fa-lock"></i></div>' : ''}
                 </div>
             `);
             
-            slotDiv.on('click', () => {
-                // Deselect all other slots
-                $('.time-slot-item').removeClass('selected');
+            // Only make available slots clickable
+            if (slot.is_available) {
+                slotDiv.on('click', () => {
+                    // Deselect all other slots
+                    $('.time-slot-item').removeClass('selected');
+                    
+                    // Select this slot
+                    slotDiv.addClass('selected');
+                    $(`input[name="time_slot"][value="${slot.id}"]`).prop('checked', true);
+                    
+                    // Store the selected slot ID
+                    this.selectedTimeSlot = slot.id;
+                    this.updateSubmitButton();
+                });
                 
-                // Select this slot
-                slotDiv.addClass('selected');
-                $(`input[name="time_slot"][value="${slot.id}"]`).prop('checked', true);
-                
-                // Store the selected slot ID
-                this.selectedTimeSlot = slot.id;
-                this.updateSubmitButton();
-            });
+                // Add hover effect for available slots
+                slotDiv.hover(
+                    function() { $(this).addClass('hover'); },
+                    function() { $(this).removeClass('hover'); }
+                );
+            } else {
+                // Add click handler for unavailable slots to show info
+                slotDiv.on('click', () => {
+                    this.showAlert('غير متاح', `هذا الموعد محجوز للدكتور ${slot.doctor_name || 'آخر'}`, 'info');
+                });
+            }
             
             return slotDiv;
         },

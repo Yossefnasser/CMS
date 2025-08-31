@@ -233,50 +233,7 @@
                                     {% csrf_token %}
                                     <input type="hidden" id="id" name="id" value="{{ data_to_insert.id|default:'' }}">
                                     
-                                    <!-- Doctor & Specialization Section (Highlighted) -->
-                                    <div class="form-section highlighted-section">
-                                        <div class="section-header">
-                                            <div class="section-icon">
-                                                <i class="fas fa-user-md"></i>
-                                            </div>
-                                            <h3 class="section-title">بيانات الدكتور والتخصص</h3>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="floating-label-group">
-                                                    <label class="floating-label">التخصص</label>
-                                                    <select class="form-control" id="specialization" name="specialization" required>
-                                                        <option value="">اختر التخصص</option>
-                                                        {% for data in all_specializations %}
-                                                            <option value="{{ data.id }}">
-                                                                {{ data.name }}
-                                                            </option>
-                                                        {% endfor %}
-                                                    </select>
-                                                    <div class="invalid-feedback">
-                                                        يرجى اختيار التخصص
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="col-md-6">
-                                                <div class="floating-label-group">
-                                                    <label class="floating-label">الدكتور</label>
-                                                    <select class="form-control" id="doctor" name="doctor" required>
-                                                        <option value="">اختر الدكتور</option>
-                                                        {% for data in all_doctors %}
-                                                            <option value="{{ data.id }}">
-                                                                {{ data.full_name }}
-                                                            </option>
-                                                        {% endfor %}
-                                                    </select>
-                                                    <div class="invalid-feedback">
-                                                        يرجى اختيار الدكتور
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    
 
                                     <!-- Patient Information Section -->
                                     <div class="form-section">

@@ -1,4 +1,5 @@
 import datetime
+import time
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.forms import ValidationError
@@ -116,11 +117,13 @@ class Patient(BaseModel):
 class Clinic(BaseModel):
     """Medical departments/clinics"""
     name            = models.CharField(max_length=50)
-    description     = models.TextField(blank=True, null=True)
+    default_open_time = models.TimeField(default=datetime.time(13, 0))
+    default_close_time = models.TimeField(default=datetime.time(23, 0))
+    slot_duration_hours = models.IntegerField(default=2)
     is_active       = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.name 
+        return  f'{self.name} ({self.default_open_time} - {self.default_close_time})'
 
 class DaysOfWeek(BaseModel):
     """Days of the week"""
@@ -130,45 +133,32 @@ class DaysOfWeek(BaseModel):
         return self.name
 
 
-class ClinicSchedule(BaseModel):
-    """Clinic working hours"""
-    clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
-    day_of_week            = models.ForeignKey(DaysOfWeek, on_delete=models.CASCADE)
-    open_time              = models.TimeField()
-    close_time             = models.TimeField()
-    is_active              = models.BooleanField(default=True)
-
-    class Meta:
-        ordering        = ['day_of_week', 'open_time']
-        unique_together = ['clinic', 'day_of_week', 'open_time']
-
-    def __str__(self):
-        return f"{self.clinic} on {self.day_of_week} ({self.open_time}-{self.close_time})"
-
 class ClinicSlot(BaseModel):
-    clinic_schedule = models.ForeignKey(ClinicSchedule, on_delete=models.CASCADE)
+    clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)
+    day_of_week = models.ForeignKey(DaysOfWeek , on_delete=models.CASCADE)
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_active = models.BooleanField(default=True)
     class Meta:
         ordering = ['start_time']
-        unique_together = ['clinic_schedule', 'start_time']
     def __str__(self):
-        return f"{self.clinic_schedule.clinic} Slot ({self.start_time}-{self.end_time})"
+        return f"{self.clinic.name} Slot ({self.start_time}-{self.end_time})"
     def clean(self):
         if self.start_time >= self.end_time :
             return ValidationError('Start time must be before end time. ')
-        clinic_hours = self.clinic_schedule
-        if not (clinic_hours.open_time <= self.start_time < self.end_time <= clinic_hours.close_time):
+        clinic_hours = self.clinic
+        if not (clinic_hours.default_open_time <= self.start_time < self.end_time <= clinic_hours.default_close_time):
             raise ValidationError(f"Clinic slot must be within clinic hours: {clinic_hours.open_time} - {clinic_hours.close_time}.")
-    def to_json(self):
+    def to_json(self, is_available=True, doctor_name=None):
         return {
-            'id'        : self.id,
-            'hash_id'   : get_id_hashed_of_object(self.id),
-            'clinic'    : self.clinic_schedule.clinic.name,
-            'day_of_week': self.clinic_schedule.day_of_week.name,
+            'id': self.id,
+            'hash_id': get_id_hashed_of_object(self.id),
+            'clinic': self.clinic.name,
+            'day_of_week': self.day_of_week.name,
             'start_time': self.start_time.strftime('%H:%M'),
-            'end_time'  : self.end_time.strftime('%H:%M'),
+            'end_time': self.end_time.strftime('%H:%M'),
+            'is_available': is_available,
+            'doctor_name': doctor_name,
         }
 
 class Status(BaseModel):
