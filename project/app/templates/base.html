@@ -20,7 +20,8 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <script src="{% static 'js/base.js' %}"></script>
-    
+    {% block styles %}{% endblock %}
+
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Enhanced Header -->
@@ -116,7 +117,7 @@
     
         {% block content %}
 
-        {%endblock%}
+        {% endblock %}
     
     <!-- Enhanced Footer -->
     <footer class="footer-enhanced text-white py-5 mt-auto">

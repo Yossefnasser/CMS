@@ -276,19 +276,19 @@ def delete_doctor_schedule(request,schedule_id):
 def api_get_slots(request):
     clinic_id = request.GET.get('clinic_id')
     day_of_week_id = request.GET.get('day_of_week_id')
-    
+
     clinic_slots = ClinicSlot.objects.filter(
         clinic_id=clinic_id,
-        day_of_week_id=day_of_week_id,
         is_active=True,
         deleted_date__isnull=True
     )
-    
+
     slots_data = []
     for slot in clinic_slots:
         # Check if slot is occupied by any doctor
         doctor_schedule = DoctorSchedule.objects.filter(
             clinic_slot=slot,
+            day_of_week_id = day_of_week_id,
             is_active=True,
             deleted_date__isnull=True
         ).first()

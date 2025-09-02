@@ -27,9 +27,6 @@ class Command(BaseCommand):
                 self.stdout.write(f"Created slots for {clinic.name}")
 
     def create_slots_for_clinic(self, clinic):
-        days = DaysOfWeek.objects.all()
-        
-        for day in days:
             current_time = clinic.default_open_time
             
             while current_time < clinic.default_close_time:
@@ -39,7 +36,6 @@ class Command(BaseCommand):
                 if end_time <= clinic.default_close_time:
                     slot, created = ClinicSlot.objects.get_or_create(
                         clinic=clinic,
-                        day_of_week=day,
                         start_time=current_time,
                         end_time=end_time
                     )

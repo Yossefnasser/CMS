@@ -246,7 +246,6 @@
                                         <div class="row g-4">
                                             <div class="col-md-6">
                                                 <div class="floating-label-group">
-                                                    <label class="floating-label">الاسم الكامل</label>
                                                     <input 
                                                         type="text" 
                                                         class="form-control" 
@@ -257,6 +256,7 @@
                                                         required
                                                         pattern="^[\u0600-\u06FFa-zA-Z\s]{2,50}$"
                                                     >
+                                                    <label class="floating-label">الاسم الكامل</label>
                                                     <div class="invalid-feedback">
                                                         يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)
                                                     </div>
@@ -328,15 +328,15 @@
                                             </div>
                                             <h3 class="section-title">ملاحظات إضافية</h3>
                                         </div>
-                                        <label class="floating-label">ملاحظات المريض</label>
                                         <div class="floating-label-group">
                                             <textarea 
                                                 class="form-control" 
                                                 id="notes" 
                                                 name="notes" 
                                                 rows="3"
-                                                placeholder="أدخل ملاحظات المريض هنا..."
+                                                placeholder=" "
                                             >{{ data_to_insert.notes|default:'' }}</textarea>
+                                            <label for="notes" class="floating-label">ملاحظات المريض</label>
                                         </div>
                                     </div>
 

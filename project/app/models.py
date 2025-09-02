@@ -135,7 +135,6 @@ class DaysOfWeek(BaseModel):
 
 class ClinicSlot(BaseModel):
     clinic = models.ForeignKey(Clinic, on_delete=models.CASCADE)
-    day_of_week = models.ForeignKey(DaysOfWeek , on_delete=models.CASCADE)
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_active = models.BooleanField(default=True)
@@ -154,7 +153,6 @@ class ClinicSlot(BaseModel):
             'id': self.id,
             'hash_id': get_id_hashed_of_object(self.id),
             'clinic': self.clinic.name,
-            'day_of_week': self.day_of_week.name,
             'start_time': self.start_time.strftime('%H:%M'),
             'end_time': self.end_time.strftime('%H:%M'),
             'is_available': is_available,
@@ -178,7 +176,21 @@ class DoctorSchedule(BaseModel):
     
     class Meta:
         ordering = ['day_of_week', 'clinic_slot']
-        unique_together = ['doctor', 'day_of_week', 'clinic_slot']
+    
+    def to_json(self):
+        return {
+            'id'        : self.id,
+            'hash_id'   : get_id_hashed_of_object(self.id),
+            'clinic' : self.clinic.name,
+            'doctor': self.doctor.full_name,
+            'specialization' : self.doctor.specialization.name, 
+            'day_of_week'       : self.day_of_week.name,
+            'clinic_slot': self.clinic_slot.pk if self.clinic_slot else None,
+            'valid_from'     : self.valid_from,
+            'valid_to'     : self.valid_to,
+            'is_active'     : self.is_active,
+        }
+    
     def clean(self):
         if self.valid_to and self.valid_from > self.valid_to:
             raise ValidationError('valid_from must be before valid_to.')

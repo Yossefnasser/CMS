@@ -420,7 +420,6 @@
                                     <div class="row g-4">
                                         <!-- Full Name -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">الاسم الكامل</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="text" 
@@ -432,6 +431,7 @@
                                                     required
                                                     pattern="^[\u0600-\u06FFa-zA-Z\s]{2,50}$"
                                                 >
+                                                <label class="floating-label">الاسم الكامل</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)
                                                 </div>
@@ -440,7 +440,6 @@
 
                                         <!-- Email -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">البريد الإلكتروني</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="text" 
@@ -450,6 +449,7 @@
                                                     placeholder=" "
                                                     value="{{ data_to_insert.email|default:'' }}"
                                                 >
+                                                <label class="floating-label">البريد الإلكتروني</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال بريد إلكتروني صحيح
                                                 </div>
@@ -458,7 +458,6 @@
 
                                         <!-- Phone Number -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">رقم الهاتف</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="tel" 
@@ -469,6 +468,7 @@
                                                     pattern="^\d{11}$"
                                                     value="{{ data_to_insert.phone_number|default:'' }}"
                                                     required>
+                                            <label class="floating-label">رقم الهاتف</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال رقم هاتف صحيح
                                                 </div>
@@ -477,7 +477,6 @@
 
                                         <!-- Specialization Dropdown -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">التخصص</label>
                                             <div class="floating-label-group">
                                                 <select class="form-control" id="specialization" name="specialization" required>
                                                     <option value="">اختر التخصص</option>
@@ -488,6 +487,8 @@
                                                         </option>
                                                     {% endfor %}
                                                 </select>
+                                                <label class="floating-label">التخصص</label>
+
                                                 <div class="invalid-feedback">
                                                     يرجى اختيار التخصص
                                                 </div>
@@ -498,7 +499,6 @@
                                     <div class="row g-4">
                                         <!-- كشف -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">كشف</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="number" 
@@ -510,6 +510,7 @@
                                                     step="10"
                                                     value="{{ data_to_insert.examination_price|default:'' }}"
                                                     required>
+                                            <label class="floating-label">كشف</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال قيمة الكشف بشكل صحيح
                                                 </div>
@@ -518,7 +519,6 @@
                                         
                                         <!-- استشارة -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">استشارة</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="number" 
@@ -530,6 +530,7 @@
                                                     step="10"
                                                     value="{{ data_to_insert.consultation_price|default:'' }}"
                                                     required>
+                                            <label class="floating-label">استشارة</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال قيمة الاستشارة بشكل صحيح
                                                 </div>

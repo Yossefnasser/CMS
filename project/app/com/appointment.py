@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from app.helpers import get_id_of_object
-from app.models import Appointment, Clinic, Doctor, DoctorSchedule, Patient, Status, User ,Specialization , DaysOfWeek
+from app.models import Appointment, Clinic, ClinicSlot, Doctor, DoctorSchedule, Patient, Status, User ,Specialization , DaysOfWeek
 from django.db.models import Q
 import json
 
@@ -22,29 +22,27 @@ def list_of_appointments(request):
         'days_of_week'          : days_of_week,
     }
     return render(request, 'appointment/list.html',context)
-def schedules_overview(request):
-    schedules = DoctorSchedule.objects.filter(deleted_date__isnull=True).select_related('doctor', 'clinic', 'day_of_week')
-    
-    schedules_data = []
-    for schedule in schedules:
-        schedules_data.append({
-            'id': schedule.id,
-            'clinic_id': schedule.clinic.id,
-            'clinic_name': schedule.clinic.name,
-            'doctor_id': schedule.doctor.id,
-            'doctor_name': schedule.doctor.full_name,
-            'day_of_week': schedule.day_of_week.name,  # Assuming your model has this field
-            'day_of_week_id': schedule.day_of_week.id,
-            'start_time': schedule.clinic_slot.start_time.strftime('%H:%M'),
-            'end_time': schedule.clinic_slot.end_time.strftime('%H:%M'),
-            'slot_time': f"{schedule.clinic_slot.start_time.strftime('%H:%M')} - {schedule.clinic_slot.end_time.strftime('%H:%M')}"
-        })
+def get_clinic_time_slots(request,clinic_id):
+    clinic_slots = ClinicSlot.objects.filter(
+        clinic_id = clinic_id,
+        deleted_date__isnull=True
+    ).values('id','start_time', 'end_time').distinct().order_by('start_time')
     
     return JsonResponse({
-        'success': True,
-        'schedules_data': schedules_data
+        'success' : True,
+        'slots' : [slot for slot in clinic_slots]
     })
-
+def get_clinic_schedule(request,clinic_id):
+    clinic_schedules = DoctorSchedule.objects.filter(
+        clinic_id = clinic_id,
+        deleted_date__isnull=True
+    )
+    schedule_data = [schedule.to_json() for schedule in clinic_schedules]
+    print("Schedule data being sent:", schedule_data)
+    return JsonResponse({
+        'success' : True,
+        'schedules' : schedule_data
+    })
 def new_appointment(request):
     added_by     = request.user
     added_date   = datetime.now()
