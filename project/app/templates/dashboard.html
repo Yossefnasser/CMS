@@ -1,134 +1,123 @@
 {% extends "base.html" %}
 {% block content %}
-    <!-- Main Content -->
-    <main class="flex-grow-1 container-fluid my-4">
-        <!-- Welcome Section -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card-enhanced animate-fade-up">
-                    <div class="card-body p-4">
-                        <div class="row align-items-center">
-                            <div class="col-md-8">
-                            <h2 class="card-title text-primary mb-2">
-                                <i class="fas fa-sun text-warning me-2"></i>
-                                {% if user.is_authenticated %}
-                                    صباح الخير، {{ user.get_full_name }}
-                                    <span class="badge bg-info text-dark ms-2">{{ user.get_user_type_display }}</span>
-                                {% else %}
-                                    <i class="fas fa-sign-in-alt text-secondary me-2"></i>
-                                    مرحباً، الرجاء تسجيل الدخول
-                                {% endif %}
-                            </h2>
-                            <p class="card-text text-muted mb-0">
+<!-- Main Content -->
+<main class="flex-grow-1 container-fluid my-4">
 
-
-                                <br>
-                                <small><i class="fas fa-calendar me-1"></i> <span id="client-date"></span></small>
-                            </p>
-                            </div>
-                            {% if user.is_authenticated %}
-
-                            <div class="col-md-4 text-end">
-                                <div class="d-flex gap-2 justify-content-end">
-                                    <a href="/add-patient?type=new" class="btn btn-success">
-                                    <i class="fas fa-user-plus me-1"></i> مريض جديد
-                                    </a>
-
-                                    <a href="/add-appointment?type=new" class="btn btn-primary">
-                                    <i class="fas fa-plus me-1"></i> موعد جديد
-
-                                    
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  <!-- Welcome Section -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow-sm border-0 animate-fade-up">
+        <div class="card-body p-4">
+          <div class="row align-items-center">
+            
+            <!-- Welcome Text -->
+            <div class="col-md-8">
+              <h2 class="h4 text-primary mb-2">
+                <i class="fas fa-sun text-warning me-2"></i>
+                {% if user.is_authenticated %}
+                  صباح الخير، {{ user.get_full_name }}
+                  <span class="badge bg-info text-dark ms-2">{{ user.get_user_type_display }}</span>
+                {% else %}
+                  <i class="fas fa-sign-in-alt text-secondary me-2"></i>
+                  مرحباً، الرجاء تسجيل الدخول
+                {% endif %}
+              </h2>
+              <p class="text-muted mb-0">
+                <small>
+                  <i class="fas fa-calendar me-1"></i>
+                  <span id="client-date"></span>
+                </small>
+              </p>
             </div>
-        </div>
 
-        <!-- Statistics Cards -->
-        <div class="row mb-4">
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card patients animate-fade-up">
-                    <div class="stat-icon text-primary">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="stat-number">{{ total_patients_count }}</div>
-                    <div class="stat-label text-muted">إجمالي المرضى</div>
-                    <small class="{% if growth_rate >= 0 %}text-success{% else %}text-danger{% endif %}">
-                        <i class="fas {% if patients_growth_rate >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %} me-1"></i>
-                        {{ patients_growth_rate }}% هذا الشهر
-                    </small>
-                </div>
+            <!-- Quick Add Buttons -->
+            {% if user.is_authenticated %}
+            <div class="col-md-4 text-md-end mt-3 mt-md-0">
+              <div class="d-flex gap-2 justify-content-md-end">
+                <a href="/add-patient?type=new" class="btn btn-success">
+                  <i class="fas fa-user-plus me-1"></i> مريض جديد
+                </a>
+                <a href="/add-appointment?type=new" class="btn btn-primary">
+                  <i class="fas fa-plus me-1"></i> موعد جديد
+                </a>
+              </div>
             </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card appointments animate-fade-up">
-                    <div class="stat-icon text-success">
-                        <i class="fas fa-calendar-check"></i>
-                    </div>
-                    <div class="stat-number">86</div>
-                    <div class="stat-label text-muted">المواعيد هذا الأسبوع</div>
-                    <small class="text-info">
-                        <i class="fas fa-clock me-1"></i>15 موعد اليوم
-                    </small>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card doctors animate-fade-up">
-                    <div class="stat-icon text-info">
-                        <i class="fas fa-user-md"></i>
-                    </div>
-                    <div class="stat-number">12</div>
-                    <div class="stat-label text-muted">الأطباء النشطون</div>
-                    <small class="text-success">
-                        <i class="fas fa-check-circle me-1"></i>جميعهم متاحون
-                    </small>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 mb-3">
-                <div class="stat-card revenue animate-fade-up">
-                    <div class="stat-icon text-warning">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="stat-number">45,280</div>
-                    <div class="stat-label text-muted">الإيرادات (ريال)</div>
-                    <small class="text-success">
-                        <i class="fas fa-arrow-up me-1"></i>+8% من الأسبوع الماضي
-                    </small>
-                </div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <h3 class="mb-3">
-                    <i class="fas fa-bolt text-warning me-2"></i>
-                    إجراءات سريعة
-                </h3>
-                <div class="quick-actions">
-                    <a href="/add-patient?type=new" class="action-btn" data-bs-toggle="modal" data-bs-target="#patientModal">
-                        <div class="action-icon text-primary">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <h5>إضافة مريض جديد</h5>
-                        <p class="text-muted mb-0">تسجيل مريض جديد في النظام</p>
-                    </a>
-                    <a href="/add-appointment?type=new" class="action-btn">
-                        <div class="action-icon text-success">
-                            <i class="fas fa-calendar-plus"></i>
-                        </div>
-                        <h5>حجز موعد</h5>
-                        <p class="text-muted mb-0">حجز موعد جديد مع الطبيب</p>
-                    </a>
-                </div>
-            </div>
-        </div>
-
             {% endif %}
-    </main>
 
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% if user.is_authenticated %}
+  <!-- Statistics Cards -->
+  <div class="row mb-4 g-3">
+    <div class="col-lg-3 col-md-6">
+      <div class="card stat-card shadow-sm border-0 text-center p-3 animate-fade-up">
+        <div class="stat-icon text-primary mb-2"><i class="fas fa-users fa-lg"></i></div>
+        <h4 class="stat-number mb-1">{{ total_patients_count }}</h4>
+        <div class="stat-label text-muted">إجمالي المرضى</div>
+        <small class="{% if patients_growth_rate >= 0 %}text-success{% else %}text-danger{% endif %}">
+          <i class="fas {% if patients_growth_rate >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %} me-1"></i>
+          {{ patients_growth_rate }}% هذا الشهر
+        </small>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card stat-card shadow-sm border-0 text-center p-3 animate-fade-up">
+        <div class="stat-icon text-success mb-2"><i class="fas fa-calendar-check fa-lg"></i></div>
+        <h4 class="stat-number mb-1">86</h4>
+        <div class="stat-label text-muted">المواعيد هذا الأسبوع</div>
+        <small class="text-info"><i class="fas fa-clock me-1"></i> 15 موعد اليوم</small>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card stat-card shadow-sm border-0 text-center p-3 animate-fade-up">
+        <div class="stat-icon text-info mb-2"><i class="fas fa-user-md fa-lg"></i></div>
+        <h4 class="stat-number mb-1">12</h4>
+        <div class="stat-label text-muted">الأطباء النشطون</div>
+        <small class="text-success"><i class="fas fa-check-circle me-1"></i> جميعهم متاحون</small>
+      </div>
+    </div>
+
+    <div class="col-lg-3 col-md-6">
+      <div class="card stat-card shadow-sm border-0 text-center p-3 animate-fade-up">
+        <div class="stat-icon text-warning mb-2"><i class="fas fa-chart-line fa-lg"></i></div>
+        <h4 class="stat-number mb-1">45,280</h4>
+        <div class="stat-label text-muted">الإيرادات (الجنيه)</div>
+        <small class="text-success"><i class="fas fa-arrow-up me-1"></i> +8% من الأسبوع الماضي</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <h3 class="h5 mb-3">
+        <i class="fas fa-bolt text-warning me-2"></i> إجراءات سريعة
+      </h3>
+      <div class="d-flex flex-wrap gap-3">
+        <a href="/add-patient?type=new" class="action-btn flex-fill text-decoration-none">
+          <div class="action-icon text-primary mb-2"><i class="fas fa-user-plus fa-2x"></i></div>
+          <h6 class="mb-1">إضافة مريض جديد</h6>
+          <p class="text-muted small mb-0">تسجيل مريض جديد في النظام</p>
+        </a>
+        <a href="/add-appointment?type=new" class="action-btn flex-fill text-decoration-none">
+          <div class="action-icon text-success mb-2"><i class="fas fa-calendar-plus fa-2x"></i></div>
+          <h6 class="mb-1">حجز موعد</h6>
+          <p class="text-muted small mb-0">حجز موعد جديد مع الطبيب</p>
+        </a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+</main>
+
+<!-- Localized Date -->
 <script>
   document.getElementById('client-date').textContent = new Date().toLocaleDateString('ar-EG', {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
@@ -136,16 +125,10 @@
 </script>
 
 {% block Extrajavascripts %}
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-  $(document).ready(function() {
-    $('#nav-home').addClass('active');
+  document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById('nav-home')?.classList.add('active');
   });
 </script>
-
-
 {% endblock %}
-
 {% endblock %}
-

@@ -274,8 +274,8 @@ def delete_doctor_schedule(request,schedule_id):
         },status=500)
 
 def api_get_slots(request):
-    clinic_id = request.GET.get('clinic_id')
-    day_of_week_id = request.GET.get('day_of_week_id')
+    clinic_id       = request.GET.get('clinic_id')
+    day_of_week_id  = request.GET.get('day_of_week_id')
 
     clinic_slots = ClinicSlot.objects.filter(
         clinic_id=clinic_id,

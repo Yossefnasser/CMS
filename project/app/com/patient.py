@@ -5,6 +5,7 @@ from django.shortcuts import redirect, render
 from app.helpers import check_if_post_input_valid, check_valid_text, get_id_of_object , delete
 from app.models import Doctor, Patient, Specialization
 from django.db.models import Q
+from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.settings import CHAR_100
 ####################  Patient  #################3
@@ -160,6 +161,51 @@ def delete_patient(request):
         allJson['Result'] = "Fail"
         return JsonResponse(allJson, safe=False)
     
+
+def add_new_patient_ajax(request):
+    if request.method == 'POST':
+        name    = request.POST.get('name', '').strip()
+        phone   = request.POST.get('phone', '').strip()
+        age     = request.POST.get('age', '').strip()
+        gender  = request.POST.get('gender', '').strip()
+        notes   = request.POST.get('notes', '').strip()
+
+
+        if not all([name, phone, gender]):
+            return JsonResponse({'success': False, 'errors': 'Name, phone, and gender are required.'}, status=400)
+
+        if age:
+            try:
+                age = int(age)
+            except ValueError:
+                return JsonResponse({'success': False, 'errors': 'Invalid age.'}, status=400)
+        else:
+            age = None
+
+
+        if Patient.objects.filter(phone_number=phone).exists():
+            return JsonResponse({'success': False, 'errors': 'This phone number is already registered.'}, status=400)
+
+
+        patient = Patient.objects.create(
+            name         = name,
+            phone_number = phone,
+            age          = age,
+            gender       = gender,
+            notes        = notes,
+            added_by     = request.user if request.user.is_authenticated else None,
+            added_date   = timezone.now(),
+            updated_by   = request.user if request.user.is_authenticated else None,
+            updated_date = timezone.now()
+        )
+
+        return JsonResponse({
+            'success'       : True,
+            'patient_id'        : patient.id,
+            'message'       : 'Patient created successfully'
+        })
+
+    return JsonResponse({'success': False, 'errors': 'Invalid request method'}, status=405)
 
 def check_if_patient_exists(request):
     if request.method == 'GET':

@@ -32,4 +32,5 @@ urlpatterns = [
     path('api/clinics/<int:clinic_id>/schedule/', appointment.get_clinic_schedule, name='get_clinic_schedule'),
     path('api/get-doctors-by-specialization', appointment.api_get_doctors_by_specialization, name='api_get_doctors_by_specialization'),
     path('api/get-doctor-schedule', appointment.get_doctor_schedule, name='get_doctor_schedule'),
+    path('api/add-patient-ajax', patient.add_new_patient_ajax, name='add_patient_ajax'),
 ]

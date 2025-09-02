@@ -218,25 +218,28 @@ def get_doctor_schedule(request):
     if not doctor_id:
         return JsonResponse({"success": False, "message": "Doctor ID required"}, status=400)
 
-    today       = timezone.now().date()
-    schedules   = DoctorSchedule.objects.filter(
+    today = timezone.now().date()
+
+    schedules = DoctorSchedule.objects.filter(
         doctor_id=doctor_id,
         is_active=True,
         valid_from__lte=today
     ).filter(
         Q(valid_to__isnull=True) | Q(valid_to__gte=today)
-    ).select_related("clinic", "day_of_week")
+    ).order_by("day_of_week__id")
 
     data = []
     for sch in schedules:
+        start_time = sch.clinic_slot.start_time if sch.clinic_slot else None
+        end_time   = sch.clinic_slot.end_time if sch.clinic_slot else None
+
         data.append({
-            "id"            : sch.id,
-            "clinic"       : sch.clinic.name,
-            "day"          : sch.day_of_week.name,
-            "day_id"      : sch.day_of_week.id,
-            "start_time"  : sch.start_time.strftime("%H:%M"),
-            "end_time"    : sch.end_time.strftime("%H:%M"),
+            "id"         : sch.id,
+            "clinic"     : sch.clinic.name,
+            "day"        : sch.day_of_week.name,
+            "day_id"     : sch.day_of_week.id,
+            "start_time" : start_time.strftime("%H:%M") if start_time else None,
+            "end_time"   : end_time.strftime("%H:%M") if end_time else None,
         })
-    print(" -------------------------------------   Data: ", data , "--------------------------------------------")
 
     return JsonResponse({"success": True, "schedules": data})

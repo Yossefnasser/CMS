@@ -25,257 +25,238 @@
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Enhanced Header -->
-    <header class="header-enhanced text-white py-4">
-        <div class="container header-content">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="mb-0 d-flex align-items-center">
-                        <i class="fas fa-hospital-symbol me-3" style="font-size: 2rem;"></i>
-                        نظام إدارة العيادة المتطور
-                    </h1>
-                    <p class="mb-0 mt-2 opacity-75">إدارة شاملة ومتطورة للرعاية الصحية</p>
-                </div>
-                <div class="col-lg-4 text-start">
-                    <div class="d-flex justify-content-start align-items-center">
-                        {% if user.is_authenticated %}
-                            <div class="user-info me-3">
-                                <div class="d-flex align-items-center">
-                                    <div>
-                                        <div class="fw-bold">{{ user.get_full_name }}</div>
-                                        <small class="opacity-75">{{ user.get_user_type_display }}</small>
-                                    </div>
-                                </div>
-                            </div>
-                            <a href="{% url 'logout' %}" class="btn btn-light btn-sm">
-                                <i class="fas fa-sign-out-alt"></i> خروج
-                            </a>
-                        {% else %}
-                            <a href="{% url 'login' %}" class="btn btn-light btn-sm">
-                                <i class="fas fa-sign-in-alt"></i> دخول
-                            </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+<header class="bg-primary text-white py-3 shadow-sm">
+  <div class="container">
+    <div class="row align-items-center g-3">
+      
+      <!-- Logo & Title -->
+      <div class="col-lg-8">
+        <div class="d-flex flex-column flex-sm-row align-items-sm-center">
+          <i class="fas fa-hospital-symbol fs-2 me-sm-3 mb-2 mb-sm-0"></i>
+          <div>
+            <h1 class="h4 mb-1">نظام إدارة العيادة المتطور</h1>
+            <p class="mb-0 text-white-50 small">إدارة شاملة ومتطورة للرعاية الصحية</p>
+          </div>
         </div>
-    </header>
+      </div>
 
-    <!-- Enhanced Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark navbar-enhanced sticky-top">
-        <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            
-            <div class="collapse navbar-collapse" id="mainNav">
-
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item">
-                        <a class="nav-link" id="nav-home" href="/">
-                            <i class="fas fa-home me-1"></i> الرئيسية
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="nav-patients" href="/list-of-patients">
-                            <i class="fas fa-users me-1"></i> المرضى
-                            <span class="badge bg-primary ms-1">{{ total_patients_count }}</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="nav-appointments" href="/list-of-oppointments">
-                            <i class="fas fa-calendar-check me-1"></i> المواعيد
-                            <span class="badge bg-success ms-1">{{ total_appointments_count }}</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="nav-doctors" href="/list-of-doctors">
-                            <i class="fas fa-user-md me-1"></i> الأطباء
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" id="nav-settings" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-cog me-1"></i> الإعدادات
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" id="nav-users" href="#"><i class="fas fa-users me-1"></i> المستخدمين</a></li>
-                            <li><a class="dropdown-item" id="nav-roles" href="#"><i class="fas fa-user-tag me-1"></i> الأدوار</a></li>
-                            <li><a class="dropdown-item" id="nav-permissions" href="#"><i class="fas fa-user-shield me-1"></i> الأذونات</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <div class="search-enhanced">
-                            <input class="form-control" type="search" placeholder="بحث سريع..." aria-label="Search">
-                            <button class="btn btn-primary" type="submit">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
-                    </li>
-                </div>
+      <!-- User Section -->
+      <div class="col-lg-4">
+        <div class="d-flex justify-content-lg-end align-items-center gap-3">
+          {% if user.is_authenticated %}
+            <div class="text-start">
+              <div class="fw-semibold">{{ user.get_full_name }}</div>
+              <small class="text-white-50">{{ user.get_user_type_display }}</small>
             </div>
+            <a href="{% url 'logout' %}" class="btn btn-outline-light rounded-pill d-flex align-items-center px-3 shadow-sm transition">
+              <i class="fas fa-sign-out-alt me-2"></i>
+              <span>خروج</span>
+            </a>
+          {% else %}
+            <a href="{% url 'login' %}" class="btn btn-warning rounded-pill d-flex align-items-center px-3 shadow-sm transition">
+              <i class="fas fa-sign-in-alt me-2"></i>
+              <span>دخول</span>
+            </a>
+          {% endif %}
         </div>
-    </nav>
+      </div>
+
+    </div>
+  </div>
+</header>
+
+
+
+<!-- Enhanced Modern Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
+  <div class="container">
+
+    <!-- Brand / Logo -->
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+      <i class="fas fa-stethoscope me-2 text-primary"></i>
+      <span>لوحة التحكم</span>
+    </a>
+
+    <!-- Toggler -->
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" 
+            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Links -->
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        
+        <li class="nav-item">
+          <a class="nav-link" id="nav-home" href="/">
+            <i class="fas fa-home me-1"></i> الرئيسية
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" id="nav-patients" href="/list-of-patients">
+            <i class="fas fa-users me-1"></i> المرضى
+            <span class="badge rounded-pill bg-secondary ms-1">{{ total_patients_count }}</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" id="nav-appointments" href="/list-of-oppointments">
+            <i class="fas fa-calendar-check me-1"></i> المواعيد
+            <span class="badge rounded-pill bg-success ms-1">{{ total_appointments_count }}</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" id="nav-doctors" href="/list-of-doctors">
+            <i class="fas fa-user-md me-1"></i> الأطباء
+          </a>
+        </li>
+
+        <!-- Dropdown -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" id="nav-settings" href="#" role="button" 
+             data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-cog me-1"></i> الإعدادات
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3" aria-labelledby="nav-settings">
+            <li><a class="dropdown-item" href="#"><i class="fas fa-users me-2"></i> المستخدمين</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-user-tag me-2"></i> الأدوار</a></li>
+            <li><a class="dropdown-item" href="#"><i class="fas fa-user-shield me-2"></i> الأذونات</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <!-- Modern Search -->
+      <form class="d-flex ms-lg-3 position-relative" role="search">
+        <div class="input-group">
+          <input 
+            class="form-control border-0 rounded-pill ps-4 pe-5 shadow-sm"
+            type="search"
+            placeholder="ابحث عن مريض، موعد، أو طبيب..."
+            aria-label="Search">
+          <button 
+            class="btn position-absolute end-0 top-50 translate-middle-y me-2 p-0 border-0 bg-transparent text-muted"
+            type="submit">
+            <i class="fas fa-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</nav>
+
+
+
     
         {% block content %}
 
         {% endblock %}
     
-    <!-- Enhanced Footer -->
-    <footer class="footer-enhanced text-white py-5 mt-auto">
-        <div class="container" style="position: relative; z-index: 2;">
-            <div class="row">
-                <div class="col-lg-4 mb-4">
-                    <h5 class="mb-3">
-                        <i class="fas fa-hospital-symbol me-2"></i>
-                        نظام إدارة العيادة
-                    </h5>
-                    <p class="text-light opacity-75 mb-3">
-                        حلول متطورة لإدارة العيادات الطبية بكفاءة وأمان عالي
-                    </p>
-                    <div class="d-flex gap-3">
-                        <a href="#" class="text-white opacity-75 hover-opacity-100">
-                            <i class="fab fa-facebook-f fa-lg"></i>
-                        </a>
-                        <a href="#" class="text-white opacity-75 hover-opacity-100">
-                            <i class="fab fa-twitter fa-lg"></i>
-                        </a>
-                        <a href="#" class="text-white opacity-75 hover-opacity-100">
-                            <i class="fab fa-linkedin-in fa-lg"></i>
-                        </a>
-                        <a href="#" class="text-white opacity-75 hover-opacity-100">
-                            <i class="fab fa-instagram fa-lg"></i>
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5 class="mb-3">
-                        <i class="fas fa-phone me-2"></i>
-                        معلومات التواصل
-                    </h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <i class="fas fa-phone me-2"></i> 
-                            <a href="tel:+966123456789" class="text-light text-decoration-none">+966 12 345 6789</a>
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-envelope me-2"></i> 
-                            <a href="mailto:info@clinic.com" class="text-light text-decoration-none">info@clinic.com</a>
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-map-marker-alt me-2"></i> 
-                            الرياض، المملكة العربية السعودية
-                        </li>
-                        <li class="mb-2">
-                            <i class="fas fa-globe me-2"></i> 
-                            <a href="#" class="text-light text-decoration-none">www.clinic-system.com</a>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="col-lg-2 col-md-6 mb-4">
-                    <h5 class="mb-3">
-                        <i class="fas fa-link me-2"></i>
-                        روابط مهمة
-                    </h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2">
-                            <a href="#" class="text-light text-decoration-none opacity-75 hover-opacity-100">
-                                <i class="fas fa-chevron-left me-2"></i>المساعدة
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="#" class="text-light text-decoration-none opacity-75 hover-opacity-100">
-                                <i class="fas fa-chevron-left me-2"></i>الدعم الفني
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="#" class="text-light text-decoration-none opacity-75 hover-opacity-100">
-                                <i class="fas fa-chevron-left me-2"></i>سياسة الخصوصية
-                            </a>
-                        </li>
-                        <li class="mb-2">
-                            <a href="#" class="text-light text-decoration-none opacity-75 hover-opacity-100">
-                                <i class="fas fa-chevron-left me-2"></i>شروط الاستخدام
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <h5 class="mb-3">
-                        <i class="fas fa-clock me-2"></i>
-                        مواعيد العمل
-                    </h5>
-                    <ul class="list-unstyled">
-                        <li class="mb-2 d-flex justify-content-between">
-                            <span>الأحد - الخميس:</span>
-                            <span class="fw-bold">8:00 ص - 5:00 م</span>
-                        </li>
-                        <li class="mb-2 d-flex justify-content-between">
-                            <span>الجمعة:</span>
-                            <span class="fw-bold">مغلق</span>
-                        </li>
-                        <li class="mb-2 d-flex justify-content-between">
-                            <span>السبت:</span>
-                            <span class="fw-bold">9:00 ص - 2:00 م</span>
-                        </li>
-                        <li class="mb-2">
-                            <div class="badge bg-success">
-                                <i class="fas fa-circle me-1" style="font-size: 0.6rem;"></i>
-                                مفتوح الآن
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-            
-            <hr class="my-4 opacity-25">
-            
-            <div class="row align-items-center">
-                <div class="col-md-6">
-                    <p class="mb-0 opacity-75">
-                        © 2025 نظام إدارة العيادة المتطور. جميع الحقوق محفوظة.
-                    </p>
-                </div>
-                <div class="col-md-6 text-md-end">
-                    <p class="mb-0 opacity-75">
-                        تم التطوير بواسطة 
-                        <a href="#" class="text-white text-decoration-none fw-bold">فريق التطوير</a>
-                        <i class="fas fa-heart text-danger mx-1"></i>
-                    </p>
-                </div>
-            </div>
+<!-- Modern Footer -->
+<footer class="bg-dark text-light py-5 mt-auto">
+  <div class="container position-relative">
+    <div class="row g-4">
+
+      <!-- Brand & Social -->
+      <div class="col-lg-4">
+        <h5 class="fw-bold mb-3">
+          <i class="fas fa-hospital-symbol me-2 text-primary"></i>
+          نظام إدارة العيادة
+        </h5>
+        <p class="text-white-50 mb-3">
+          حلول متطورة لإدارة العيادات الطبية بكفاءة وأمان عالي.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="#" class="text-white-50 fs-5 hover-opacity-100"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="text-white-50 fs-5 hover-opacity-100"><i class="fab fa-twitter"></i></a>
+          <a href="#" class="text-white-50 fs-5 hover-opacity-100"><i class="fab fa-linkedin-in"></i></a>
+          <a href="#" class="text-white-50 fs-5 hover-opacity-100"><i class="fab fa-instagram"></i></a>
         </div>
-    </footer>
-    
-    <!-- Floating Action Button -->
-    <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1000;">
-        <div class="btn-group-vertical">
-            <button class="btn btn-primary rounded-circle p-3 mb-2 shadow-lg" 
-                    data-bs-toggle="tooltip" data-bs-placement="left" title="موعد سريع">
-                <i class="fas fa-plus fa-lg"></i>
-            </button>
-            <button class="btn btn-success rounded-circle p-3 mb-2 shadow-lg"
-                    data-bs-toggle="tooltip" data-bs-placement="left" title="حالة طارئة">
-                <i class="fas fa-ambulance fa-lg"></i>
-            </button>
-            <button class="btn btn-info rounded-circle p-3 shadow-lg"
-                    data-bs-toggle="tooltip" data-bs-placement="left" title="مساعدة">
-                <i class="fas fa-question fa-lg"></i>
-            </button>
-        </div>
+      </div>
+
+      <!-- Contact Info -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-semibold mb-3"><i class="fas fa-phone me-2 text-primary"></i>معلومات التواصل</h6>
+        <ul class="list-unstyled small">
+            <li class="mb-2">
+            <i class="fas fa-phone me-2"></i>
+            <a href="tel:+201150306178" class="text-white-50 text-decoration-none">
+                <span dir="ltr">+20 115 030 6178</span>
+            </a>
+            </li>
+          <li class="mb-2"><i class="fas fa-envelope me-2"></i><a href="mailto:info@clinic.com" class="text-white-50 text-decoration-none">info@clinic.com</a></li>
+          <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i>مصر الجديدة - القاهرة - مصر</li>
+          <li><i class="fas fa-globe me-2"></i><a href="#" class="text-white-50 text-decoration-none">www.clinic-system.com</a></li>
+        </ul>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="col-lg-2 col-md-6">
+        <h6 class="fw-semibold mb-3"><i class="fas fa-link me-2 text-primary"></i>روابط مهمة</h6>
+        <ul class="list-unstyled small">
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none"><i class="fas fa-chevron-left me-2"></i> المساعدة</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none"><i class="fas fa-chevron-left me-2"></i> الدعم الفني</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none"><i class="fas fa-chevron-left me-2"></i> سياسة الخصوصية</a></li>
+          <li><a href="#" class="text-white-50 text-decoration-none"><i class="fas fa-chevron-left me-2"></i> شروط الاستخدام</a></li>
+        </ul>
+      </div>
+
+      <!-- Working Hours -->
+      <div class="col-lg-3 col-md-6">
+        <h6 class="fw-semibold mb-3"><i class="fas fa-clock me-2 text-primary"></i>مواعيد العمل</h6>
+        <ul class="list-unstyled small">
+          <li class="mb-2 d-flex justify-content-between"><span>الأحد - الخميس</span><span class="fw-bold">8:00 ص - 5:00 م</span></li>
+          <li class="mb-2 d-flex justify-content-between"><span>الجمعة</span><span class="fw-bold">مغلق</span></li>
+          <li class="mb-2 d-flex justify-content-between"><span>السبت</span><span class="fw-bold">9:00 ص - 2:00 م</span></li>
+          <li><span class="badge bg-success"><i class="fas fa-circle me-1 small"></i> مفتوح الآن</span></li>
+        </ul>
+      </div>
     </div>
+
+    <hr class="my-4 text-white-50">
+
+    <div class="row align-items-center">
+      <div class="col-md-6 small text-white-50">
+        © 2025 نظام إدارة العيادة المتطور. جميع الحقوق محفوظة.
+      </div>
+      <div class="col-md-6 text-md-end small text-white-50">
+        تصميم وتطوير <a href="#" class="text-decoration-none text-primary">فريق التقنية</a>
+      </div>
+    </div>
+  </div>
+
+<button type="button" id="backToTop" class="btn btn-primary rounded-circle shadow position-fixed"
+        style="bottom: 20px; left: 20px; width: 45px; height: 45px; display: none; z-index: 1030;">
+  <i class="fas fa-arrow-up"></i>
+</button>
+</footer>
+
+
 
     <!-- Bootstrap JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
+    
     <!-- DataTables JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.21/js/dataTables.bootstrap5.min.js"></script>
 
     <!-- SweetAlert2 JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.32/sweetalert2.min.js"></script>
+    <script>
+  const backToTop = document.getElementById("backToTop");
+
+  window.addEventListener("scroll", () => {
+    backToTop.style.display = window.scrollY > 200 ? "flex" : "none";
+  });
+
+  backToTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>
     {% block Extrajavascripts %}{% endblock %}
 
 </body>
