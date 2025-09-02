@@ -173,6 +173,135 @@
         color: #2c3e50;
         margin-bottom: 0.5rem;
     }
+    /* Time Slot Styles */
+.time-slot-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    padding: 15px 0;
+}
+
+.time-slot-item {
+    position: relative;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 15px;
+    background: #ffffff;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Available slots */
+.time-slot-item.available {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f5e8 100%);
+}
+
+.time-slot-item.available:hover,
+.time-slot-item.available.hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    border-color: #20c997;
+}
+
+.time-slot-item.available.selected {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-color: #28a745;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+}
+
+.time-slot-item.unavailable {
+            border-color: #dc3545 !important;
+            background: linear-gradient(135deg, #fff5f5 0%, #ffe6e6 100%) !important;
+            cursor: not-allowed;
+            opacity: 0.8;
+        }
+
+        .time-slot-item.unavailable:hover {
+            transform: none !important;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.2) !important;
+        }
+
+        .slot-content {
+            text-align: center;
+            width: 100%;
+        }
+
+        .slot-time {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .slot-doctor {
+            font-size: 12px;
+            color: #dc3545;
+            font-weight: 500;
+        }
+
+        .time-slot-item.available .slot-time {
+            color: #28a745;
+        }
+
+        .time-slot-item.available.selected .slot-time {
+            color: white;
+        }
+
+        /* Unavailable slot text color */
+        .time-slot-item.unavailable .slot-time {
+            color: #dc3545 !important;
+        }
+
+        .slot-overlay {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        /* Loading and message states */
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .no-slots-message {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .time-slot-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
+    }
+    
+    .time-slot-item {
+        padding: 12px;
+        min-height: 70px;
+    }
+    
+    .slot-time {
+        font-size: 14px;
+    }
+}
 
     /* Success Message */
     .alert-success {
@@ -291,7 +420,6 @@
                                     <div class="row g-4">
                                         <!-- Full Name -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">الاسم الكامل</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="text" 
@@ -303,6 +431,7 @@
                                                     required
                                                     pattern="^[\u0600-\u06FFa-zA-Z\s]{2,50}$"
                                                 >
+                                                <label class="floating-label">الاسم الكامل</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)
                                                 </div>
@@ -311,7 +440,6 @@
 
                                         <!-- Email -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">البريد الإلكتروني</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="text" 
@@ -321,6 +449,7 @@
                                                     placeholder=" "
                                                     value="{{ data_to_insert.email|default:'' }}"
                                                 >
+                                                <label class="floating-label">البريد الإلكتروني</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال بريد إلكتروني صحيح
                                                 </div>
@@ -329,7 +458,6 @@
 
                                         <!-- Phone Number -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">رقم الهاتف</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="tel" 
@@ -340,6 +468,7 @@
                                                     pattern="^\d{11}$"
                                                     value="{{ data_to_insert.phone_number|default:'' }}"
                                                     required>
+                                            <label class="floating-label">رقم الهاتف</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال رقم هاتف صحيح
                                                 </div>
@@ -348,7 +477,6 @@
 
                                         <!-- Specialization Dropdown -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">التخصص</label>
                                             <div class="floating-label-group">
                                                 <select class="form-control" id="specialization" name="specialization" required>
                                                     <option value="">اختر التخصص</option>
@@ -359,6 +487,8 @@
                                                         </option>
                                                     {% endfor %}
                                                 </select>
+                                                <label class="floating-label">التخصص</label>
+
                                                 <div class="invalid-feedback">
                                                     يرجى اختيار التخصص
                                                 </div>
@@ -369,7 +499,6 @@
                                     <div class="row g-4">
                                         <!-- كشف -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">كشف</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="number" 
@@ -381,6 +510,7 @@
                                                     step="10"
                                                     value="{{ data_to_insert.examination_price|default:'' }}"
                                                     required>
+                                            <label class="floating-label">كشف</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال قيمة الكشف بشكل صحيح
                                                 </div>
@@ -389,7 +519,6 @@
                                         
                                         <!-- استشارة -->
                                         <div class="col-md-6">
-                                            <label class="floating-label">استشارة</label>
                                             <div class="floating-label-group">
                                                 <input 
                                                     type="number" 
@@ -401,6 +530,7 @@
                                                     step="10"
                                                     value="{{ data_to_insert.consultation_price|default:'' }}"
                                                     required>
+                                            <label class="floating-label">استشارة</label>
                                                 <div class="invalid-feedback">
                                                     يرجى إدخال قيمة الاستشارة بشكل صحيح
                                                 </div>
@@ -703,15 +833,34 @@ $(document).ready(function() {
                     data: {
                         clinic_id: clinicId,
                         day_of_week_id: dayId
-                    }
+                    },
+                    timeout: 10000 // 10 second timeout
                 });
                 
                 console.log('AJAX response:', response);
-                this.displayTimeSlots(response.slots || []);
+                
+                if (response && response.slots) {
+                    this.displayTimeSlots(response.slots);
+                } else {
+                    this.showError('استجابة غير متوقعة من الخادم');
+                }
                 
             } catch (error) {
                 console.error('AJAX Error:', error);
-                this.showError('حدث خطأ في تحميل المواعيد المتاحة');
+                
+                let errorMessage = 'حدث خطأ في تحميل المواعيد المتاحة';
+                
+                if (error.status === 0) {
+                    errorMessage = 'تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت';
+                } else if (error.status === 404) {
+                    errorMessage = 'لم يتم العثور على نقطة النهاية المطلوبة';
+                } else if (error.status === 500) {
+                    errorMessage = 'خطأ داخلي في الخادم';
+                } else if (error.statusText === 'timeout') {
+                    errorMessage = 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى';
+                }
+                
+                this.showError(errorMessage);
             }
         },
 
@@ -737,26 +886,56 @@ $(document).ready(function() {
         },
 
         createTimeSlotElement(slot) {
+            // Determine the CSS classes and click behavior based on availability
+            const availabilityClass = slot.is_available ? 'available' : 'unavailable';
+            const clickable = slot.is_available ? '' : 'disabled';
+            
+            // Create the slot element with conditional styling
             const slotDiv = $(`
-                <div class="time-slot-item" data-slot-id="${slot.id}">
-                    <input type="radio" name="time_slot" value="${slot.id}" style="display: none;">
-                    <i class="fas fa-clock me-1"></i>
-                    ${slot.start_time} - ${slot.end_time}
+                <div class="time-slot-item ${availabilityClass} ${clickable}" data-slot-id="${slot.id}">
+                    <input type="radio" name="time_slot" value="${slot.id}" style="display: none;" ${!slot.is_available ? 'disabled' : ''}>
+                    <div class="slot-content">
+                        <div class="slot-time">
+                            <i class="fas fa-clock me-1"></i>
+                            ${slot.start_time} - ${slot.end_time}
+                        </div>
+                        ${!slot.is_available ? `
+                            <div class="slot-doctor">
+                                <i class="fas fa-user-md me-1"></i>
+                                ${slot.doctor_name || 'محجوز'}
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${!slot.is_available ? '<div class="slot-overlay"><i class="fas fa-lock"></i></div>' : ''}
                 </div>
             `);
             
-            slotDiv.on('click', () => {
-                // Deselect all other slots
-                $('.time-slot-item').removeClass('selected');
+            // Only make available slots clickable
+            if (slot.is_available) {
+                slotDiv.on('click', () => {
+                    // Deselect all other slots
+                    $('.time-slot-item').removeClass('selected');
+                    
+                    // Select this slot
+                    slotDiv.addClass('selected');
+                    $(`input[name="time_slot"][value="${slot.id}"]`).prop('checked', true);
+                    
+                    // Store the selected slot ID
+                    this.selectedTimeSlot = slot.id;
+                    this.updateSubmitButton();
+                });
                 
-                // Select this slot
-                slotDiv.addClass('selected');
-                $(`input[name="time_slot"][value="${slot.id}"]`).prop('checked', true);
-                
-                // Store the selected slot ID
-                this.selectedTimeSlot = slot.id;
-                this.updateSubmitButton();
-            });
+                // Add hover effect for available slots
+                slotDiv.hover(
+                    function() { $(this).addClass('hover'); },
+                    function() { $(this).removeClass('hover'); }
+                );
+            } else {
+                // Add click handler for unavailable slots to show info
+                slotDiv.on('click', () => {
+                    this.showAlert('غير متاح', `هذا الموعد محجوز للدكتور ${slot.doctor_name || 'آخر'}`, 'info');
+                });
+            }
             
             return slotDiv;
         },
@@ -779,7 +958,7 @@ $(document).ready(function() {
             
             const validation = this.validateForm();
             if (!validation.isValid) {
-                alert(validation.message);
+                this.showAlert('خطأ في المدخلات', validation.message, 'error');
                 return;
             }
             
@@ -798,27 +977,45 @@ $(document).ready(function() {
                     data: formData,
                     headers: {
                         'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                    }
+                    },
+                    timeout: 15000 // 15 second timeout
                 });
                 
                 if (response.success) {
                     const message = this.isEditMode ? 'تم تحديث الجدول بنجاح' : 'تم إضافة الجدول بنجاح';
-                    alert(message);
-                    location.reload();
+                    this.showAlert('نجح', message, 'success').then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(response.message || 'حدث خطأ أثناء حفظ الجدول');
+                    this.showAlert('خطأ', response.message || 'حدث خطأ أثناء حفظ الجدول', 'error');
                 }
                 
             } catch (error) {
                 console.error('Error submitting form:', error);
-                alert('حدث خطأ أثناء حفظ الجدول');
+                
+                let errorMessage = 'حدث خطأ أثناء حفظ الجدول';
+                
+                if (error.status === 0) {
+                    errorMessage = 'تعذر الاتصال بالخادم. يرجى التحقق من اتصال الإنترنت';
+                } else if (error.status === 400) {
+                    errorMessage = 'بيانات غير صالحة. يرجى التحقق من المدخلات';
+                } else if (error.status === 403) {
+                    errorMessage = 'غير مصرح لك بتنفيذ هذا الإجراء';
+                } else if (error.status === 404) {
+                    errorMessage = 'لم يتم العثور على المورد المطلوب';
+                } else if (error.status === 500) {
+                    errorMessage = error.responseJSON.message;
+                } else if (error.statusText === 'timeout') {
+                    errorMessage = 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى';
+                }
+                
+                this.showAlert('خطأ', errorMessage, 'error');
             } finally {
                 this.isProcessing = false;
                 this.updateSubmitButton();
             }
         },
 
-<<<<<<< HEAD
         getFormData() {
             // Get doctor ID from the main form
             const doctorId = $('#id').val();
@@ -827,7 +1024,7 @@ $(document).ready(function() {
                 doctor_id: doctorId,
                 clinic: $('#clinic').val(),
                 day_of_week: $('#day_of_week').val(),
-                clinic_slot_id: this.selectedTimeSlot, // Changed to match backend
+                clinic_slot_id: this.selectedTimeSlot,
                 valid_from: $('#valid_from').val(),
                 valid_to: $('#valid_to').val()
             };
@@ -860,36 +1057,28 @@ $(document).ready(function() {
 
         handleEdit(e) {
             const btn = $(e.currentTarget);
-            const data = btn.data();
+            const scheduleId = btn.data('schedule-id');
             
-            // Populate form
-            $('#clinic').val(data.clinic);
-            $('#day_of_week').val(data.dayOfWeek);
-            $('#valid_from').val(data.validFrom);
-            $('#valid_to').val(data.validTo);
-            
-            this.isEditMode = true;
-            this.editingScheduleId = data.scheduleId;
-            
-            // Update button text
-            $('#addScheduleForm button[type="submit"]').html('<i class="fas fa-save me-2"></i>تحديث الجدول');
-            
-            // Show form and load time slots
-            this.showForm();
-            this.handleFilterChange();
+            // For now, just show a message that edit functionality is not fully implemented
+            this.showAlert('معلومة', 'وظيفة التعديل قيد التطوير. يرجى حذف الجدول الحالي وإضافة جدول جديد.', 'info');
         },
 
         async handleToggle(e) {
             const btn = $(e.currentTarget);
-            const scheduleId = btn.data('scheduleId');
+            const scheduleId = btn.data('schedule-id');
             const action = btn.data('action');
             
             if (this.isProcessing) return;
             
-            if (!confirm(`هل أنت متأكد من ${action === 'activate' ? 'تنشيط' : 'إيقاف'} هذا الجدول؟`)) {
-                return;
-            }
+            const result = await this.showConfirm(
+                'هل أنت متأكد؟',
+                `سيتم ${action === 'activate' ? 'تنشيط' : 'إيقاف'} هذا الجدول`,
+                'question',
+                `${action === 'activate' ? 'تنشيط' : 'إيقاف'}`
+            );
             
+            if (!result) return;
+
             this.isProcessing = true;
             
             try {
@@ -899,18 +1088,21 @@ $(document).ready(function() {
                     data: { action: action },
                     headers: {
                         'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                    }
+                    },
+                    timeout: 10000
                 });
                 
                 if (response.success) {
-                    location.reload();
+                    this.showAlert('نجح', `تم ${action === 'activate' ? 'تنشيط' : 'إيقاف'} الجدول بنجاح`, 'success').then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(response.message || 'حدث خطأ');
+                    this.showAlert('خطأ', response.message || `حدث خطأ أثناء ${action === 'activate' ? 'تنشيط' : 'إيقاف'} الجدول`, 'error');
                 }
                 
             } catch (error) {
                 console.error('Error toggling schedule:', error);
-                alert('حدث خطأ أثناء العملية');
+                this.showAlert('خطأ', `حدث خطأ أثناء ${action === 'activate' ? 'تنشيط' : 'إيقاف'} الجدول`, 'error');
             } finally {
                 this.isProcessing = false;
             }
@@ -918,14 +1110,19 @@ $(document).ready(function() {
 
         async handleDelete(e) {
             const btn = $(e.currentTarget);
-            const scheduleId = btn.data('scheduleId');
+            const scheduleId = btn.data('schedule-id');
             
             if (this.isProcessing) return;
             
-            if (!confirm('هل أنت متأكد من حذف هذا الجدول نهائياً؟')) {
-                return;
-            }
+            const result = await this.showConfirm(
+                'هل أنت متأكد؟',
+                'سيتم حذف هذا الجدول نهائياً. لا يمكن التراجع عن هذا الإجراء.',
+                'warning',
+                'حذف'
+            );
             
+            if (!result) return;
+
             this.isProcessing = true;
             
             try {
@@ -934,18 +1131,21 @@ $(document).ready(function() {
                     method: 'POST',
                     headers: {
                         'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
-                    }
+                    },
+                    timeout: 10000
                 });
                 
                 if (response.success) {
-                    location.reload();
+                    this.showAlert('تم الحذف', 'تم حذف الجدول بنجاح', 'success').then(() => {
+                        location.reload();
+                    });
                 } else {
-                    alert(response.message || 'حدث خطأ');
+                    this.showAlert('خطأ', response.message || 'حدث خطأ أثناء حذف الجدول', 'error');
                 }
                 
             } catch (error) {
                 console.error('Error deleting schedule:', error);
-                alert('حدث خطأ أثناء الحذف');
+                this.showAlert('خطأ', 'حدث خطأ أثناء حذف الجدول', 'error');
             } finally {
                 this.isProcessing = false;
             }
@@ -992,17 +1192,47 @@ $(document).ready(function() {
                 const iconClass = this.isEditMode ? 'fa-save' : 'fa-check';
                 submitBtn.html(`<i class="fas ${iconClass} me-2"></i>${buttonText}`);
             }
+        },
+
+        // Improved alert system with SweetAlert2
+        async showAlert(title, text, icon) {
+            return await Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                confirmButtonText: 'حسناً',
+                customClass: {
+                    confirmButton: 'btn btn-primary'
+                },
+                buttonsStyling: false,
+                allowOutsideClick: false
+            });
+        },
+
+        // Improved confirmation dialog
+        async showConfirm(title, text, icon, confirmButtonText) {
+            const result = await Swal.fire({
+                title: title,
+                text: text,
+                icon: icon,
+                showCancelButton: true,
+                confirmButtonText: confirmButtonText,
+                cancelButtonText: 'إلغاء',
+                customClass: {
+                    confirmButton: 'btn btn-danger me-2',
+                    cancelButton: 'btn btn-secondary'
+                },
+                buttonsStyling: false,
+                focusCancel: true,
+                allowOutsideClick: false
+            });
+            
+            return result.isConfirmed;
         }
     };
 
     // Initialize the schedule page manager
     SchedulePageManager.init();
 });
-=======
-        // Initialize the schedule manager
-        ScheduleManager.init();
-    });
- 
->>>>>>> 214db32b7adbaeb36b4dd58fdd7ce5b86c531661
 </script>
 {% endblock %}

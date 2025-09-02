@@ -20,7 +20,8 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <script src="{% static 'js/base.js' %}"></script>
-    
+    {% block styles %}{% endblock %}
+
 </head>
 <body class="d-flex flex-column min-vh-100">
     <!-- Enhanced Header -->
@@ -81,7 +82,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" id="nav-appointments" href="#">
+                        <a class="nav-link" id="nav-appointments" href="/list-of-oppointments">
                             <i class="fas fa-calendar-check me-1"></i> المواعيد
                             <span class="badge bg-success ms-1">{{ total_appointments_count }}</span>
                         </a>
@@ -116,7 +117,7 @@
     
         {% block content %}
 
-        {%endblock%}
+        {% endblock %}
     
     <!-- Enhanced Footer -->
     <footer class="footer-enhanced text-white py-5 mt-auto">

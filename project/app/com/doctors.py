@@ -1,7 +1,7 @@
 from datetime import datetime
 from urllib import request
 from django.shortcuts import render
-from app.models import Clinic, ClinicSchedule, DaysOfWeek, Doctor, DoctorSchedule, Specialization,ClinicSlot
+from app.models import Clinic, DaysOfWeek, Doctor, DoctorSchedule, Specialization,ClinicSlot
 from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
@@ -260,21 +260,50 @@ def doctor_schedule(request, schedule_id=None):
             "success": False,
             "message": "Method not allowed"
         }, status=405)
+
+def delete_doctor_schedule(request,schedule_id):
+    try:
+        delete(request, DoctorSchedule, Q(id = schedule_id))
+        return JsonResponse({
+            'success' : True, 
+        })
+    except Exception as e :
+        return JsonResponse({
+            'success' : True, 
+            'message' : str(e)
+        },status=500)
+
 def api_get_slots(request):
     clinic_id = request.GET.get('clinic_id')
     day_of_week_id = request.GET.get('day_of_week_id')
-    print(f'clinic {clinic_id} , day of week {day_of_week_id}')
-    clinic_schedule = ClinicSchedule.objects.filter(
+
+    clinic_slots = ClinicSlot.objects.filter(
         clinic_id=clinic_id,
-        day_of_week_id=day_of_week_id,
         is_active=True,
         deleted_date__isnull=True
-    ).first() 
-    clinic_slots = ClinicSlot.objects.filter(
-        clinic_schedule= clinic_schedule
     )
-    print(f'clinic slots {clinic_slots.count()}')
+
+    slots_data = []
+    for slot in clinic_slots:
+        # Check if slot is occupied by any doctor
+        doctor_schedule = DoctorSchedule.objects.filter(
+            clinic_slot=slot,
+            day_of_week_id = day_of_week_id,
+            is_active=True,
+            deleted_date__isnull=True
+        ).first()
+        
+        slot_json = slot.to_json()
+        if doctor_schedule:
+            slot_json['is_available'] = False
+            slot_json['doctor_name'] = doctor_schedule.doctor.full_name 
+        else:
+            slot_json['is_available'] = True
+            slot_json['doctor_name'] = None
+        
+        slots_data.append(slot_json)
+    
     return JsonResponse({
         "success": True,
-        "slots":[slots.to_json() for slots in clinic_slots]
+        "slots": slots_data
     })

@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 from app.helpers import get_id_of_object
-from app.models import Appointment, Clinic, Doctor, DoctorSchedule, Patient, Status, User ,Specialization
+from app.models import Appointment, Clinic, ClinicSlot, Doctor, DoctorSchedule, Patient, Status, User ,Specialization , DaysOfWeek
 from django.db.models import Q
 import json
 
@@ -12,7 +12,37 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from datetime import datetime
+def list_of_appointments(request):
+    days_of_week = DaysOfWeek.objects.filter(deleted_date__isnull=True)
+    clinics = Clinic.objects.filter(deleted_date__isnull=True)
+    schedules_data = DoctorSchedule.objects.filter(deleted_date__isnull=True)
 
+    context = {
+        'clinics'             : clinics,
+        'days_of_week'          : days_of_week,
+    }
+    return render(request, 'appointment/list.html',context)
+def get_clinic_time_slots(request,clinic_id):
+    clinic_slots = ClinicSlot.objects.filter(
+        clinic_id = clinic_id,
+        deleted_date__isnull=True
+    ).values('id','start_time', 'end_time').distinct().order_by('start_time')
+    
+    return JsonResponse({
+        'success' : True,
+        'slots' : [slot for slot in clinic_slots]
+    })
+def get_clinic_schedule(request,clinic_id):
+    clinic_schedules = DoctorSchedule.objects.filter(
+        clinic_id = clinic_id,
+        deleted_date__isnull=True
+    )
+    schedule_data = [schedule.to_json() for schedule in clinic_schedules]
+    print("Schedule data being sent:", schedule_data)
+    return JsonResponse({
+        'success' : True,
+        'schedules' : schedule_data
+    })
 def new_appointment(request):
     added_by     = request.user
     added_date   = datetime.now()
