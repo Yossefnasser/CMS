@@ -200,12 +200,12 @@ def get_doctor_schedule(request):
     data = []
     for sch in schedules:
         data.append({
-            "id": sch.id,
-            "clinic": sch.clinic.name,
-            "day": sch.day_of_week.name,
-            "day_id": sch.day_of_week.id,
-            "start_time": sch.start_time.strftime("%H:%M"),
-            "end_time": sch.end_time.strftime("%H:%M"),
+            "id"            : sch.id,
+            "clinic"       : sch.clinic.name,
+            "day"          : sch.day_of_week.name,
+            "day_id"      : sch.day_of_week.id,
+            "start_time"  : sch.start_time.strftime("%H:%M"),
+            "end_time"    : sch.end_time.strftime("%H:%M"),
         })
     print(" -------------------------------------   Data: ", data , "--------------------------------------------")
 
