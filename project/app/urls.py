@@ -11,6 +11,8 @@ urlpatterns = [
     path('list-of-doctors', doctors.list_of_doctors, name='list-of-doctors'),
     path('get-list-of-doctors', doctors.get_list_of_doctors, name='get-list-of-doctors'),
     path('add-doctor',  doctors.add_new_doctor, name='add-doctor'),
+    path('doctor-details', doctors.doctor_details, name='doctor-details'),
+    
     path('delete-doctor',   doctors.delete_doctor, name='delete-doctor'),
     path('check-if-doctor-exists', doctors.check_if_doctor_exists, name='check-if-doctor-exists'),
     

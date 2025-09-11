@@ -1,13 +1,13 @@
 from datetime import datetime
 from urllib import request
 from django.shortcuts import render
-from app.models import Clinic, DaysOfWeek, Doctor, DoctorSchedule, Specialization,ClinicSlot
+from app.models import Appointment, Clinic, DaysOfWeek, Doctor, DoctorSchedule, Invoice, Specialization,ClinicSlot
 from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from app.helpers import check_if_post_input_valid, check_valid_text, get_id_hashed_of_object, get_id_of_object , delete
-from django.db.models import Q
+from django.db.models import Q ,  Count, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.settings import CHAR_100, CHAR_50
 
@@ -260,6 +260,46 @@ def doctor_schedule(request, schedule_id=None):
             "success": False,
             "message": "Method not allowed"
         }, status=405)
+def doctor_details(request):
+    idOfObject       = get_id_of_object(request.GET.get('id'))
+    doctor = Doctor.objects.get(id=idOfObject)
+
+    doctor_schedules = DoctorSchedule.objects.filter(
+        doctor=doctor, deleted_date__isnull=True
+    )
+
+    doctor_appointments = Appointment.objects.filter(
+        doctor=doctor, deleted_date__isnull=True
+    )
+
+    total_patients = doctor_appointments.values("patient").distinct().count()
+
+    invoices = Invoice.objects.filter(
+        appointment__doctor=doctor,
+        deleted_date__isnull=True
+    )
+
+    total_revenue = invoices.aggregate(Sum("total_price"))["total_price__sum"] or 0
+
+    total_appointments = doctor_appointments.count()
+    completed_appointments = doctor_appointments.filter(
+        status__name="Completed"
+    ).count()
+
+    days_of_week = DaysOfWeek.objects.all()
+
+    context = {
+        "doctor": doctor,
+        "doctor_schedules": doctor_schedules,
+        "doctor_appointments": doctor_appointments,
+        "days_of_week": days_of_week,
+        # stats
+        "total_patients": total_patients,
+        "total_revenue": total_revenue,
+        "total_appointments": total_appointments,
+        "completed_appointments": completed_appointments,
+    }
+    return render(request, "doctors/details.html", context)
 
 def delete_doctor_schedule(request,schedule_id):
     try:
