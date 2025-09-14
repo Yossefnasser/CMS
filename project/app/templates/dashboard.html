@@ -77,9 +77,12 @@
     <div class="col-lg-3 col-md-6">
       <div class="card stat-card shadow-sm border-0 text-center p-3 animate-fade-up">
         <div class="stat-icon text-info mb-2"><i class="fas fa-user-md fa-lg"></i></div>
-        <h4 class="stat-number mb-1">12</h4>
+        <h4 class="stat-number mb-1">{{ total_doctors_count }}</h4>
         <div class="stat-label text-muted">الأطباء النشطون</div>
-        <small class="text-success"><i class="fas fa-check-circle me-1"></i> جميعهم متاحون</small>
+        <small class="{% if doctors_growth_rate >= 0 %}text-success{% else %}text-danger{% endif %}">
+          <i class="fas {% if doctors_growth_rate >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %} me-1"></i>
+          {{ doctors_growth_rate }}% هذا الشهر
+        </small>
       </div>
     </div>
 

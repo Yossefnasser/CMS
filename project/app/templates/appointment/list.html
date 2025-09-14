@@ -5,94 +5,218 @@
 {{ block.super }}
 <style>
 :root {
-    --primary: #0066cc;
-    --primary-light: #d1e7dd;
-    --secondary: #6c757d;
-    --success: #198754;
-    --danger: #dc3545;
-    --warning: #ffc107;
-    --info: #0dcaf0;
-    --light: #f8f9fa;
-    --dark: #212529;
+    --primary: #2563eb;
+    --primary-light: #dbeafe;
+    --secondary: #64748b;
+    --success: #059669;
+    --danger: #dc2626;
+    --warning: #d97706;
+    --info: #0891b2;
+    --light: #f8fafc;
+    --dark: #1e293b;
+    --cardiology: #ef4444;
+    --dermatology: #f59e0b;
+    --orthopedics: #10b981;
+    --pediatrics: #8b5cf6;
+    --neurology: #06b6d4;
+    --general: #6b7280;
+}
+
+* {
+    font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    min-height: 100vh;
 }
 
 .sched-schedule-page {
-    background-color: #f5f7f9;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    margin: 20px auto; /* This centers the container */
+    max-width: 1200px; /* Set your desired width */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
     min-height: 100vh;
-    padding: 20px 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    width: 100%; /* Add this to ensure it respects max-width */
 }
 
 .sched-main-container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 15px;
+    padding: 0;
+}
+
+.sched-header-section {
+    background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+    color: white;
+    padding: 40px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.sched-header-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255,255,255,0.05) 10px,
+        rgba(255,255,255,0.05) 20px
+    );
+    animation: sched-float 20s linear infinite;
+}
+
+@keyframes sched-float {
+    0% { transform: translateX(-50px); }
+    100% { transform: translateX(50px); }
 }
 
 .sched-header-title {
-    color: var(--primary);
+    font-size: 2.5rem;
     font-weight: 700;
-    margin-bottom: 30px;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+}
+
+.sched-header-subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
+}
+
+.sched-stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.sched-stat-card {
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
     text-align: center;
-    padding-bottom: 15px;
-    border-bottom: 2px solid var(--primary-light);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease;
+}
+
+.sched-stat-card:hover {
+    transform: translateY(-2px);
+}
+
+.sched-stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.sched-stat-label {
+    font-size: 0.8rem;
+    color: var(--secondary);
+    font-weight: 500;
 }
 
 .sched-schedule-card {
     border: none;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    margin: 20px;
     overflow: hidden;
 }
 
 .sched-schedule-card .card-header {
-    background-color: var(--primary);
-    color: white;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    color: var(--dark);
     font-weight: 600;
-    padding: 15px 20px;
+    padding: 20px;
     border: none;
 }
 
 .sched-filter-section {
-    padding: 20px;
+    padding: 25px;
 }
 
 .sched-form-label {
     font-weight: 600;
     color: var(--dark);
     margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-.sched-form-select {
-    border-radius: 8px;
-    padding: 10px 15px;
-    border: 1px solid #ced4da;
-    transition: all 0.3s;
+.sched-form-select, .sched-form-control {
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    padding: 12px 16px;
+    transition: all 0.3s ease;
+    font-weight: 500;
 }
 
-.sched-form-select:focus {
+.sched-form-select:focus, .sched-form-control:focus {
     border-color: var(--primary);
-    box-shadow: 0 0 0 0.25rem rgba(25, 135, 84, 0.25);
-}
-
-.sched-btn-primary-custom {
-    background-color: var(--primary);
-    border: none;
-    border-radius: 8px;
-    padding: 10px 20px;
-    font-weight: 600;
-    width: 100%;
-    transition: all 0.3s;
-}
-
-.sched-btn-primary-custom:hover:not(:disabled) {
-    background-color: #0053a7ff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
     transform: translateY(-2px);
 }
 
+.sched-btn-primary-custom {
+    background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+    border: none;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.sched-btn-primary-custom::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.sched-btn-primary-custom:hover:not(:disabled)::before {
+    left: 100%;
+}
+
+.sched-btn-primary-custom:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+    background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+}
+
 .sched-btn-primary-custom:disabled {
-    background-color: #8fd7b6;
+    background: #8fd7b6;
     cursor: not-allowed;
+}
+
+.sched-btn-outline-secondary {
+    border: 2px solid #e2e8f0;
+    background: transparent;
+    border-radius: 12px;
+    padding: 10px 22px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.sched-btn-outline-secondary:hover {
+    background: #f1f5f9;
+    transform: translateY(-2px);
 }
 
 .sched-loading-container, .sched-no-data-container {
@@ -100,24 +224,24 @@
     padding: 40px 20px;
 }
 
-.sched-spinner {
-    width: 50px;
-    height: 50px;
-    border: 5px solid var(--primary-light);
-    border-top: 5px solid var(--primary);
+.sched-loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid #e2e8f0;
+    border-top: 4px solid var(--primary);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto;
+    animation: sched-spin 1s linear infinite;
+    margin: 40px auto;
 }
 
-@keyframes spin {
+@keyframes sched-spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
 .sched-no-data-icon {
     font-size: 60px;
-    color: #ced4da;
+    color: #cbd5e1;
     margin-bottom: 15px;
 }
 
@@ -144,25 +268,27 @@
 }
 
 .sched-schedule-table th {
-    background-color: var(--primary-light);
-    color: var(--dark);
-    font-weight: 600;
-    padding: 15px 10px;
+    background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+    color: white;
+    padding: 20px 10px;
     text-align: center;
-    vertical-align: middle;
-    border-bottom: 2px solid var(--primary);
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .sched-schedule-table td {
-    padding: 8px;
-    text-align: center;
+    padding: 5px;
+    border: 1px solid #f1f5f9;
     vertical-align: middle;
-    border: 1px solid #dee2e6;
 }
 
 .sched-time-header {
-    background-color: #e9ecef;
+    background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+    color: white;
     font-weight: 600;
+    width: 100px;
 }
 
 .sched-day-header {
@@ -170,140 +296,227 @@
 }
 
 .sched-time-slot {
-    border-radius: 8px;
-    padding: 12px 8px;
-    height: 100%;
-    min-height: 90px;
+    border-radius: 12px;
+    padding: 12px;
+    height: 120px;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
-    transition: all 0.3s;
+    align-items: center;
+    text-align: center;
+    transition: all 0.3s ease;
     cursor: pointer;
+    position: relative;
+    overflow: hidden;
 }
 
-.sched-time-slot-inner {
+.sched-time-slot::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
     width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
 }
 
-.sched-time-slot.sched-available {
-    background-color: #d1e7dd;
-    border: 1px solid #a3cfbb;
-}
-
-.sched-time-slot.sched-booked {
-    background-color: #f8d7da;
-    border: 1px solid #f1aeb5;
-}
-
-.sched-time-slot.sched-unavailable {
-    background-color: #e9ecef;
-    border: 1px solid #dee2e6;
+.sched-time-slot:hover::before {
+    left: 100%;
 }
 
 .sched-time-slot:hover {
-    transform: scale(1.02);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transform: scale(1.05) rotateX(5deg);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    z-index: 5;
+}
+
+/* Specialization-based colors */
+.sched-slot-cardiology {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 2px solid var(--cardiology);
+}
+
+.sched-slot-dermatology {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border: 2px solid var(--dermatology);
+}
+
+.sched-slot-orthopedics {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 2px solid var(--orthopedics);
+}
+
+.sched-slot-pediatrics {
+    background: linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%);
+    border: 2px solid var(--pediatrics);
+}
+
+.sched-slot-neurology {
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+    border: 2px solid var(--neurology);
+}
+
+.sched-slot-general {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border: 2px solid var(--general);
+}
+
+.sched-slot-unavailable {
+    background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+    border: 2px solid #cbd5e1;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.sched-slot-unavailable:hover {
+    transform: none;
+    box-shadow: none;
 }
 
 .sched-doctor-name {
-    font-weight: 600;
-    margin-bottom: 5px;
+    font-weight: 700;
     font-size: 0.9rem;
+    margin-bottom: 4px;
 }
 
 .sched-doctor-specialty {
-    font-size: 0.8rem;
-    color: var(--secondary);
+    font-size: 0.75rem;
+    opacity: 0.8;
     margin-bottom: 8px;
 }
 
 .sched-status-badge {
-    padding: 4px 8px;
+    padding: 4px 12px;
     border-radius: 20px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .sched-status-available {
-    background-color: var(--success);
+    background: var(--success);
     color: white;
 }
 
 .sched-status-booked {
-    background-color: var(--danger);
+    background: var(--danger);
     color: white;
 }
 
 .sched-status-unavailable {
-    background-color: var(--secondary);
+    background: var(--secondary);
     color: white;
 }
 
+.sched-book-btn {
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.sched-book-btn:hover {
+    background: #047857;
+    transform: scale(1.1);
+}
+
 .sched-legend-container {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
+    padding: 20px;
+    background: #f8fafc;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    border-top: 1px solid #e2e8f0;
 }
 
 .sched-legend-item {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
+    font-weight: 500;
 }
 
 .sched-legend-color {
-    width: 20px;
-    height: 20px;
-    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    border: 2px solid;
 }
 
-.sched-legend-available {
-    background-color: #d1e7dd;
-    border: 1px solid #a3cfbb;
+.sched-legend-cardiology {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-color: var(--cardiology);
 }
 
-.sched-legend-booked {
-    background-color: #f8d7da;
-    border: 1px solid #f1aeb5;
+.sched-legend-dermatology {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    border-color: var(--dermatology);
 }
 
-.sched-legend-unavailable {
-    background-color: #e9ecef;
-    border: 1px solid #dee2e6;
+.sched-legend-orthopedics {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    border-color: var(--orthopedics);
+}
+
+.sched-legend-pediatrics {
+    background: linear-gradient(135deg, #faf5ff 0%, #ede9fe 100%);
+    border-color: var(--pediatrics);
+}
+
+.sched-legend-neurology {
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+    border-color: var(--neurology);
+}
+
+.sched-legend-general {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+    border-color: var(--general);
 }
 
 .sched-toast-container {
     position: fixed;
-    bottom: 20px;
+    top: 20px;
     right: 20px;
     z-index: 1055;
 }
 
 .sched-toast {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    padding: 15px 20px;
+    margin-bottom: 10px;
+    animation: sched-toast-in 0.3s ease-out;
     display: flex;
     align-items: center;
     gap: 10px;
-    background-color: white;
-    padding: 12px 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    margin-bottom: 10px;
-    animation: toast-in 0.3s ease-out;
 }
 
-@keyframes toast-in {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
+@keyframes sched-toast-in {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
 }
 
-/* Responsive adjustments */
+/* Modal Styles */
+.modal-content {
+    border-radius: 16px;
+    border: none;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #1d4ed8 100%);
+    color: white;
+    border-radius: 16px 16px 0 0;
+}
+
+/* Responsive Design */
 @media (max-width: 992px) {
     .sched-schedule-table {
         font-size: 0.9rem;
@@ -312,9 +525,18 @@
     .sched-day-header {
         min-width: 100px;
     }
+
+    .sched-time-slot {
+        height: 100px;
+        padding: 8px;
+    }
 }
 
 @media (max-width: 768px) {
+    .sched-header-title {
+        font-size: 1.8rem;
+    }
+
     .sched-schedule-table {
         font-size: 0.8rem;
     }
@@ -333,7 +555,11 @@
     }
     
     .sched-doctor-specialty {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
+    }
+
+    .sched-legend-container {
+        grid-template-columns: 1fr;
     }
 }
 
@@ -349,12 +575,6 @@
     .sched-filter-section .row > div {
         margin-bottom: 15px;
     }
-    
-    .sched-legend-container {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
 }
 </style>
 {% endblock %}
@@ -362,18 +582,50 @@
 {% block content %}
 <div class="sched-schedule-page">
     <div class="sched-main-container">
-        <h1 class="sched-header-title">نظام جدولة المواعيد الطبية</h1>
-        
+        <!-- Header -->
+        <div class="sched-header-section">
+            <h1 class="sched-header-title">
+                <i class="fas fa-calendar-medical me-3"></i>
+                نظام جدولة المواعيد الطبية
+            </h1>
+            <p class="sched-header-subtitle">احجز موعدك مع أفضل الأطباء بسهولة</p>
+        </div>
+
+        <!-- Statistics -->
+        <div class="sched-stats-container" id="schedStatsContainer" style="display: none;">
+            <div class="sched-stat-card">
+                <div class="sched-stat-number text-success" id="schedAvailableCount">0</div>
+                <div class="sched-stat-label">مواعيد متاحة</div>
+            </div>
+            <div class="sched-stat-card">
+                <div class="sched-stat-number text-danger" id="schedBookedCount">0</div>
+                <div class="sched-stat-label">مواعيد محجوزة</div>
+            </div>
+            <div class="sched-stat-card">
+                <div class="sched-stat-number text-primary" id="schedDoctorCount">0</div>
+                <div class="sched-stat-label">عدد الأطباء</div>
+            </div>
+            <div class="sched-stat-card">
+                <div class="sched-stat-number text-info" id="schedSpecializationCount">0</div>
+                <div class="sched-stat-label">التخصصات</div>
+            </div>
+        </div>
+
         <!-- Filter Card -->
         <div class="card sched-schedule-card mb-4">
             <div class="card-header">
-                <i class="fas fa-filter"></i>
-                تصفية النتائج
+                <h5 class="mb-0">
+                    <i class="fas fa-filter me-2"></i>
+                    تصفية النتائج
+                </h5>
             </div>
             <div class="sched-filter-section">
-                <div class="row align-items-end">
-                    <div class="col-md-8 col-lg-6">
-                        <label class="form-label sched-form-label">اختر العيادة</label>
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label sched-form-label">
+                            <i class="fas fa-hospital"></i>
+                            اختر العيادة
+                        </label>
                         <select class="form-select sched-form-select" id="schedClinicFilter">
                             <option value="">جميع العيادات...</option>
                             {% for clinic in clinics %}
@@ -381,10 +633,34 @@
                             {% endfor %}
                         </select>
                     </div>
-                    <div class="col-md-4 col-lg-3 mt-3 mt-md-0">
-                        <button class="btn sched-btn-primary-custom" id="schedLoadScheduleBtn" disabled>
-                            <i class="fas fa-search me-2"></i>عرض الجدول
-                        </button>
+                    <div class="col-md-3">
+                        <label class="form-label sched-form-label">
+                            <i class="fas fa-stethoscope"></i>
+                            التخصص
+                        </label>
+                        <select class="form-select sched-form-select" id="schedSpecializationFilter">
+                            <option value="">جميع التخصصات...</option>
+                            {% for specialization in specializations %}
+                                <option value="{{ specialization.id }}">{{ specialization.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label sched-form-label">
+                            <i class="fas fa-user-md"></i>
+                            اسم الطبيب
+                        </label>
+                        <input type="text" class="form-control sched-form-control" id="schedDoctorFilter" placeholder="ابحث باسم الطبيب...">
+                    </div>
+                    <div class="col-md-3">
+                        <div class="d-grid gap-2">
+                            <button class="btn sched-btn-primary-custom" id="schedLoadScheduleBtn" disabled>
+                                <i class="fas fa-search me-2"></i>عرض الجدول
+                            </button>
+                            <button class="btn sched-btn-outline-secondary" id="schedResetFiltersBtn">
+                                <i class="fas fa-undo me-2"></i>إعادة تعيين
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -392,14 +668,10 @@
 
         <!-- Schedule Card -->
         <div class="card sched-schedule-card">
-            <div class="card-header">
-                <i class="fas fa-calendar-alt"></i>
-                الجدول الزمني للأسبوع
-            </div>
             <div class="card-body">
                 <!-- Loading State -->
                 <div id="schedLoadingMessage" class="sched-loading-container d-none">
-                    <div class="sched-spinner"></div>
+                    <div class="sched-loading-spinner"></div>
                     <p class="mt-3 fw-bold text-primary">جاري تحميل البيانات...</p>
                 </div>
 
@@ -407,7 +679,7 @@
                 <div id="schedNoDataMessage" class="sched-no-data-container">
                     <i class="fas fa-calendar-times sched-no-data-icon"></i>
                     <h4 class="sched-no-data-title">لا توجد مواعيد متاحة</h4>
-                    <p class="sched-no-data-text">اختر عيادة لعرض الجدول الزمني</p>
+                    <p class="sched-no-data-text">اختر العيادة والمعايير لعرض الجدول الزمني</p>
                 </div>
 
                 <!-- Schedule Table -->
@@ -418,10 +690,10 @@
                                 <tr>
                                     <th class="sched-time-header">الوقت</th>
                                     <th class="sched-day-header">السبت</th>
-                                    <th class="sched-day-header">الأحد</th>
+                                    <th class="sched-day-header">الاحد</th>
                                     <th class="sched-day-header">الاثنين</th>
                                     <th class="sched-day-header">الثلاثاء</th>
-                                    <th class="sched-day-header">الأربعاء</th>
+                                    <th class="sched-day-header">الاربعاء</th>
                                     <th class="sched-day-header">الخميس</th>
                                     <th class="sched-day-header">الجمعة</th>
                                 </tr>
@@ -435,16 +707,28 @@
                     <!-- Legend -->
                     <div class="sched-legend-container">
                         <div class="sched-legend-item">
-                            <div class="sched-legend-color sched-legend-available"></div>
-                            <span>مواعيد متاحة</span>
+                            <div class="sched-legend-color sched-legend-cardiology"></div>
+                            <span>أمراض القلب</span>
                         </div>
                         <div class="sched-legend-item">
-                            <div class="sched-legend-color sched-legend-booked"></div>
-                            <span>مواعيد محجوزة</span>
+                            <div class="sched-legend-color sched-legend-dermatology"></div>
+                            <span>الجلدية</span>
                         </div>
                         <div class="sched-legend-item">
-                            <div class="sched-legend-color sched-legend-unavailable"></div>
-                            <span>غير متاح</span>
+                            <div class="sched-legend-color sched-legend-orthopedics"></div>
+                            <span>العظام</span>
+                        </div>
+                        <div class="sched-legend-item">
+                            <div class="sched-legend-color sched-legend-pediatrics"></div>
+                            <span>الأطفال</span>
+                        </div>
+                        <div class="sched-legend-item">
+                            <div class="sched-legend-color sched-legend-neurology"></div>
+                            <span>الأعصاب</span>
+                        </div>
+                        <div class="sched-legend-item">
+                            <div class="sched-legend-color sched-legend-general"></div>
+                            <span>عام</span>
                         </div>
                     </div>
                 </div>
@@ -455,22 +739,65 @@
     <!-- Toast Container -->
     <div class="sched-toast-container" id="schedToastContainer"></div>
 </div>
+
+<!-- Booking Modal -->
+<div class="modal fade" id="schedBookingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-plus me-2"></i>
+                    حجز موعد
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="schedBookingDetails">
+                    <!-- Booking details will be inserted here -->
+                </div>
+                <form id="schedBookingForm">
+                    <div class="mb-3">
+                        <label class="form-label">الاسم الكامل</label>
+                        <input type="text" class="form-control" id="schedPatientName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">رقم الهاتف</label>
+                        <input type="tel" class="form-control" id="schedPatientPhone" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">البريد الإلكتروني (اختياري)</label>
+                        <input type="email" class="form-control" id="schedPatientEmail">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">ملاحظات (اختياري)</label>
+                        <textarea class="form-control" id="schedPatientNotes" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+                <button type="button" class="btn sched-btn-primary-custom" id="schedConfirmBookingBtn">تأكيد الحجز</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block Extrajavascripts %}
 {{ block.super }}
 <script>
-    class ScheduleTable {
+    class EnhancedScheduleTable {
         constructor() {
             this.clinics = [];
             this.timeSlots = [];
             this.scheduleData = {};
+            this.currentBooking = null;
+            this.specializations = {};
             this.init();
         }
 
         async init() {
             this.bindEvents();
-            // Hide loading initially and show prompt
             document.getElementById('schedLoadingMessage').classList.add('d-none');
         }
 
@@ -478,7 +805,7 @@
             try {
                 this.showLoading();
                 
-                // Load time slots for this clinic
+                // Load time slots for this clinic (existing API)
                 const slotsResponse = await fetch(`/api/clinics/${clinicId}/time-slots/`);
                 if (slotsResponse.ok) {
                     const slotsData = await slotsResponse.json();
@@ -493,13 +820,15 @@
                     this.timeSlots = [];
                 }
                 
-                // Load schedule data
+                // Load schedule data (existing API)
                 const scheduleResponse = await fetch(`/api/clinics/${clinicId}/schedule/`);
                 if (scheduleResponse.ok) {
                     const scheduleData = await scheduleResponse.json();
                     if (scheduleData.success) {
                         this.processScheduleData(scheduleData.schedules || []);
                         this.renderTable();
+                        this.updateStats();
+                        this.showStats();
                     } else {
                         console.error('API returned success: false for schedule');
                         this.showNoData();
@@ -511,6 +840,8 @@
             } catch (error) {
                 console.error('Error loading schedule:', error);
                 this.showError('حدث خطأ أثناء تحميل الجدول');
+            } finally {
+                this.hideLoading();
             }
         }
 
@@ -532,8 +863,6 @@
                 const key = `${englishDay}_${schedule.clinic_slot}`;
                 this.scheduleData[key] = schedule;
             });
-            
-            console.log('Processed schedule data:', this.scheduleData);
         }
 
         renderTable() {
@@ -550,12 +879,18 @@
                 
                 // Time column
                 const timeCell = document.createElement('td');
-                timeCell.className = 'sched-time-header';
-                timeCell.textContent = `${slot.start_time} - ${slot.end_time}`;
+                timeCell.className = 'text-center fw-bold';
+                timeCell.innerHTML = `
+                    <div class="p-2">
+                        <div style="font-size: 0.9rem;">${slot.start_time}</div>
+                        <div style="font-size: 0.7rem; color: var(--secondary);">إلى</div>
+                        <div style="font-size: 0.9rem;">${slot.end_time}</div>
+                    </div>
+                `;
                 row.appendChild(timeCell);
 
                 // Day columns
-                const days = [ 'saturday','sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',];
+                const days = ['saturday', 'sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
                 
                 days.forEach(day => {
                     const cell = document.createElement('td');
@@ -563,27 +898,24 @@
                     
                     if (this.scheduleData[scheduleKey]) {
                         const schedule = this.scheduleData[scheduleKey];
-                        const isAvailable = schedule.is_active;
+                        const slotClass = `sched-slot-${schedule.specialization_name || 'general'}`;
                         
                         cell.innerHTML = `
-                            <div class="sched-time-slot ${isAvailable ? 'sched-available' : 'sched-booked'}" 
-                                 data-day="${day}" data-slot="${slot.id}">
-                                <div class="sched-time-slot-inner">
-                                    <div class="sched-doctor-name">${schedule.doctor || 'طبيب غير محدد'}</div>
-                                    <div class="sched-doctor-specialty">${schedule.specialization || 'تخصص عام'}</div>
-                                    <span class="sched-status-badge ${isAvailable ? 'sched-status-available' : 'sched-status-booked'}">
-                                        ${isAvailable ? 'متاح' : 'محجوز'}
-                                    </span>
-                                </div>
+                            <div class="sched-time-slot ${slotClass} ${schedule.is_active ? '' : 'sched-slot-unavailable'}" 
+                                 data-day="${day}" data-slot="${slot.id}" data-schedule='${JSON.stringify(schedule)}'>
+                                <div class="sched-doctor-name">${schedule.doctor || 'طبيب غير محدد'}</div>
+                                <div class="sched-doctor-specialty">${schedule.specialization_name || 'تخصص عام'}</div>
+                                ${schedule.is_active ? 
+                                    `<button class="sched-book-btn" onclick="scheduler.openBookingModal(this)">احجز الآن</button>` :
+                                    `<span class="sched-status-badge sched-status-booked">محجوز</span>`
+                                }
                             </div>
                         `;
                     } else {
                         cell.innerHTML = `
-                            <div class="sched-time-slot sched-unavailable" data-day="${day}" data-slot="${slot.id}">
-                                <div class="sched-time-slot-inner">
-                                    <div class="sched-doctor-name">لا يوجد طبيب</div>
-                                    <span class="sched-status-badge sched-status-unavailable">غير متاح</span>
-                                </div>
+                            <div class="sched-time-slot sched-slot-unavailable">
+                                <div class="sched-doctor-name">لا يوجد طبيب</div>
+                                <span class="sched-status-badge sched-status-unavailable">غير متاح</span>
                             </div>
                         `;
                     }
@@ -606,9 +938,154 @@
                 }, 10);
             });
 
-            this.hideLoading();
-            // Commented out to disable toggle functionality as requested
-            // this.bindSlotEvents();
+            document.getElementById('schedScheduleTableContainer').classList.remove('d-none');
+        }
+
+        filterTable() {
+            const specializationFilter = document.getElementById('schedSpecializationFilter').value;
+            const doctorFilter = document.getElementById('schedDoctorFilter').value.toLowerCase();
+            const slots = document.querySelectorAll('.sched-time-slot');
+
+            slots.forEach(slot => {
+                const scheduleData = slot.getAttribute('data-schedule');
+                if (scheduleData) {
+                    const schedule = JSON.parse(scheduleData);
+                    let show = true;
+
+                    if (specializationFilter && schedule.specialization != specializationFilter) {
+                        console.log(specializationFilter + ' - ' + schedule.specialization);
+                        show = false;
+                    }
+
+                    if (doctorFilter && !schedule.doctor.toLowerCase().includes(doctorFilter)) {
+                        show = false;
+                    }
+
+                    slot.closest('td').style.display = show ? '' : 'none';
+                }
+            });
+        }
+
+        openBookingModal(button) {
+            const slot = button.closest('.sched-time-slot');
+            const scheduleData = JSON.parse(slot.getAttribute('data-schedule'));
+            
+            this.currentBooking = scheduleData;
+            
+            const dayNames = {
+                'saturday': 'السبت',
+                'sunday': 'الاحد',
+                'monday': 'الاثنين',
+                'tuesday': 'الثلاثاء',
+                'wednesday': 'الاربعاء',
+                'thursday': 'الخميس',
+                'friday': 'الجمعة'
+            };
+
+            document.getElementById('schedBookingDetails').innerHTML = `
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-info-circle me-2"></i>تفاصيل الموعد</h6>
+                    <p class="mb-1"><strong>الطبيب:</strong> ${this.currentBooking.doctor}</p>
+                    <p class="mb-1"><strong>التخصص:</strong> ${this.currentBooking.specialization_name}</p>
+                    <p class="mb-1"><strong>اليوم:</strong> ${this.currentBooking.day_of_week}</p>
+                    <p class="mb-0"><strong>الوقت:</strong> ${this.currentBooking.start_time}</p>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('schedBookingModal'));
+            modal.show();
+        }
+
+        async confirmBooking() {
+            const form = document.getElementById('schedBookingForm');
+            if (form.checkValidity()) {
+                const patientName = document.getElementById('schedPatientName').value;
+                const patientPhone = document.getElementById('schedPatientPhone').value;
+                const patientEmail = document.getElementById('schedPatientEmail').value;
+                const patientNotes = document.getElementById('schedPatientNotes').value;
+
+                try {
+                    this.showLoading();
+                    
+                    // API call to book appointment
+                    const response = await fetch('/api/appointments/book/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': this.getCSRFToken()
+                        },
+                        body: JSON.stringify({
+                            clinic_id: document.getElementById('schedClinicFilter').value,
+                            day: this.currentBooking.day,
+                            time_slot_id: this.currentBooking.slot,
+                            doctor_id: this.currentBooking.doctor_id,
+                            patient_name: patientName,
+                            patient_phone: patientPhone,
+                            patient_email: patientEmail,
+                            notes: patientNotes
+                        })
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        if (result.success) {
+                            // Update the UI to show the slot as booked
+                            const scheduleKey = `${this.currentBooking.day}_${this.currentBooking.slot}`;
+                            this.scheduleData[scheduleKey].is_active = false;
+                            
+                            this.renderTable();
+                            this.updateStats();
+                            
+                            // Close modal
+                            bootstrap.Modal.getInstance(document.getElementById('schedBookingModal')).hide();
+                            
+                            // Show success message
+                            this.showToast('تم حجز الموعد بنجاح!', 'success');
+                            
+                            // Reset form
+                            form.reset();
+                            this.currentBooking = null;
+                        } else {
+                            this.showError(result.message || 'فشل في حجز الموعد');
+                        }
+                    } else {
+                        this.showError('حدث خطأ في الاتصال بالخادم');
+                    }
+                } catch (error) {
+                    console.error('Error booking appointment:', error);
+                    this.showError('حدث خطأ أثناء حجز الموعد');
+                } finally {
+                    this.hideLoading();
+                }
+            } else {
+                form.reportValidity();
+            }
+        }
+
+        updateStats() {
+            let available = 0;
+            let booked = 0;
+            let doctors = new Set();
+            let specializations = new Set();
+
+            Object.values(this.scheduleData).forEach(schedule => {
+                if (schedule.is_active) {
+                    available++;
+                } else {
+                    booked++;
+                }
+                doctors.add(schedule.doctor);
+                specializations.add(schedule.specialization.name);
+            });
+
+            document.getElementById('schedAvailableCount').textContent = available;
+            document.getElementById('schedBookedCount').textContent = booked;
+            document.getElementById('schedDoctorCount').textContent = doctors.size;
+            document.getElementById('schedSpecializationCount').textContent = specializations.size;
+        }
+
+        showStats() {
+            document.getElementById('schedStatsContainer').style.display = 'grid';
         }
 
         bindEvents() {
@@ -623,6 +1100,32 @@
                     this.loadScheduleData(clinicId);
                 }
             });
+
+            document.getElementById('schedResetFiltersBtn').addEventListener('click', () => {
+                this.resetFilters();
+            });
+
+            document.getElementById('schedConfirmBookingBtn').addEventListener('click', () => {
+                this.confirmBooking();
+            });
+
+            document.getElementById('schedSpecializationFilter').addEventListener('change', () => {
+                this.filterTable();
+            });
+
+            document.getElementById('schedDoctorFilter').addEventListener('input', () => {
+                this.filterTable();
+            });
+        }
+
+        resetFilters() {
+            document.getElementById('schedClinicFilter').value = '';
+            document.getElementById('schedSpecializationFilter').value = '';
+            document.getElementById('schedDoctorFilter').value = '';
+            
+            this.hideSchedule();
+            this.hideStats();
+            document.getElementById('schedLoadScheduleBtn').disabled = true;
         }
 
         showLoading() {
@@ -633,7 +1136,6 @@
 
         hideLoading() {
             document.getElementById('schedLoadingMessage').classList.add('d-none');
-            document.getElementById('schedScheduleTableContainer').classList.remove('d-none');
         }
 
         showNoData() {
@@ -642,9 +1144,17 @@
             document.getElementById('schedNoDataMessage').classList.remove('d-none');
         }
 
+        hideSchedule() {
+            document.getElementById('schedScheduleTableContainer').classList.add('d-none');
+            document.getElementById('schedNoDataMessage').classList.remove('d-none');
+        }
+
+        hideStats() {
+            document.getElementById('schedStatsContainer').style.display = 'none';
+        }
+
         showError(message) {
             this.showToast(message, 'error');
-            this.hideLoading();
         }
 
         showToast(message, type = 'info') {
@@ -658,6 +1168,7 @@
             toast.innerHTML = `
                 <i class="fas fa-${icon} text-${type}"></i>
                 <div>${message}</div>
+                <button type="button" class="btn-close ms-auto" onclick="this.parentElement.remove()"></button>
             `;
             
             document.getElementById('schedToastContainer').appendChild(toast);
@@ -665,7 +1176,6 @@
             // Auto remove after 5 seconds
             setTimeout(() => {
                 toast.style.opacity = '0';
-                toast.style.transition = 'opacity 0.5s ease';
                 setTimeout(() => toast.remove(), 500);
             }, 5000);
         }
@@ -675,9 +1185,10 @@
         }
     }
 
-    // Initialize when DOM is ready
+    // Initialize the scheduler
+    let scheduler;
     document.addEventListener('DOMContentLoaded', function() {
-        new ScheduleTable();
+        scheduler = new EnhancedScheduleTable();
     });
 </script>
 {% endblock %}

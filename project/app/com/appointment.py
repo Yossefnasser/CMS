@@ -16,10 +16,11 @@ def list_of_appointments(request):
     days_of_week = DaysOfWeek.objects.filter(deleted_date__isnull=True)
     clinics = Clinic.objects.filter(deleted_date__isnull=True)
     schedules_data = DoctorSchedule.objects.filter(deleted_date__isnull=True)
-
+    specializations = Specialization.objects.filter(deleted_date__isnull=True)
     context = {
         'clinics'             : clinics,
         'days_of_week'          : days_of_week,
+        'specializations' :specializations
     }
     return render(request, 'appointment/list.html',context)
 def get_clinic_time_slots(request,clinic_id):
@@ -37,7 +38,14 @@ def get_clinic_schedule(request,clinic_id):
         clinic_id = clinic_id,
         deleted_date__isnull=True
     )
-    schedule_data = [schedule.to_json() for schedule in clinic_schedules]
+    schedule_data = [
+        {
+        **schedule.to_json(),
+        "start_time": schedule.clinic_slot.start_time,
+        "end_time": schedule.clinic_slot.end_time
+        }
+        for schedule in clinic_schedules
+    ]
     print("Schedule data being sent:", schedule_data)
     return JsonResponse({
         'success' : True,
