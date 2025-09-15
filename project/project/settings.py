@@ -134,3 +134,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'app.User'
 
+# Add this to your settings.py
+CSRF_TRUSTED_ORIGINS = [
+    'https://cms-production-6742.up.railway.app',
+    'http://localhost:8000',  # Keep for local development
+    'http://127.0.0.1:8000',  # Keep for local development
+]
