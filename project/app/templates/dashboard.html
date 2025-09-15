@@ -68,16 +68,16 @@
     <div class="col-lg-3 col-md-6">
       <div class="card stat-card shadow-sm border-0 text-center p-3 animate-fade-up">
         <div class="stat-icon text-success mb-2"><i class="fas fa-calendar-check fa-lg"></i></div>
-        <h4 class="stat-number mb-1">86</h4>
+        <h4 class="stat-number mb-1">{{ appointments_this_week }}</h4>
         <div class="stat-label text-muted">المواعيد هذا الأسبوع</div>
-        <small class="text-info"><i class="fas fa-clock me-1"></i> 15 موعد اليوم</small>
+        <small class="text-info"><i class="fas fa-clock me-1"></i> {{ appointments_today }} موعد اليوم</small>
       </div>
     </div>
 
     <div class="col-lg-3 col-md-6">
       <div class="card stat-card shadow-sm border-0 text-center p-3 animate-fade-up">
         <div class="stat-icon text-info mb-2"><i class="fas fa-user-md fa-lg"></i></div>
-        <h4 class="stat-number mb-1">{{ total_doctors_count }}</h4>
+        <h4 class="stat-number mb-1">{{ active_doctors_count }}</h4>
         <div class="stat-label text-muted">الأطباء النشطون</div>
         <small class="{% if doctors_growth_rate >= 0 %}text-success{% else %}text-danger{% endif %}">
           <i class="fas {% if doctors_growth_rate >= 0 %}fa-arrow-up{% else %}fa-arrow-down{% endif %} me-1"></i>
@@ -89,9 +89,16 @@
     <div class="col-lg-3 col-md-6">
       <div class="card stat-card shadow-sm border-0 text-center p-3 animate-fade-up">
         <div class="stat-icon text-warning mb-2"><i class="fas fa-chart-line fa-lg"></i></div>
-        <h4 class="stat-number mb-1">45,280</h4>
+        <h4 class="stat-number mb-1">{{ total_income }}</h4>
         <div class="stat-label text-muted">الإيرادات (الجنيه)</div>
-        <small class="text-success"><i class="fas fa-arrow-up me-1"></i> +8% من الأسبوع الماضي</small>
+
+        {% if income_growth_rate > 0 %}
+          <small class="text-success"><i class="fas fa-arrow-up me-1"></i> +{{ income_growth_rate }}% من الأسبوع الماضي</small>
+        {% elif income_growth_rate < 0 %}
+          <small class="text-danger"><i class="fas fa-arrow-down me-1"></i> {{ income_growth_rate }}% من الأسبوع الماضي</small>
+        {% else %}
+          <small class="text-muted"><i class="fas fa-minus me-1"></i> لا يوجد تغيير</small>
+        {% endif %}
       </div>
     </div>
   </div>
