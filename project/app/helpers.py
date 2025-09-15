@@ -33,8 +33,7 @@ def check_if_post_input_valid(text, max_length):
 
 
 def check_valid_text(text):
-    check = re.search("^/var\s*.*;/g*$", text)
-    print(check)
+    check = re.search(r"^/var\s*.*;/g*$", text)
     if check is None:
         return text
     else:
