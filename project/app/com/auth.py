@@ -12,7 +12,7 @@ def login_view(request):
 		user = authenticate(request, username=username, password=password)
 		if user is not None:
 			login(request, user)
-			return render(request, 'dashboard.html')
+			return redirect('dashboard')
 		else:
 			messages.error(request, 'اسم المستخدم أو كلمة المرور غير صحيحة.')
 	return render(request, 'auth/login.html')
