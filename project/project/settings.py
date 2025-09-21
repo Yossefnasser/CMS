@@ -82,11 +82,11 @@ env = environ.Env()
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('PGDATABASE' ),
-        'USER': env('PGUSER' ),
-        'PASSWORD': env('PGPASSWORD'),
-        'HOST': env('PGHOST'),
-        'PORT': env('PGPORT'),
+        'NAME':env('PGDATABASE' ),
+        'USER':env('PGUSER' ),
+        'PASSWORD':env('PGPASSWORD'),
+        'HOST':env('PGHOST'),
+        'PORT':env('PGPORT'),
     }
 }
 
