@@ -74,46 +74,16 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-import os
-
-# Database configuration
-if os.environ.get('DATABASE_URL'):
-    # Production (Railway) - Parse DATABASE_URL manually
-    import urllib.parse as urlparse
-    
-    url = urlparse.urlparse(os.environ['DATABASE_URL'])
-    
-    DATABASES = {
+DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': url.path[1:],  # Remove leading slash
-            'USER': url.username,
-            'PASSWORD': url.password,
-            'HOST': url.hostname,
-            'PORT': url.port,
+            'NAME': 'railway',  # Remove leading slash
+            'USER': 'postgres',
+            'PASSWORD': 'fjuXfzhSAwLkkqwtUmpeOqEfpzFycgzL',
+            'HOST': 'yamabiko.proxy.rlwy.net',
+            'PORT': '33352',
         }
     }
-elif os.environ.get('PGDATABASE'):
-    # Alternative: Use individual Railway variables
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('PGDATABASE'),
-            'USER': os.environ.get('PGUSER'),
-            'PASSWORD': os.environ.get('PGPASSWORD'),
-            'HOST': os.environ.get('PGHOST'),
-            'PORT': os.environ.get('PGPORT', '5432'),
-        }
-    }
-else:
-    # Local development - SQLite
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
