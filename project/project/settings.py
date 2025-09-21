@@ -83,11 +83,11 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': env('PGDATABASE', default='railway'),
-        'USER': env('PGUSER', default='postgres'),
-        'PASSWORD': env('PGPASSWORD', default=''),
-        'HOST': env('PGHOST', default='localhost'),
-        'PORT': env('PGPORT', default='5432'),
+        'NAME': env('PGDATABASE' ),
+        'USER': env('PGUSER' ),
+        'PASSWORD': env('PGPASSWORD'),
+        'HOST': env('PGHOST'),
+        'PORT': env('PGPORT'),
     }
 }
 
