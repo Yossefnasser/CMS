@@ -73,22 +73,15 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-import os
-import environ
-
-# Initialise environment variables
-env = environ.Env()
+import dj_database_url
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME':env('PGDATABASE' ),
-        'USER':env('PGUSER' ),
-        'PASSWORD':env('PGPASSWORD'),
-        'HOST':env('PGHOST'),
-        'PORT':env('PGPORT'),
-    }
+    "default": dj_database_url.config(
+        default="postgresql://postgres:password@localhost:5432/railway",
+        conn_max_age=600,
+    )
 }
+
 
 
 
