@@ -77,7 +77,7 @@ import dj_database_url
 
 DATABASES = {
     "default": dj_database_url.config(
-        default="postgresql://postgres:password@localhost:5432/railway",
+        env="DATABASE_PUBLIC_URL",  # tell it to read DATABASE_PUBLIC_URL
         conn_max_age=600,
     )
 }
