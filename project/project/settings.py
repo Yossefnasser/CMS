@@ -124,7 +124,7 @@ key_hashing = b'53P8Le_9WLNK2d6ezPPL9xMvM7dLEcGyk54wuWRjzZw='
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
 # Default primary key field type
