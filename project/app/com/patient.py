@@ -215,7 +215,7 @@ def check_if_patient_exists(request):
         if not phone_number:
             return JsonResponse({'exists': False})
         
-        query = Patient.objects.filter(phone_number=phone_number)
+        query = Patient.objects.filter(phone_number=phone_number , deleted_date__isnull=True)
         if patient_id:
             query = query.exclude(id=patient_id)
             

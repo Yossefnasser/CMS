@@ -720,7 +720,7 @@ body {
                         </div>
                         <div class="sched-legend-item">
                             <div class="sched-legend-color sched-legend-pediatrics"></div>
-                            <span>الأطفال</span>
+                            <span>الاطفال</span>
                         </div>
                         <div class="sched-legend-item">
                             <div class="sched-legend-color sched-legend-neurology"></div>
@@ -902,7 +902,7 @@ body {
                         
                         cell.innerHTML = `
                             <div class="sched-time-slot ${slotClass} ${schedule.is_active ? '' : 'sched-slot-unavailable'}" 
-                                 data-day="${day}" data-slot="${slot.id}" data-schedule='${JSON.stringify(schedule)}'>
+                                data-day="${day}" data-slot="${slot.id}" data-schedule='${JSON.stringify(schedule)}'>
                                 <div class="sched-doctor-name">${schedule.doctor || 'طبيب غير محدد'}</div>
                                 <div class="sched-doctor-specialty">${schedule.specialization_name || 'تخصص عام'}</div>
                                 ${schedule.is_active ? 
