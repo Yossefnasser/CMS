@@ -195,24 +195,6 @@ class DoctorSchedule(BaseModel):
     def clean(self):
         if self.valid_to and self.valid_from > self.valid_to:
             raise ValidationError('valid_from must be before valid_to.')
-        overlapping_schedules = DoctorSchedule.objects.filter(
-            doctor=self.doctor,
-            day_of_week=self.day_of_week,
-            clinic_slot=self.clinic_slot,
-            deleted_date__isnull=True
-        )
-        if self.pk:
-            overlapping_schedules = overlapping_schedules.exclude(pk=self.pk)
-        if overlapping_schedules.exists():
-            raise ValidationError('This schedule overlaps with an existing schedule for the same doctor.')
-        overlapping_clinics = DoctorSchedule.objects.filter(
-            clinic= self.clinic,
-            day_of_week=self.day_of_week,
-            clinic_slot=self.clinic_slot,
-            deleted_date__isnull=True
-        ).exclude(pk=self.pk)
-        if overlapping_clinics :
-            raise ValidationError('This schedule overlaps with an existing schedule for the other doctor.')
     def save(self, *args, **kwargs):
         self.full_clean()  # calls clean_fields(), clean(), and validate_unique()
         super().save(*args, **kwargs)
