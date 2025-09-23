@@ -334,7 +334,7 @@ def api_get_slots(request):
         ).first()
         
         slot_json = slot.to_json()
-        if doctor_schedule:
+        if doctor_schedule and doctor_schedule.doctor.deleted_date is None:
             slot_json['is_available'] = False
             slot_json['doctor_name'] = doctor_schedule.doctor.full_name 
         else:
