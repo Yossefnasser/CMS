@@ -231,7 +231,8 @@ def get_doctor_schedule(request):
     schedules = DoctorSchedule.objects.filter(
         doctor_id=doctor_id,
         is_active=True,
-        valid_from__lte=today
+        valid_from__lte=today,
+        deleted_date__isnull=True
     ).filter(
         Q(valid_to__isnull=True) | Q(valid_to__gte=today)
     ).order_by("day_of_week__id")
