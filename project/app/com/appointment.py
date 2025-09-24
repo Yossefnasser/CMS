@@ -235,6 +235,7 @@ def get_doctor_schedule(request):
 
     today = timezone.now().date()
 
+    print(f"Fetching schedule for doctor ID: {doctor_id} on {today} {today.weekday()}")
     schedules = DoctorSchedule.objects.filter(
         doctor_id=doctor_id,
         is_active=True,

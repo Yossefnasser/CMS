@@ -275,6 +275,138 @@
         height: 2px;
         background: var(--primary);
     }
+
+    /* New styles for patient appointments */
+    .patient-appointment {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: var(--border-radius);
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        margin-bottom: 0.8rem;
+        transition: var(--transition);
+        border-right: 3px solid transparent;
+    }
+    
+    .patient-appointment:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transform: translateX(-3px);
+        border-right-color: var(--primary);
+    }
+    
+    .patient-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        background: var(--primary-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 1rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+    
+    .patient-info {
+        flex: 1;
+    }
+    
+    .patient-name {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 0.3rem;
+        font-size: 1rem;
+    }
+    
+    .appointment-details {
+        font-size: 0.85rem;
+        color: #718096;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .appointment-date {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    
+    .appointment-status {
+        padding: 0.2rem 0.6rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        text-transform: uppercase;
+    }
+    
+    .status-completed {
+        background: rgba(40, 167, 69, 0.1);
+        color: var(--success);
+    }
+    
+    .status-pending {
+        background: rgba(255, 193, 7, 0.1);
+        color: var(--warning);
+    }
+    
+    .status-cancelled {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    
+    .appointments-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+        color: #a0aec0;
+    }
+    
+    .loading-spinner {
+        width: 30px;
+        height: 30px;
+        border: 3px solid #f3f3f3;
+        border-top: 3px solid var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-left: 1rem;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    .appointments-error {
+        text-align: center;
+        padding: 2rem;
+        color: #dc3545;
+        background: rgba(220, 53, 69, 0.05);
+        border-radius: var(--border-radius);
+    }
+    
+    .view-all-btn {
+        background: var(--primary-light);
+        color: var(--primary);
+        border: 1px solid var(--primary);
+        border-radius: var(--border-radius);
+        padding: 0.7rem 1.5rem;
+        font-weight: 600;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 1rem;
+    }
+    
+    .view-all-btn:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+    }
     
     @media (max-width: 768px) {
         .doctor-header {
@@ -287,6 +419,19 @@
         
         .card-body {
             padding: 1.2rem;
+        }
+        
+        .patient-appointment {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .patient-avatar {
+            margin: 0 0 0.5rem 0;
+        }
+        
+        .appointment-details {
+            justify-content: center;
         }
     }
 </style>
@@ -378,6 +523,22 @@
                         <p>يرجى التحقق لاحقاً أو الاتصال بالطبيب مباشرة</p>
                     </div>
                     {% endif %}
+                </div>
+            </div>
+
+            <!-- Latest Patient Appointments -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-users-medical"></i>
+                    آخر المواعيد المحجوزة
+                </div>
+                <div class="card-body">
+                    <div id="latestAppointments">
+                        <div class="appointments-loading">
+                            <span>جاري تحميل المواعيد...</span>
+                            <div class="loading-spinner"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -474,6 +635,121 @@
         $('.schedule-item').each(function(i) {
             $(this).delay(i * 100).css('opacity', 0).animate({opacity: 1, left: 0}, 500);
         });
+
+        // Load latest appointments
+        loadLatestAppointments();
     });
+
+    function loadLatestAppointments() {
+        const doctorId = {{ doctor.id }};
+        
+        fetch(`/api/doctors/${doctorId}/latest-appointments/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    renderAppointments(data.appointments);
+                } else {
+                    showAppointmentsError('فشل في تحميل المواعيد');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading appointments:', error);
+                showAppointmentsError('حدث خطأ أثناء تحميل المواعيد');
+            });
+    }
+
+    function renderAppointments(appointments) {
+        const container = document.getElementById('latestAppointments');
+        
+        if (appointments.length === 0) {
+            container.innerHTML = `
+                <div class="no-schedules">
+                    <i class="fas fa-calendar-times"></i>
+                    <h4>لا توجد مواعيد حديثة</h4>
+                    <p>لم يتم حجز أي مواعيد مؤخراً</p>
+                </div>
+            `;
+            return;
+        }
+
+        let appointmentsHTML = '';
+        
+        appointments.forEach(appointment => {
+            const patientInitial = appointment.patient.name.charAt(0).toUpperCase();
+            const statusClass = getStatusClass(appointment.status);
+            const statusText = getStatusText(appointment.status);
+            
+            appointmentsHTML += `
+                <div class="patient-appointment">
+                    <div class="patient-avatar">${patientInitial}</div>
+                    <div class="patient-info">
+                        <div class="patient-name">${appointment.patient.name}</div>
+                        <div class="appointment-details">
+                            <div class="appointment-date">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>${formatDate(appointment.date)}</span>
+                            </div>
+                            
+                            <span class="appointment-status ${statusClass}">${statusText}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        appointmentsHTML += `
+            <div class="text-center">
+                <a href="/appointments/?doctor=" class="view-all-btn">
+                    <i class="fas fa-eye me-2"></i>
+                    عرض جميع المواعيد
+                </a>
+            </div>
+        `;
+        
+        container.innerHTML = appointmentsHTML;
+    }
+
+    function showAppointmentsError(message) {
+        const container = document.getElementById('latestAppointments');
+        container.innerHTML = `
+            <div class="appointments-error">
+                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <p>${message}</p>
+                <button class="btn btn-sm btn-outline-primary" onclick="loadLatestAppointments()">
+                    <i class="fas fa-redo me-2"></i>
+                    إعادة المحاولة
+                </button>
+            </div>
+        `;
+    }
+
+    function getStatusClass(status) {
+        switch(status) {
+            case 'completed': return 'status-completed';
+            case 'pending': return 'status-pending';
+            case 'cancelled': return 'status-cancelled';
+            default: return 'status-pending';
+        }
+    }
+
+    function getStatusText(status) {
+        switch(status) {
+            case 'completed': return 'مكتمل';
+            case 'pending': return 'في الانتظار';
+            case 'cancelled': return 'ملغي';
+            default: return 'غير محدد';
+        }
+    }
+
+    function formatDate(dateString) {
+        const date = new Date(dateString);
+        const options = { 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            weekday: 'long'
+        };
+        return date.toLocaleDateString('ar-EG', options);
+    }
 </script>
 {% endblock %}

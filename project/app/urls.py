@@ -20,7 +20,8 @@ urlpatterns = [
     path('doctor-schedule/update/<int:schedule_id>/', doctors.doctor_schedule, name='update-doctor-schedule'),
     path('doctor-schedule/delete/<int:schedule_id>/',doctors.delete_doctor_schedule, name='delete-doctor-schedule'),
     path('api/time-slots/',doctors.api_get_slots, name='api-get-slots'),
-    
+    path('api/doctors/<int:doctor_id>/latest-appointments/', doctors.get_latest_appointments, name='get_latest_appointments'),  
+
     path('add-patient',              patient.add_new_patient,           name='add-patient'),
     path('list-of-patients',         patient.list_of_patient,           name='list-of-patients'),
     path('get-list-of-patients',     patient.get_list_of_patients,      name='get-list-of-patients'),

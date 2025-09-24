@@ -347,3 +347,26 @@ def api_get_slots(request):
         "success": True,
         "slots": slots_data
     })
+
+def get_latest_appointments(request, doctor_id):
+    try:
+        doctor = Doctor.objects.get(id=doctor_id, deleted_date__isnull=True)
+        latest_appointments = Appointment.objects.filter(
+            doctor=doctor,
+            deleted_date__isnull=True
+        )
+        appointment_data = [appt.tojson()for appt in latest_appointments]
+        return JsonResponse({
+            'success': True,
+            'appointments': appointment_data
+        })
+    except Doctor.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Doctor not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)

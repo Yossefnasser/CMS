@@ -765,24 +765,21 @@ $(document).ready(function() {
         });
     });
 
-    // Helper: get next date for a given dayOfWeek (1=Monday, 7=Sunday)
-    function getNextDate(dayOfWeek) {
-        const today = new Date();
-        const todayDay = today.getDay(); // 0=Sunday, 1=Monday, ... 6=Saturday
+function getNextDate(dayOfWeek) {
+    const today = new Date();
+    const todayDay = today.getDay(); // 0=Sunday ... 6=Saturday
+    const jsDay = dayOfWeek % 7;     // Django 7=Sunday → JS 0=Sunday
 
-        // Adjust: Django -> 1=Monday ... 7=Sunday
-        const jsDay = dayOfWeek % 7;
-
-        let diff = jsDay - todayDay;
-        if (diff <= 0) {
-            diff += 7; // go to next week
-        }
-
-        const nextDate = new Date(today);
-        nextDate.setDate(today.getDate() + diff);
-
-        return nextDate.toISOString().split("T")[0]; // YYYY-MM-DD
+    let diff = jsDay - todayDay;
+    if (diff < 0) {
+        diff += 7; // only go forward if it's past
     }
+
+    const nextDate = new Date(today);
+    nextDate.setDate(today.getDate() + diff);
+
+    return nextDate.toLocaleDateString("en-CA"); // YYYY-MM-DD local
+}
 
     // On doctor change → load schedules
     $('#doctor').change(function () {

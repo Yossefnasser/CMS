@@ -221,7 +221,18 @@ class Appointment(BaseModel):
 
     def __str__(self):
         return f"{self.patient} with {self.doctor} at {self.time} on {self.date}"
-
+    def tojson(self):
+        return {
+            'id'        : self.id,
+            'hash_id'   : get_id_hashed_of_object(self.id),
+            'patient'   : self.patient.to_json(),
+            'doctor'    : self.doctor.to_json(),
+            'clinic'    : self.clinic.name,
+            'status'    : self.status.name,
+            'date'      : self.date,
+            'time'      : self.time.strftime('%H:%M'),
+            'notes'     : self.notes,
+        }
 
 class Invoice(BaseModel):
     """Clinic invoices"""
