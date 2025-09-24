@@ -35,22 +35,29 @@ def get_clinic_time_slots(request,clinic_id):
     })
 def get_clinic_schedule(request,clinic_id):
     clinic_schedules = DoctorSchedule.objects.filter(
-        clinic_id = clinic_id,
-        deleted_date__isnull=True
-    )
-    schedule_data = [
-        {
-        **schedule.to_json(),
-        "start_time": schedule.clinic_slot.start_time,
-        "end_time": schedule.clinic_slot.end_time
-        }
-        for schedule in clinic_schedules
-    ]
-    print("Schedule data being sent:", schedule_data)
+    clinic_id=clinic_id,
+    deleted_date__isnull=True
+)
+
+    schedule_data = []  
+
+    for schedule in clinic_schedules:
+        if schedule.doctor.deleted_date is None:
+            print(f"Schedule ID: {schedule.id}, Doctor: {schedule.doctor.full_name}")
+
+            schedule_data.append({
+                **schedule.to_json(),
+                "start_time": schedule.clinic_slot.start_time,
+                "end_time": schedule.clinic_slot.end_time
+            })
+
+            print("Added schedule:", schedule_data[-1])  
+
     return JsonResponse({
-        'success' : True,
-        'schedules' : schedule_data
+        'success': True,
+        'schedules': schedule_data
     })
+
 def new_appointment(request):
     added_by     = request.user
     added_date   = datetime.now()
