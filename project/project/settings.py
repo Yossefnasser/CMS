@@ -73,21 +73,13 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 
 
-if os.environ.get("DATABASE_PUBLIC_URL"):  # running on Railway
-    DATABASES = {
-        "default": dj_database_url.config(
-            env="DATABASE_PUBLIC_URL",
-            conn_max_age=600,
-        )
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": BASE_DIR / "db.sqlite3",
     }
-else:  # running locally
-    DATABASES = {
-        "default": {
-            "ENGINE": "django.db.backends.sqlite3",
-            "NAME": BASE_DIR / "db.sqlite3",
-        }
-    }
-print("DEBUG DATABASE URL:", DATABASES["default"])
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
@@ -131,7 +123,7 @@ CSRF_COOKIE_SECURE = True                 # only send CSRF cookies via HTTPS
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True    # end session when browser is closed after 30 min
 
 # Deploy with HTTPS only.
-SECURE_SSL_REDIRECT = True                # Forces all HTTP requests
+SECURE_SSL_REDIRECT = not DEBUG                # Forces all HTTP requests
 SECURE_HSTS_SECONDS = 31536000            # 1 year
 SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 SECURE_HSTS_PRELOAD = True                # enable HSTS preload -> HTTPS-only list.

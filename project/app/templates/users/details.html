@@ -1,5 +1,6 @@
 {% extends "base.html" %}
-
+{% load static %}
+{% load helpers %}
 {% block styles %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -302,7 +303,7 @@
                 <div class="user-type-badge">
                     <i class="fas fa-user-shield me-2"></i>
                     {% if user.user_type == 'MANAGER' %}
-                        مدير النظام
+                        مدير 
                     {% elif user.user_type == 'ADMIN' %}
                         أدمن
                     {% elif user.user_type == 'SECRETARY' %}
@@ -322,10 +323,10 @@
             </div>
             <div class="col-md-4 text-end">
                 <div class="action-buttons">
-                    <a href="/add-user?type=edit&id={{ user.id|get_id_hashed_of_object }}" class="btn btn-primary">
+                    <a href="/users/add-user?type=edit&id={{ user.id|get_id_hashed_of_object }}" class="btn btn-primary">
                         <i class="fas fa-edit me-2"></i>تعديل البيانات
                     </a>
-                    <a href="/list-of-users" class="btn btn-outline-secondary">
+                    <a href="/users/list" class="btn btn-outline-secondary">
                         <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
                     </a>
                 </div>
@@ -435,57 +436,6 @@
         </div>
     </div>
 
-    <!-- Permissions Card (Optional) -->
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <i class="fas fa-shield-alt"></i>
-                    الصلاحيات والأذونات
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="info-row">
-                                <span class="info-label">صلاحيات الموظفين:</span>
-                                <span class="info-value">
-                                    {% if user.is_staff %}
-                                        <i class="fas fa-check-circle text-success"></i> نعم
-                                    {% else %}
-                                        <i class="fas fa-times-circle text-danger"></i> لا
-                                    {% endif %}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="info-row">
-                                <span class="info-label">مدير متميز:</span>
-                                <span class="info-value">
-                                    {% if user.is_superuser %}
-                                        <i class="fas fa-check-circle text-success"></i> نعم
-                                    {% else %}
-                                        <i class="fas fa-times-circle text-danger"></i> لا
-                                    {% endif %}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="info-row">
-                                <span class="info-label">الحساب نشط:</span>
-                                <span class="info-value">
-                                    {% if user.is_active %}
-                                        <i class="fas fa-check-circle text-success"></i> نعم
-                                    {% else %}
-                                        <i class="fas fa-times-circle text-danger"></i> لا
-                                    {% endif %}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %}
 

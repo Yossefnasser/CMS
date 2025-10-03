@@ -10,7 +10,7 @@ from django import template
 from datetime import datetime
 register = template.Library()
 
-@register.simple_tag
+@register.filter
 def get_id_hashed_of_object(object_id):
     fernet = Fernet(key_hashing)
     encMessage = fernet.encrypt(str(object_id).encode())

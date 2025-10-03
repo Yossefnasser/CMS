@@ -11,8 +11,9 @@ urlpatterns = [
     path('users/list', users.list_of_users, name='list-of-users'),
     path('users/get-list-of-users', users.get_list_of_users, name='get-list-of-users'),
     path('users/add-user', users.add_new_user, name='add-user'),
-    path('users/details/<int:user_id>/', users.user_details, name='user-details'),
-    path('users/delete/<int:user_id>/', users.delete_user, name='delete-user'),
+    path('users/details', users.user_details, name='user-details'),
+    path('users/delete', users.delete_user, name='delete-user'),
+    path('check-if-username-exists', users.check_if_username_exists, name='check-if-username-exists'),
 
     path('list-of-doctors', doctors.list_of_doctors, name='list-of-doctors'),
     path('get-list-of-doctors', doctors.get_list_of_doctors, name='get-list-of-doctors'),
@@ -33,6 +34,7 @@ urlpatterns = [
     path('get-list-of-patients',     patient.get_list_of_patients,      name='get-list-of-patients'),
     path('delete-patient',           patient.delete_patient,            name='delete-patient'),
     path('check-if-patient-exists',  patient.check_if_patient_exists,   name='check-if-patient-exists'),
+    path('add-new-patient-ajax',     patient.add_new_patient_ajax,      name='add-new-patient-ajax'),
     
     path('add-appointment', appointment.new_appointment, name='add-appointment'),
     path('list-of-oppointments',appointment.list_of_appointments , name= 'list-of-appointments'),

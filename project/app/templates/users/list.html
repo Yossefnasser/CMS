@@ -106,7 +106,7 @@
           {
               data: null, className: "text-center",
               render: data =>
-                  `<a href="/users/user-details?id=${data.hash_id}" class="text-info"><i class="fa fa-info-circle"></i></a>`
+                  `<a href="/users/details?id=${data.hash_id}" class="text-info"><i class="fa fa-info-circle"></i></a>`
           },
           {
               data: null, className: "text-center",
@@ -147,7 +147,7 @@
           if (result.value) {
               $.ajax({
                   type: 'POST',
-                  url: '/users/delete-user',
+                  url: '/users/delete',
                   data: { id: $(element).attr('idOfItem') },
                   headers: { "X-CSRFToken": getCookie('csrftoken') },
                   success: function(res) {
