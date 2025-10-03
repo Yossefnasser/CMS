@@ -786,6 +786,18 @@ body {
 {% block Extrajavascripts %}
 {{ block.super }}
 <script>
+
+    function formatTimeTo12Hour(timeStr) {
+        // timeStr is something like "13:00" or "08:30"
+        let [hour, minute] = timeStr.split(':').map(Number);
+    
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12 || 12; // convert 0 -> 12, 13 -> 1, etc.
+    
+        return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    }
+
+    
     class EnhancedScheduleTable {
         constructor() {
             this.clinics = [];
@@ -882,9 +894,9 @@ body {
                 timeCell.className = 'text-center fw-bold';
                 timeCell.innerHTML = `
                     <div class="p-2">
-                        <div style="font-size: 0.9rem;">${slot.start_time}</div>
+                        <div style="font-size: 0.9rem;">${formatTimeTo12Hour(slot.start_time)}</div>
                         <div style="font-size: 0.7rem; color: var(--secondary);">إلى</div>
-                        <div style="font-size: 0.9rem;">${slot.end_time}</div>
+                        <div style="font-size: 0.9rem;">${formatTimeTo12Hour(slot.end_time)}</div>
                     </div>
                 `;
                 row.appendChild(timeCell);

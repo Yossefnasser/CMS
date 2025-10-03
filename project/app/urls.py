@@ -1,12 +1,18 @@
 from django.urls import path, include
 
-from .com import auth, dashboard ,patient ,appointment,doctors
+from .com import auth, dashboard ,patient ,appointment,doctors,users
 
 urlpatterns = [
     path('',            dashboard.dashboard, name='dashboard'),
 
     path('auth/login',  auth.login_view, name='login'),
     path('auth/logout', auth.logout_view, name='logout'),
+
+    path('users/list', users.list_of_users, name='list-of-users'),
+    path('users/get-list-of-users', users.get_list_of_users, name='get-list-of-users'),
+    path('users/add-user', users.add_new_user, name='add-user'),
+    path('users/details/<int:user_id>/', users.user_details, name='user-details'),
+    path('users/delete/<int:user_id>/', users.delete_user, name='delete-user'),
 
     path('list-of-doctors', doctors.list_of_doctors, name='list-of-doctors'),
     path('get-list-of-doctors', doctors.get_list_of_doctors, name='get-list-of-doctors'),

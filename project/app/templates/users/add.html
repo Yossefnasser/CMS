@@ -1,0 +1,561 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #4361ee;
+        --primary-hover: #3a56d4;
+        --secondary-color: #3f37c9;
+        --success-color: #4cc9f0;
+        --light-bg: #f8f9fa;
+        --card-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        --hover-shadow: 0 8px 32px rgba(67, 97, 238, 0.15);
+        --border-radius: 12px;
+    }
+
+    /* Modern Card Styles */
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .card:hover {
+        box-shadow: var(--hover-shadow);
+        transform: translateY(-4px);
+    }
+
+    .card-header {
+        background: var(--primary-color);
+        color: white;
+        padding: 1.25rem 1.5rem;
+        border-bottom: none;
+    }
+
+    .card-title {
+        font-weight: 600;
+        margin-bottom: 0;
+    }
+
+    /* Form Styles */
+    .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+
+    .floating-label-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .floating-label {
+        position: absolute;
+        top: 0.75rem;
+        right: 1rem;
+        color: #6c757d;
+        transition: all 0.2s ease;
+        pointer-events: none;
+        background: white;
+        padding: 0 0.25rem;
+    }
+
+    .form-control:focus ~ .floating-label,
+    .form-control:not(:placeholder-shown) ~ .floating-label,
+    .form-select:focus ~ .floating-label,
+    .form-select:not([value=""]) ~ .floating-label {
+        top: -0.5rem;
+        right: 0.75rem;
+        font-size: 0.75rem;
+        color: var(--primary-color);
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(67, 97, 238, 0.3);
+    }
+
+    .btn-outline-secondary {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0.5rem 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--primary-color);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-hover);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+
+    /* Content Header */
+    .content-header-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Success Message */
+    .alert-success {
+        border-radius: var(--border-radius);
+        border-left: 4px solid var(--success-color);
+    }
+
+    /* Form Check */
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    /* Animation */
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out;
+    }
+
+    /* Section Styles */
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .section-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        margin-left: 1rem;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin: 0;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .content-header-title {
+            font-size: 1.5rem;
+        }
+        
+        .card-header {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="container-xxl p-0">
+        <!-- Breadcrumb and Header -->
+        <div class="content-header py-4">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <div class="d-flex flex-column">
+                            <h1 class="content-header-title mb-2">إدارة المستخدمين</h1>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb mb-0">
+                                    <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+                                    <li class="breadcrumb-item"><a href="/list-of-users">المستخدمين</a></li>
+                                    {% if typeOfReq == 'new' %}
+                                        <li class="breadcrumb-item active">إضافة مستخدم جديد</li>
+                                    {% else %}
+                                        <li class="breadcrumb-item active">تعديل بيانات مستخدم: {{data_to_insert.fullname}}</li>
+                                    {% endif %}
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-10">
+                        <!-- Success Message -->
+                        <div class="alert alert-success d-flex align-items-center d-none" id="successMessage" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <div>تم حفظ بيانات المستخدم بنجاح!</div>
+                        </div>
+
+                        <!-- User Form Card -->
+                        <div class="card animate-fade-in mb-5">
+                            <div class="card-header d-flex align-items-center">
+                                <i class="fas fa-user-edit me-2"></i>
+                                <h5 class="card-title mb-0">البيانات الأساسية للمستخدم</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="POST" id="userForm" class="needs-validation" novalidate>
+                                    {% csrf_token %}
+                                    <input type="hidden" id="id" name="id" value="{{ data_to_insert.id|default:'' }}">
+                                    
+                                    <!-- User Information Section -->
+                                    <div class="form-section">
+                                        <div class="section-header">
+                                            <div class="section-icon">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <h3 class="section-title">بيانات المستخدم</h3>
+                                        </div>
+                                        <div class="row g-4">
+                                            <!-- Full Name -->
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <input 
+                                                        type="text" 
+                                                        class="form-control" 
+                                                        id="fullname" 
+                                                        name="fullname" 
+                                                        placeholder=" "
+                                                        value="{{ data_to_insert.fullname|default:'' }}"
+                                                        required
+                                                        pattern="^[\u0600-\u06FFa-zA-Z\s]{2,100}$"
+                                                    >
+                                                    <label class="floating-label">الاسم الكامل</label>
+                                                    <div class="invalid-feedback">
+                                                        يرجى إدخال اسم صحيح (حروف عربية أو إنجليزية فقط)
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Username -->
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <input 
+                                                        type="text" 
+                                                        class="form-control" 
+                                                        id="username" 
+                                                        name="username" 
+                                                        placeholder=" "
+                                                        value="{{ data_to_insert.username|default:'' }}"
+                                                        required
+                                                        pattern="^[a-zA-Z0-9_]{3,50}$"
+                                                    >
+                                                    <label class="floating-label">اسم المستخدم</label>
+                                                    <div class="invalid-feedback">
+                                                        يرجى إدخال اسم مستخدم صحيح (حروف إنجليزية وأرقام فقط، 3-50 حرف)
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Phone Number -->
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <input 
+                                                        type="tel" 
+                                                        class="form-control" 
+                                                        id="phone_number" 
+                                                        name="phone_number" 
+                                                        placeholder=" "
+                                                        pattern="^\d{11}$"
+                                                        value="{{ data_to_insert.phone_number|default:'' }}"
+                                                    >
+                                                    <label class="floating-label">رقم الهاتف</label>
+                                                    <div class="invalid-feedback">
+                                                        يرجى إدخال رقم هاتف صحيح (11 رقم)
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- User Type -->
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <select 
+                                                        class="form-select form-control" 
+                                                        id="user_type" 
+                                                        name="user_type" 
+                                                        required
+                                                    >
+                                                        <option value="">اختر نوع المستخدم</option>
+                                                        {% for value, label in user_types %}
+                                                            <option value="{{ value }}" {% if data_to_insert.user_type == value %}selected{% endif %}>
+                                                                {% if value == 'MANAGER' %}مدير
+                                                                {% elif value == 'ADMIN' %}أدمن
+                                                                {% elif value == 'SECRETARY' %}سكرتير
+                                                                {% endif %}
+                                                            </option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <label class="floating-label">نوع المستخدم</label>
+                                                    <div class="invalid-feedback">
+                                                        يرجى اختيار نوع المستخدم
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Password -->
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <input 
+                                                        type="password" 
+                                                        class="form-control" 
+                                                        id="password" 
+                                                        name="password" 
+                                                        placeholder=" "
+                                                        {% if typeOfReq == 'new' %}required{% endif %}
+                                                        minlength="6"
+                                                    >
+                                                    <label class="floating-label">
+                                                        كلمة المرور 
+                                                        {% if typeOfReq == 'edit' %}(اتركها فارغة إذا لم ترد تغييرها){% endif %}
+                                                    </label>
+                                                    <div class="invalid-feedback">
+                                                        يرجى إدخال كلمة مرور (6 أحرف على الأقل)
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Confirm Password -->
+                                            <div class="col-md-6">
+                                                <div class="floating-label-group">
+                                                    <input 
+                                                        type="password" 
+                                                        class="form-control" 
+                                                        id="confirm_password" 
+                                                        name="confirm_password" 
+                                                        placeholder=" "
+                                                        {% if typeOfReq == 'new' %}required{% endif %}
+                                                        minlength="6"
+                                                    >
+                                                    <label class="floating-label">تأكيد كلمة المرور</label>
+                                                    <div class="invalid-feedback">
+                                                        كلمة المرور غير متطابقة
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Active Status -->
+                                            <div class="col-md-12">
+                                                <div class="form-check form-switch">
+                                                    <input 
+                                                        class="form-check-input" 
+                                                        type="checkbox" 
+                                                        id="is_active" 
+                                                        name="is_active"
+                                                        {% if typeOfReq == 'new' or data_to_insert.is_active %}checked{% endif %}
+                                                    >
+                                                    <label class="form-check-label" for="is_active">
+                                                        المستخدم نشط
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Form Actions -->
+                                    <div class="d-flex gap-3 mt-5 justify-content-end">
+                                        <a href="/list-of-users" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times me-2"></i>إلغاء
+                                        </a>
+                                        <button type="submit" class="btn btn-primary" id="saveButton">
+                                            <i class="fas fa-save me-2"></i>حفظ البيانات
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block Extrajavascripts %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    $(document).ready(function() {
+        // Activate current nav item
+        $('#nav-users').addClass('active');
+        
+        // Initialize floating labels
+        $('.form-control, .form-select').each(function() {
+            if ($(this).val() !== '') {
+                $(this).siblings('.floating-label').addClass('active');
+            }
+        });
+
+        // Form validation
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        
+                        // Check password match
+                        const password = $('#password').val();
+                        const confirmPassword = $('#confirm_password').val();
+                        
+                        if (password !== confirmPassword) {
+                            $('#confirm_password').addClass('is-invalid');
+                            $('#confirm_password').next('.invalid-feedback').text('كلمة المرور غير متطابقة');
+                            form.classList.add('was-validated');
+                            return;
+                        } else {
+                            $('#confirm_password').removeClass('is-invalid');
+                        }
+                        
+                        if (!form.checkValidity()) {
+                            form.classList.add('was-validated');
+                            return;
+                        }
+                        
+                        // Check if username exists before submitting
+                        checkUsernameExists(form);
+                    }, false)
+                })
+        })()
+        
+        // Function to check if username exists
+        function checkUsernameExists(form) {
+            const username = $('#username').val();
+            const userId = $('#id').val();
+            
+            $.ajax({
+                url: '/check-if-username-exists',
+                type: 'GET',
+                data: {
+                    'username': username,
+                    'id': userId
+                },
+                success: function(response) {
+                    if (response.exists) {
+                        Swal.fire({
+                            title: 'خطأ!',
+                            text: 'اسم المستخدم مسجل بالفعل في النظام. يرجى اختيار اسم مستخدم آخر.',
+                            icon: 'error',
+                            confirmButtonText: 'حسناً',
+                            customClass: {
+                                confirmButton: 'btn btn-primary'
+                            },
+                            buttonsStyling: false
+                        });
+                        
+                        $('#username').addClass('is-invalid');
+                        $('#username').next('.invalid-feedback').text('اسم المستخدم مسجل مسبقاً');
+                    } else {
+                        form.classList.remove('was-validated');
+                        form.submit();
+                    }
+                },
+                error: function() {
+                    form.classList.remove('was-validated');
+                    form.submit();
+                }
+            });
+        }
+        
+        // Enhanced validation for Arabic/English names
+        $('#fullname').on('input', function() {
+            const regex = /^[\u0600-\u06FFa-zA-Z\s]{2,100}$/;
+            if (!regex.test($(this).val())) {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+        
+        // Username validation
+        $('#username').on('input', function() {
+            const regex = /^[a-zA-Z0-9_]{3,50}$/;
+            if (!regex.test($(this).val())) {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        // Phone number validation
+        $('#phone_number').on('input', function() {
+            const regex = /^\d{11}$/;
+            if ($(this).val() && !regex.test($(this).val())) {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+
+        // Password match validation
+        $('#confirm_password').on('input', function() {
+            const password = $('#password').val();
+            const confirmPassword = $(this).val();
+            
+            if (password !== confirmPassword) {
+                $(this).addClass('is-invalid');
+            } else {
+                $(this).removeClass('is-invalid');
+            }
+        });
+    });
+</script>
+{% endblock %}

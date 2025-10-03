@@ -1,0 +1,498 @@
+{% extends "base.html" %}
+
+{% block styles %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #2c6fd1;
+        --primary-light: #e8f1ff;
+        --secondary: #17a2b8;
+        --success: #28a745;
+        --warning: #ffc107;
+        --info: #20c997;
+        --danger: #dc3545;
+        --dark: #2d3748;
+        --light: #f8f9fa;
+        --border-radius: 12px;
+        --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        --hover-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
+        --transition: all 0.3s ease;
+    }
+    
+    body {
+        background-color: #f5f7fb;
+        font-family: 'Tajawal', sans-serif;
+        direction: rtl;
+        color: #4a5568;
+        line-height: 1.7;
+    }
+    
+    .user-header {
+        background: linear-gradient(120deg, var(--primary) 0%, #4a90e2 100%);
+        border-radius: var(--border-radius);
+        padding: 2.5rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: var(--card-shadow);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .user-header::before {
+        content: "";
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+    }
+    
+    .user-header::after {
+        content: "";
+        position: absolute;
+        bottom: -30px;
+        right: -30px;
+        width: 200px;
+        height: 200px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+    }
+    
+    .user-name {
+        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .user-type-badge {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1.2rem;
+        border-radius: 50px;
+        font-size: 1rem;
+        font-weight: 500;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        backdrop-filter: blur(5px);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .status-container {
+        background: white;
+        border-radius: var(--border-radius);
+        padding: 1.2rem;
+        color: var(--dark);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        margin-top: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .status-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0;
+    }
+    
+    .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--card-shadow);
+        transition: var(--transition);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--hover-shadow);
+    }
+    
+    .card-header {
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1.2rem 1.5rem;
+        font-weight: 700;
+        color: var(--dark);
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+    }
+    
+    .card-header i {
+        margin-left: 0.75rem;
+        color: var(--primary);
+        font-size: 1.3rem;
+    }
+    
+    .card-body {
+        padding: 1.5rem;
+    }
+    
+    .contact-info {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .contact-info li {
+        padding: 0.8rem 0;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .contact-info li:last-child {
+        border-bottom: none;
+    }
+    
+    .contact-info i {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-left: 1rem;
+        color: var(--primary);
+        font-size: 1.1rem;
+    }
+    
+    .breadcrumb {
+        background-color: transparent;
+        padding: 0.5rem 0;
+    }
+    
+    .breadcrumb-item a {
+        color: var(--primary);
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+    
+    .breadcrumb-item a:hover {
+        color: var(--dark);
+        text-decoration: underline;
+    }
+    
+    .breadcrumb-item.active {
+        color: #6c757d;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+    
+    .btn {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        transition: var(--transition);
+    }
+    
+    .btn-primary {
+        background-color: var(--primary);
+        border: none;
+    }
+    
+    .btn-primary:hover {
+        background-color: #2558a8;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(44, 111, 209, 0.3);
+    }
+    
+    .btn-outline-secondary {
+        border: 2px solid #e2e8f0;
+        color: var(--dark);
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: #f7fafc;
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0;
+        border-bottom: 1px solid #edf2f7;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: var(--dark);
+    }
+    
+    .info-value {
+        color: #718096;
+    }
+    
+    .badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 500;
+    }
+    
+    .badge-success {
+        background-color: var(--success);
+        color: white;
+    }
+    
+    .badge-danger {
+        background-color: var(--danger);
+        color: white;
+    }
+    
+    .badge-warning {
+        background-color: var(--warning);
+        color: white;
+    }
+    
+    .badge-info {
+        background-color: var(--info);
+        color: white;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .user-name {
+            font-size: 1.8rem;
+        }
+        
+        .user-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/">الرئيسية</a></li>
+            <li class="breadcrumb-item"><a href="/list-of-users">المستخدمين</a></li>
+            <li class="breadcrumb-item active">تفاصيل المستخدم</li>
+        </ol>
+    </nav>
+
+    <!-- User Header -->
+    <div class="user-header">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="user-name">{{ user.fullname|default:user.username }}</h1>
+                <div class="user-type-badge">
+                    <i class="fas fa-user-shield me-2"></i>
+                    {% if user.user_type == 'MANAGER' %}
+                        مدير النظام
+                    {% elif user.user_type == 'ADMIN' %}
+                        أدمن
+                    {% elif user.user_type == 'SECRETARY' %}
+                        سكرتير
+                    {% else %}
+                        {{ user.get_user_type_display }}
+                    {% endif %}
+                </div>
+                <div class="status-container">
+                    <div class="status-item">
+                        <span><i class="fas fa-circle me-2" style="color: {% if user.is_active %}var(--success){% else %}var(--danger){% endif %};"></i>الحالة:</span>
+                        <span class="badge {% if user.is_active %}badge-success{% else %}badge-danger{% endif %}">
+                            {% if user.is_active %}نشط{% else %}غير نشط{% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="action-buttons">
+                    <a href="/add-user?type=edit&id={{ user.id|get_id_hashed_of_object }}" class="btn btn-primary">
+                        <i class="fas fa-edit me-2"></i>تعديل البيانات
+                    </a>
+                    <a href="/list-of-users" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-right me-2"></i>العودة للقائمة
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Contact Information -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-address-card"></i>
+                    معلومات الاتصال
+                </div>
+                <div class="card-body">
+                    <ul class="contact-info">
+                        <li>
+                            <i class="fas fa-user"></i>
+                            <div>
+                                <strong>اسم المستخدم:</strong>
+                                <p class="mb-0 text-muted">{{ user.username }}</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-id-card"></i>
+                            <div>
+                                <strong>الاسم الكامل:</strong>
+                                <p class="mb-0 text-muted">{{ user.fullname|default:"غير محدد" }}</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-phone"></i>
+                            <div>
+                                <strong>رقم الهاتف:</strong>
+                                <p class="mb-0 text-muted">{{ user.phone_number|default:"غير محدد" }}</p>
+                            </div>
+                        </li>
+                        <li>
+                            <i class="fas fa-envelope"></i>
+                            <div>
+                                <strong>البريد الإلكتروني:</strong>
+                                <p class="mb-0 text-muted">{{ user.email|default:"غير محدد" }}</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Information -->
+        <div class="col-lg-6">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-info-circle"></i>
+                    معلومات الحساب
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span class="info-label">نوع المستخدم:</span>
+                        <span class="info-value">
+                            {% if user.user_type == 'MANAGER' %}
+                                <span class="badge badge-danger">مدير النظام</span>
+                            {% elif user.user_type == 'ADMIN' %}
+                                <span class="badge badge-warning">أدمن</span>
+                            {% elif user.user_type == 'SECRETARY' %}
+                                <span class="badge badge-info">سكرتير</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">حالة الحساب:</span>
+                        <span class="info-value">
+                            {% if user.is_active %}
+                                <span class="badge badge-success">نشط</span>
+                            {% else %}
+                                <span class="badge badge-danger">غير نشط</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">تاريخ الانضمام:</span>
+                        <span class="info-value">{{ user.date_joined|date:"Y-m-d H:i" }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">آخر تسجيل دخول:</span>
+                        <span class="info-value">
+                            {% if user.last_login %}
+                                {{ user.last_login|date:"Y-m-d H:i" }}
+                            {% else %}
+                                لم يسجل دخول بعد
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">حساب متميز:</span>
+                        <span class="info-value">
+                            {% if user.is_superuser %}
+                                <span class="badge badge-danger">نعم</span>
+                            {% else %}
+                                <span class="badge badge-secondary">لا</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permissions Card (Optional) -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-shield-alt"></i>
+                    الصلاحيات والأذونات
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="info-row">
+                                <span class="info-label">صلاحيات الموظفين:</span>
+                                <span class="info-value">
+                                    {% if user.is_staff %}
+                                        <i class="fas fa-check-circle text-success"></i> نعم
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger"></i> لا
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-row">
+                                <span class="info-label">مدير متميز:</span>
+                                <span class="info-value">
+                                    {% if user.is_superuser %}
+                                        <i class="fas fa-check-circle text-success"></i> نعم
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger"></i> لا
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-row">
+                                <span class="info-label">الحساب نشط:</span>
+                                <span class="info-value">
+                                    {% if user.is_active %}
+                                        <i class="fas fa-check-circle text-success"></i> نعم
+                                    {% else %}
+                                        <i class="fas fa-times-circle text-danger"></i> لا
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block Extrajavascripts %}
+<script>
+    $(document).ready(function() {
+        $('#nav-users').addClass('active');
+    });
+</script>
+{% endblock %}

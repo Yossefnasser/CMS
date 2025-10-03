@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load helpers %}
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -304,9 +305,9 @@
                                 <!-- FIX: Use clinic_slot times if available, otherwise fall back to schedule times -->
                                 <span class="fw-bold">
                                     {% if schedule.clinic_slot %}
-                                        {{ schedule.clinic_slot.start_time|time:"H:i" }} - {{ schedule.clinic_slot.end_time|time:"H:i" }}
+                                        {{ schedule.clinic_slot.start_time|to_12_hour }} - {{ schedule.clinic_slot.end_time|to_12_hour }}
                                     {% else %}
-                                        {{ schedule.start_time|time:"H:i" }} - {{ schedule.end_time|time:"H:i" }}
+                                        {{ schedule.start_time|to_12_hour }} - {{ schedule.end_time|to_12_hour }}
                                     {% endif %}
                                 </span>
                             </td>
@@ -390,7 +391,9 @@
                                 {% if schedule.day_of_week.id == day and schedule.is_active %}
                                 <div>
                                     <small class="text-primary d-block">{{ schedule.clinic.name }}</small>
-                                    <small class="text-muted">{{ schedule.start_time|time:"H:i" }}-{{ schedule.end_time|time:"H:i" }}</small>
+                                    <small class="text-muted">
+                                        {{ schedule.start_time|to_12_hour }} - {{ schedule.end_time|to_12_hour }}
+                                      </small>
                                 </div>
                                 {% endif %}
                             {% endfor %}

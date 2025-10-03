@@ -2,7 +2,7 @@ from datetime import datetime
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
-from app.helpers import get_id_of_object
+from app.templatetags.helpers import get_id_of_object
 from app.models import Appointment, Clinic, ClinicSlot, Doctor, DoctorSchedule, Patient, Status, User ,Specialization , DaysOfWeek
 from django.db.models import Q
 import json
@@ -12,6 +12,9 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect
 from django.contrib import messages
 from datetime import datetime
+from django.contrib.auth.decorators import login_required
+
+@login_required
 def list_of_appointments(request):
     days_of_week = DaysOfWeek.objects.filter(deleted_date__isnull=True)
     clinics = Clinic.objects.filter(deleted_date__isnull=True)
@@ -23,6 +26,7 @@ def list_of_appointments(request):
         'specializations' :specializations
     }
     return render(request, 'appointment/list.html',context)
+@login_required
 def get_clinic_time_slots(request,clinic_id):
     clinic_slots = ClinicSlot.objects.filter(
         clinic_id = clinic_id,
@@ -33,6 +37,7 @@ def get_clinic_time_slots(request,clinic_id):
         'success' : True,
         'slots' : [slot for slot in clinic_slots]
     })
+@login_required
 def get_clinic_schedule(request,clinic_id):
     clinic_schedules = DoctorSchedule.objects.filter(
     clinic_id=clinic_id,
@@ -57,7 +62,7 @@ def get_clinic_schedule(request,clinic_id):
         'success': True,
         'schedules': schedule_data
     })
-
+@login_required
 def new_appointment(request):
     added_by     = request.user
     added_date   = datetime.now()
@@ -144,6 +149,7 @@ def new_appointment(request):
     elif request.method == 'GET':
         return render(request, 'appointment/add.html', context)
 
+@login_required
 def new_appointment_api(request):
     cur_user = request.user
     cur_date = timezone.now()
@@ -208,6 +214,7 @@ def new_appointment_api(request):
 
     return JsonResponse({"success": False, "message": "Invalid request"}, status=400)
 
+@login_required
 def api_get_doctors_by_specialization(request):
     specialization_id = request.GET.get('specialization')
     print(f"-----------------{specialization_id}-----------------")
@@ -228,6 +235,7 @@ def api_get_doctors_by_specialization(request):
         ]
     })
 
+@login_required
 def get_doctor_schedule(request):
     doctor_id = request.GET.get("doctor_id")
     if not doctor_id:

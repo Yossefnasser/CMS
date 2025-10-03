@@ -7,7 +7,7 @@ import datetime as dt
 import re
 from project.settings import CHAR_05, CHAR_10, CHAR_15
 from django import template
-
+from datetime import datetime
 register = template.Library()
 
 @register.simple_tag
@@ -30,7 +30,18 @@ def check_if_post_input_valid(text, max_length):
     else:
         return ''
     
+@register.filter
+def to_12_hour(value):
+    try:
+        t = datetime.strptime(str(value), "%H:%M:%S")
+    except ValueError:
+        try:
+            t = datetime.strptime(str(value), "%H:%M")
+        except ValueError:
+            return value  
 
+    formatted = t.strftime("%I:%M %p").lstrip("0")
+    return formatted.replace("AM", "a.m.").replace("PM", "p.m.")
 
 def check_valid_text(text):
     check = re.search(r"^/var\s*.*;/g*$", text)

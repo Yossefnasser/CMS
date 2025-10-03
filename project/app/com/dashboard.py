@@ -3,11 +3,13 @@ from app.models import Appointment, Doctor, Invoice, Patient
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
-
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Sum
 
+
+@login_required
 def dashboard(request):
     today = timezone.now().date()
     start_of_current_month = today.replace(day=1)

@@ -72,10 +72,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'project.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-import os
-import dj_database_url
 
 if os.environ.get("DATABASE_PUBLIC_URL"):  # running on Railway
     DATABASES = {
@@ -122,6 +118,23 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
+
+# Auth
+LOGIN_URL = '/auth/login'
+LOGIN_REDIRECT_URL = '/'     
+LOGOUT_REDIRECT_URL = '/login'    
+
+# Security
+
+SESSION_COOKIE_SECURE = True              # only send cookies via HTTPS
+CSRF_COOKIE_SECURE = True                 # only send CSRF cookies via HTTPS
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True    # end session when browser is closed after 30 min
+
+# Deploy with HTTPS only.
+SECURE_SSL_REDIRECT = True                # Forces all HTTP requests
+SECURE_HSTS_SECONDS = 31536000            # 1 year
+SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+SECURE_HSTS_PRELOAD = True                # enable HSTS preload -> HTTPS-only list.
 
 
 CHAR_05   = 5

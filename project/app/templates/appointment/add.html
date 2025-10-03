@@ -623,6 +623,16 @@
 
 
 <script>
+    function formatTimeTo12Hour(timeStr) {
+        // timeStr is something like "13:00" or "08:30"
+        let [hour, minute] = timeStr.split(':').map(Number);
+    
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12 || 12; // convert 0 -> 12, 13 -> 1, etc.
+    
+        return `${hour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+    }
+
 $(document).ready(function() {
     let currentStep = 1;
     let selectedPatient = null;
@@ -826,7 +836,7 @@ function getNextDate(dayOfWeek) {
             detailsContainer.append(`
                 <div class="card p-2 mb-2 shadow-sm">
                     <strong>الميعاد القادم:</strong> ${nextDate}<br>
-                    <strong>الوقت:</strong> ${sch.start_time} - ${sch.end_time}<br>
+                    <strong>الوقت:</strong> ${formatTimeTo12Hour(sch.start_time)} - ${formatTimeTo12Hour(sch.end_time)}<br>
                     <strong>العيادة:</strong> ${sch.clinic}
                 </div>
             `);
@@ -850,7 +860,7 @@ function getNextDate(dayOfWeek) {
 
         $('#clinic').val(schedule.clinic);
 
-        const [startH, startM] = schedule.start_time.split(':').map(Number);
+        const [startH, startM] =  schedule.start_time.split(':').map(Number);
         const [endH, endM] = schedule.end_time.split(':').map(Number);
 
         for (let hour = startH; hour < endH; hour++) {

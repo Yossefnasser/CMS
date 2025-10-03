@@ -6,15 +6,17 @@ from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from app.helpers import check_if_post_input_valid, check_valid_text, get_id_hashed_of_object, get_id_of_object , delete
+from app.templatetags.helpers import check_if_post_input_valid, check_valid_text, get_id_hashed_of_object, get_id_of_object , delete
 from django.db.models import Q ,  Count, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.settings import CHAR_100, CHAR_50
+from django.contrib.auth.decorators import login_required
 
-
+@login_required
 def list_of_doctors(request):
     return render(request, 'doctors/list.html')
 
+@login_required
 def get_list_of_doctors(request):
     try:
         draw            = int(request.GET.get('draw', 1))
@@ -67,6 +69,7 @@ def get_list_of_doctors(request):
             "error": str(e)  # Include error message for debugging
         }, status=500)
 
+@login_required
 def add_new_doctor(request):
     added_by     = request.user
     added_date   = datetime.now()
@@ -168,6 +171,7 @@ def add_new_doctor(request):
     elif request.method == 'GET':
         return render(request, 'doctors/add.html', context)
 
+@login_required
 def delete_doctor(request):
     doctor_id      = request.POST['id']
 
@@ -183,7 +187,7 @@ def delete_doctor(request):
         return JsonResponse(allJson, safe=False)
     
 
-
+@login_required
 def check_if_doctor_exists(request):
     if request.method == 'GET':
         phone_number = request.GET.get('phone_number', '').strip()
@@ -206,7 +210,7 @@ def check_if_doctor_exists(request):
         })
     return JsonResponse({'exists': False})
 
-
+@login_required
 def doctor_schedule(request, schedule_id=None):
     if request.method == 'POST':
         try:
@@ -237,7 +241,7 @@ def doctor_schedule(request, schedule_id=None):
                     doctor              = doctor,
                     clinic              = clinic,
                     day_of_week         = day_of_week,
-                    clinic_slot         = clinic_slot,  # ADD THIS LINE
+                    clinic_slot         = clinic_slot,
                     valid_from          = valid_from,
                     valid_to            = valid_to
                 )
@@ -260,6 +264,8 @@ def doctor_schedule(request, schedule_id=None):
             "success": False,
             "message": "Method not allowed"
         }, status=405)
+
+@login_required
 def doctor_details(request):
     idOfObject       = get_id_of_object(request.GET.get('id'))
     doctor = Doctor.objects.get(id=idOfObject)
@@ -301,6 +307,7 @@ def doctor_details(request):
     }
     return render(request, "doctors/details.html", context)
 
+@login_required
 def delete_doctor_schedule(request,schedule_id):
     try:
         delete(request, DoctorSchedule, Q(id = schedule_id))
@@ -313,6 +320,7 @@ def delete_doctor_schedule(request,schedule_id):
             'message' : str(e)
         },status=500)
 
+@login_required
 def api_get_slots(request):
     clinic_id       = request.GET.get('clinic_id')
     day_of_week_id  = request.GET.get('day_of_week_id')
@@ -348,6 +356,7 @@ def api_get_slots(request):
         "slots": slots_data
     })
 
+@login_required
 def get_latest_appointments(request, doctor_id):
     try:
         doctor = Doctor.objects.get(id=doctor_id, deleted_date__isnull=True)

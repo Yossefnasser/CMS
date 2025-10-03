@@ -2,15 +2,17 @@ from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from app.helpers import check_if_post_input_valid, check_valid_text, get_id_of_object , delete
+from app.templatetags.helpers import check_if_post_input_valid, check_valid_text, get_id_of_object , delete
 from app.models import Doctor, Patient, Specialization
 from django.db.models import Q
 from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.settings import CHAR_100
+from django.contrib.auth.decorators import login_required
 ####################  Patient  #################3
 
 
+@login_required
 def list_of_patient(request):
 
     total_patients_count = Patient.objects.filter(deleted_date__isnull=True).count()
@@ -19,6 +21,7 @@ def list_of_patient(request):
     }
     return render(request,'patient/list.html',context)
 
+@login_required
 def get_list_of_patients(request):
     try:
         draw = int(request.GET.get('draw', 1))
@@ -71,7 +74,7 @@ def get_list_of_patients(request):
             "error": str(e)  # Include error message for debugging
         }, status=500)
     
-
+@login_required
 def add_new_patient(request):
     
     added_by     = request.user
@@ -148,6 +151,7 @@ def add_new_patient(request):
     elif request.method == 'GET':
         return render(request, 'patient/add.html', context)
 
+@login_required
 def delete_patient(request):
     patient_id      = request.POST['id']
     delete(request, Patient, Q(id = patient_id))
@@ -161,7 +165,7 @@ def delete_patient(request):
         allJson['Result'] = "Fail"
         return JsonResponse(allJson, safe=False)
     
-
+@login_required
 def add_new_patient_ajax(request):
     if request.method == 'POST':
         name    = request.POST.get('name', '').strip()
@@ -207,6 +211,7 @@ def add_new_patient_ajax(request):
 
     return JsonResponse({'success': False, 'errors': 'Invalid request method'}, status=405)
 
+@login_required
 def check_if_patient_exists(request):
     if request.method == 'GET':
         phone_number = request.GET.get('phone_number', '').strip()

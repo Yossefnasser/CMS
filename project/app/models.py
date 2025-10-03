@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from django.forms import ValidationError
 from django.utils import timezone
 
-from app.helpers import get_id_hashed_of_object
+from app.templatetags.helpers import get_id_hashed_of_object
 
 
 
