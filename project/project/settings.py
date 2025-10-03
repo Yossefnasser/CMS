@@ -74,12 +74,26 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+# Database
+# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+import os
+import dj_database_url
+
+if os.environ.get("DATABASE_PUBLIC_URL"):  # running on Railway
+    DATABASES = {
+        "default": dj_database_url.config(
+            env="DATABASE_PUBLIC_URL",
+            conn_max_age=600,
+        )
     }
-}
+else:  # running locally
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+print("DEBUG DATABASE URL:", DATABASES["default"])
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
