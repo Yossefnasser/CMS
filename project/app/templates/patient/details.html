@@ -768,7 +768,7 @@
             const doctorInitial = appointment.doctor.name.charAt(0).toUpperCase();
             const statusClass = getStatusClass(appointment.status);
             const statusText = getStatusText(appointment.status);
-            
+            console.log(appointment.service_type);
             appointmentsHTML += `
                 <div class="appointment-card">
                     <div class="doctor-info">
@@ -788,11 +788,11 @@
                             <span>${formatDate(appointment.date)}</span>
                         </div>
                         
-                        <span class="appointment-status ${statusClass}">${statusText}</span>
+                        <span class="appointment-status ${statusClass}">${appointment.service_type}</span>
                         
                         <span class="appointment-price">
                             <i class="fas fa-money-bill-wave me-1"></i>
-                            ${appointment.price} جنيه
+                            ${appointment.service_price} جنيه
                         </span>
                     </div>
                 </div>

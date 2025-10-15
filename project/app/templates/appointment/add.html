@@ -956,20 +956,34 @@ $(document).ready(function() {
     'السبت': 6
 };
 
-function getNextDate(dayName) {
+function getNextDate(dayName, sessionEndTime) {
     const jsDay = dayMap[dayName];
-    if (jsDay === undefined) return "غير معروف"; // fallback if invalid name
+    if (jsDay === undefined) return "غير معروف";
 
     const today = new Date();
     const todayDay = today.getDay();
 
     let diff = jsDay - todayDay;
-    if (diff <= 0) diff += 7;
+    if (diff < 0) diff += 7;
+
+    // Parse session start hour and minute from "HH:MM"
+    const [sessionHour, sessionMinute] = sessionEndTime.split(':').map(Number);
+
+    if (diff === 0) {
+        const nowHour = today.getHours();
+        const nowMinute = today.getMinutes();
+
+        // If the current time has already passed the session time → move to next week
+        if (nowHour > sessionHour || (nowHour === sessionHour && nowMinute >= sessionMinute)) {
+            diff = 7;
+        }
+    }
 
     const nextDate = new Date(today);
     nextDate.setDate(today.getDate() + diff);
-    return nextDate.toISOString().split("T")[0];
+    return nextDate.toISOString().split("T")[0]; // "YYYY-MM-DD"
 }
+
 
 // When day changes:
 $('#day_of_week').change(function() {
@@ -981,7 +995,9 @@ $('#day_of_week').change(function() {
 
         schedulesForDay.forEach(function(sch) {
             console.log("sch.day_id:", sch.day, "type:", typeof sch.day_id);
-            const nextDate = getNextDate(sch.day);
+            const nextDate = getNextDate(sch.day, sch.end_time);
+             console.log("Next date for", sch.day, "is", nextDate);
+             console.log("Current date is", new Date().toISOString().split("T")[0]);
             detailsContainer.append(`
                 <div class="card p-3 mb-2">
                     <div class="row">
@@ -1028,7 +1044,7 @@ $('#day_of_week').change(function() {
             return;
         }
 
-        const nextDate = getNextDate(selectedSchedule.day);
+        const nextDate = getNextDate(selectedSchedule.day, selectedSchedule.end_time);
 
         appointmentData = {
             doctor_id: $('#doctor').val(),
