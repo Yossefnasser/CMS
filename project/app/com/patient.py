@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
 from app.templatetags.helpers import check_if_post_input_valid, check_valid_text, get_id_of_object , delete
-from app.models import Doctor, Patient, Specialization
+from app.models import Doctor, Patient, Specialization, Appointment
 from django.db.models import Q
 from django.utils import timezone
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -152,6 +152,20 @@ def add_new_patient(request):
         return render(request, 'patient/add.html', context)
 
 @login_required
+def patient_details(request):
+    idOfObject      = get_id_of_object(request.GET.get('id'))
+    patient         = Patient.objects.filter(id=idOfObject).first()
+
+    if not patient:
+        messages.error(request, 'المريض غير موجود أو تم حذفه.')
+        return redirect('list-of-patients')
+
+    context = {
+        'patient' : patient
+    }
+    return render(request, 'patient/details.html', context)
+
+@login_required
 def delete_patient(request):
     patient_id      = request.POST['id']
     delete(request, Patient, Q(id = patient_id))
@@ -237,4 +251,17 @@ def check_if_patient_exists(request):
         })
     return JsonResponse({'exists': False})
 
+@login_required
+def get_latest_appointments(request, patient_id):
+    try:
+        patient = Patient.objects.get(id=patient_id, deleted_date__isnull=True)
+    except Patient.DoesNotExist:
+        return JsonResponse({'error': 'Patient not found'}, status=404)
 
+    appointments = Appointment.objects.filter(patient=patient).order_by('-date')
+    data = [appointment.tojson() for appointment in appointments]
+    print(data)
+    return JsonResponse({
+        'success': True,
+        'appointments': data
+        })

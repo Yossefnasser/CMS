@@ -35,6 +35,8 @@ urlpatterns = [
     path('delete-patient',           patient.delete_patient,            name='delete-patient'),
     path('check-if-patient-exists',  patient.check_if_patient_exists,   name='check-if-patient-exists'),
     path('add-new-patient-ajax',     patient.add_new_patient_ajax,      name='add-new-patient-ajax'),
+    path('patient-details',          patient.patient_details,           name='patient-details'),
+    path('api/patients/<int:patient_id>/latest-appointments/', patient.get_latest_appointments, name='get_latest_appointments'),
     
     path('add-appointment', appointment.new_appointment, name='add-appointment'),
     path('list-of-oppointments',appointment.list_of_appointments , name= 'list-of-appointments'),

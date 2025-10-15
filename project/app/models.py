@@ -210,6 +210,11 @@ class Appointment(BaseModel):
     doctor   = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     clinic   = models.ForeignKey(Clinic, on_delete=models.CASCADE)
     status   = models.ForeignKey(Status, on_delete=models.CASCADE)
+    service_type    = models.CharField(max_length=20, choices=[
+        ('consultation', 'Consultation'),
+        ('examination', 'Examination'),
+    ], default='consultation')
+    service_price   = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
     date     = models.DateField()
     time     = models.TimeField()
     notes    = models.TextField(blank=True, null=True)
@@ -231,6 +236,8 @@ class Appointment(BaseModel):
             'status'    : self.status.name,
             'date'      : self.date,
             'time'      : self.time.strftime('%H:%M'),
+            'serivce_type'      : self.service_type,
+            'service_price'     : self.service_type,
             'notes'     : self.notes,
         }
 

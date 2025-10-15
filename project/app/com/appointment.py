@@ -164,6 +164,8 @@ def new_appointment_api(request):
             date        = data.get('date')
             time_range        = data.get('time')
             day         = data.get('day')
+            service_type       = data.get('service_type')
+            service_price       = data.get('service_price')
             appt_type   = data.get('type')
             notes       = data.get('notes', '')
             status      = data.get('status', 'OPEN')
@@ -197,6 +199,8 @@ def new_appointment_api(request):
                     clinic=clinic_obj,
                     status_id=1,
                     date=date,
+                    service_type=service_type,
+                    service_price=service_price,
                     time=start_time,
                     notes=notes,
                     added_by=cur_user,
@@ -229,7 +233,9 @@ def api_get_doctors_by_specialization(request):
         "doctors": [
             {
                 "id": doctor.id,
-                "name": doctor.full_name
+                "name": doctor.full_name,
+                "consultation_price":doctor.consultation_price,
+                "examination_price":doctor.examination_price,
             }
             for doctor in doctors
         ]
@@ -242,8 +248,8 @@ def get_doctor_schedule(request):
         return JsonResponse({"success": False, "message": "Doctor ID required"}, status=400)
 
     today = timezone.now().date()
-
     print(f"Fetching schedule for doctor ID: {doctor_id} on {today} {today.weekday()}")
+
     schedules = DoctorSchedule.objects.filter(
         doctor_id=doctor_id,
         is_active=True,
