@@ -2,7 +2,7 @@ from datetime import datetime
 from django.utils import timezone
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
-from app.templatetags.helpers import get_id_of_object
+from app.templatetags.helpers import get_id_of_object, merge_continuous_slots
 from app.models import Appointment, Clinic, ClinicSlot, Doctor, DoctorSchedule, Patient, Status, User ,Specialization , DaysOfWeek
 from django.db.models import Q
 import json
@@ -50,10 +50,11 @@ def get_clinic_schedule(request,clinic_id):
         if schedule.doctor.deleted_date is None:
             print(f"Schedule ID: {schedule.id}, Doctor: {schedule.doctor.full_name}")
 
+        for slot in schedule.clinic_slot.all():
             schedule_data.append({
                 **schedule.to_json(),
-                "start_time": schedule.clinic_slot.start_time,
-                "end_time": schedule.clinic_slot.end_time
+                "start_time": slot.start_time,
+                "end_time": slot.end_time
             })
 
             print("Added schedule:", schedule_data[-1])  
@@ -178,8 +179,8 @@ def new_appointment_api(request):
                     if len(parts) == 2:
                         start_str = parts[0].strip()  # "10:00"
                         end_str   = parts[1].strip()  # "12:00"
-                        start_time = datetime.strptime(start_str, "%H:%M").time()
-                        end_time   = datetime.strptime(end_str, "%H:%M").time()
+                        start_time = datetime.strptime(start_str, "%I:%M %p").time()
+                        end_time   = datetime.strptime(end_str, "%I:%M %p").time()
                 # status_obj = Status.objects.get(name=status)
                 patient_obj = Patient.objects.get(id=patient_id)
                 doctor_obj  = Doctor.objects.get(id=doctor_id)
@@ -261,16 +262,25 @@ def get_doctor_schedule(request):
 
     data = []
     for sch in schedules:
-        start_time = sch.clinic_slot.start_time if sch.clinic_slot else None
-        end_time   = sch.clinic_slot.end_time if sch.clinic_slot else None
+        # Get all clinic slots for this schedule
+        slots = sch.clinic_slot.all().order_by("start_time")
+        merged_slots = merge_continuous_slots(slots)
+
+        # Add merged slot ranges to response
+        slot_data = [
+            {
+                "start_time": start.strftime("%I:%M %p"),
+                "end_time": end.strftime("%I:%M %p"),
+            }
+            for start, end in merged_slots
+        ]
 
         data.append({
-            "id"         : sch.id,
-            "clinic"     : sch.clinic.name,
-            "day"        : sch.day_of_week.name,
-            "day_id"     : sch.day_of_week.id,
-            "start_time" : start_time.strftime("%H:%M") if start_time else None,
-            "end_time"   : end_time.strftime("%H:%M") if end_time else None,
+            "id": sch.id,
+            "clinic": sch.clinic.name,
+            "day": sch.day_of_week.name,
+            "day_id": sch.day_of_week.id,
+            "slots": slot_data,
         })
 
     return JsonResponse({"success": True, "schedules": data})

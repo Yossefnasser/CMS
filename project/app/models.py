@@ -119,7 +119,7 @@ class Clinic(BaseModel):
     name            = models.CharField(max_length=50)
     default_open_time = models.TimeField(default=datetime.time(13, 0))
     default_close_time = models.TimeField(default=datetime.time(23, 0))
-    slot_duration_hours = models.IntegerField(default=2)
+    slot_duration_hours = models.IntegerField(default=1)
     is_active       = models.BooleanField(default=True)
 
     def __str__(self):
@@ -169,13 +169,13 @@ class DoctorSchedule(BaseModel):
     doctor                 = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     clinic                 = models.ForeignKey(Clinic, on_delete=models.CASCADE)
     day_of_week            = models.ForeignKey(DaysOfWeek, on_delete=models.CASCADE)
-    clinic_slot            = models.ForeignKey(ClinicSlot, on_delete=models.CASCADE, null=True, blank=True)
+    clinic_slot            = models.ManyToManyField(ClinicSlot)
     valid_from             = models.DateField(default=datetime.date.today)
     valid_to               = models.DateField(null=True, blank=True)
     is_active              = models.BooleanField(default=True)
     
     class Meta:
-        ordering = ['day_of_week', 'clinic_slot']
+        ordering = ['day_of_week']
     
     def to_json(self):
         return {
@@ -186,7 +186,6 @@ class DoctorSchedule(BaseModel):
             'specialization' : self.doctor.specialization.pk,
             'specialization_name' :  self.doctor.specialization.name,
             'day_of_week'       : self.day_of_week.name,
-            'clinic_slot': self.clinic_slot.pk if self.clinic_slot else None,
             'valid_from'     : self.valid_from,
             'valid_to'     : self.valid_to,
             'is_active'     : self.is_active,

@@ -709,10 +709,10 @@
 
 <!-- NEW Schedule JavaScript -->
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
     console.log('Schedule page script loaded');
     const SchedulePageManager = {
-        selectedTimeSlot: null,
+        selectedTimeSlots: [], // Changed from single slot to array
         isEditMode: false,
         editingScheduleId: null,
         isProcessing: false,
@@ -791,7 +791,7 @@ $(document).ready(function() {
 
         resetForm() {
             $('#addScheduleForm')[0].reset();
-            this.selectedTimeSlot = null;
+            this.selectedTimeSlots = []; // Clear selected slots array
             this.isEditMode = false;
             this.editingScheduleId = null;
             this.showNoSlotsMessage();
@@ -822,6 +822,9 @@ $(document).ready(function() {
             
             console.log('Filter change - Clinic:', clinicId, 'Day:', dayId);
             
+            // Clear selected slots when filters change
+            this.selectedTimeSlots = [];
+            
             if (clinicId && dayId) {
                 console.log('Both filters set, fetching time slots...');
                 this.fetchTimeSlots(clinicId, dayId);
@@ -845,7 +848,7 @@ $(document).ready(function() {
                         clinic_id: clinicId,
                         day_of_week_id: dayId
                     },
-                    timeout: 10000 // 10 second timeout
+                    timeout: 10000
                 });
                 
                 console.log('AJAX response:', response);
@@ -897,14 +900,12 @@ $(document).ready(function() {
         },
 
         createTimeSlotElement(slot) {
-            // Determine the CSS classes and click behavior based on availability
             const availabilityClass = slot.is_available ? 'available' : 'unavailable';
             const clickable = slot.is_available ? '' : 'disabled';
             
-            // Create the slot element with conditional styling
             const slotDiv = $(`
                 <div class="time-slot-item ${availabilityClass} ${clickable}" data-slot-id="${slot.id}">
-                    <input type="radio" name="time_slot" value="${slot.id}" style="display: none;" ${!slot.is_available ? 'disabled' : ''}>
+                    <input type="checkbox" name="time_slots" value="${slot.id}" style="display: none;" ${!slot.is_available ? 'disabled' : ''}>
                     <div class="slot-content">
                         <div class="slot-time">
                             <i class="fas fa-clock me-1"></i>
@@ -921,34 +922,57 @@ $(document).ready(function() {
                 </div>
             `);
             
-            // Only make available slots clickable
             if (slot.is_available) {
                 slotDiv.on('click', () => {
-                    // Deselect all other slots
-                    $('.time-slot-item').removeClass('selected');
+                    const slotId = slot.id;
+                    const checkbox = slotDiv.find('input[type="checkbox"]');
                     
-                    // Select this slot
-                    slotDiv.addClass('selected');
-                    $(`input[name="time_slot"][value="${slot.id}"]`).prop('checked', true);
+                    // Toggle selection
+                    if (slotDiv.hasClass('selected')) {
+                        // Deselect
+                        slotDiv.removeClass('selected');
+                        checkbox.prop('checked', false);
+                        this.selectedTimeSlots = this.selectedTimeSlots.filter(id => id !== slotId);
+                    } else {
+                        // Select
+                        slotDiv.addClass('selected');
+                        checkbox.prop('checked', true);
+                        this.selectedTimeSlots.push(slotId);
+                    }
                     
-                    // Store the selected slot ID
-                    this.selectedTimeSlot = slot.id;
+                    console.log('Selected slots:', this.selectedTimeSlots);
                     this.updateSubmitButton();
+                    this.updateSelectionCount();
                 });
                 
-                // Add hover effect for available slots
                 slotDiv.hover(
                     function() { $(this).addClass('hover'); },
                     function() { $(this).removeClass('hover'); }
                 );
             } else {
-                // Add click handler for unavailable slots to show info
                 slotDiv.on('click', () => {
                     this.showAlert('غير متاح', `هذا الموعد محجوز للدكتور ${slot.doctor_name || 'آخر'}`, 'info');
                 });
             }
             
             return slotDiv;
+        },
+
+        updateSelectionCount() {
+            const count = this.selectedTimeSlots.length;
+            const submitBtn = $('#addScheduleForm button[type="submit"]');
+            
+            if (count > 0) {
+                const currentText = submitBtn.html();
+                if (!currentText.includes('(')) {
+                    const iconClass = this.isEditMode ? 'fa-save' : 'fa-check';
+                    const buttonText = this.isEditMode ? 'تحديث الجدول' : 'إضافة الجدول';
+                    submitBtn.html(`<i class="fas ${iconClass} me-2"></i>${buttonText} (${count} فترة)`);
+                } else {
+                    submitBtn.html(currentText.replace(/\(\d+ فترة\)/, `(${count} فترة)`));
+                }
+            }
+            
         },
 
         handleDateChange() {
@@ -989,7 +1013,7 @@ $(document).ready(function() {
                     headers: {
                         'X-CSRFToken': $('[name=csrfmiddlewaretoken]').val()
                     },
-                    timeout: 15000 // 15 second timeout
+                    timeout: 15000
                 });
                 
                 if (response.success) {
@@ -1015,7 +1039,7 @@ $(document).ready(function() {
                 } else if (error.status === 404) {
                     errorMessage = 'لم يتم العثور على المورد المطلوب';
                 } else if (error.status === 500) {
-                    errorMessage = error.responseJSON.message;
+                    errorMessage = error.responseJSON?.message || 'خطأ داخلي في الخادم';
                 } else if (error.statusText === 'timeout') {
                     errorMessage = 'انتهت مهلة الاتصال. يرجى المحاولة مرة أخرى';
                 }
@@ -1028,14 +1052,13 @@ $(document).ready(function() {
         },
 
         getFormData() {
-            // Get doctor ID from the main form
             const doctorId = $('#id').val();
             
             return {
                 doctor_id: doctorId,
                 clinic: $('#clinic').val(),
                 day_of_week: $('#day_of_week').val(),
-                clinic_slot_id: this.selectedTimeSlot,
+                clinic_slot_ids: JSON.stringify(this.selectedTimeSlots), // Send array as JSON
                 valid_from: $('#valid_from').val(),
                 valid_to: $('#valid_to').val()
             };
@@ -1051,8 +1074,8 @@ $(document).ready(function() {
                 return { isValid: false, message: 'يرجى اختيار العيادة واليوم' };
             }
             
-            if (!this.selectedTimeSlot) {
-                return { isValid: false, message: 'يرجى اختيار فترة زمنية' };
+            if (this.selectedTimeSlots.length === 0) {
+                return { isValid: false, message: 'يرجى اختيار فترة زمنية واحدة على الأقل' };
             }
             
             if (!validFrom || !validTo) {
@@ -1070,7 +1093,6 @@ $(document).ready(function() {
             const btn = $(e.currentTarget);
             const scheduleId = btn.data('schedule-id');
             
-            // For now, just show a message that edit functionality is not fully implemented
             this.showAlert('معلومة', 'وظيفة التعديل قيد التطوير. يرجى حذف الجدول الحالي وإضافة جدول جديد.', 'info');
         },
 
@@ -1188,10 +1210,10 @@ $(document).ready(function() {
             const dayOfWeek = $('#day_of_week').val();
             const validFrom = $('#valid_from').val();
             const validTo = $('#valid_to').val();
-            const hasTimeSlot = this.selectedTimeSlot !== null;
+            const hasTimeSlots = this.selectedTimeSlots.length > 0;
             const datesValid = validFrom && validTo && new Date(validFrom) < new Date(validTo);
             
-            const isValid = clinic && dayOfWeek && hasTimeSlot && datesValid && !this.isProcessing;
+            const isValid = clinic && dayOfWeek && hasTimeSlots && datesValid && !this.isProcessing;
             
             const submitBtn = $('#addScheduleForm button[type="submit"]');
             submitBtn.prop('disabled', !isValid);
@@ -1199,13 +1221,14 @@ $(document).ready(function() {
             if (this.isProcessing) {
                 submitBtn.html('<i class="fas fa-spinner fa-spin me-2"></i>جاري المعالجة...');
             } else {
+                const count = this.selectedTimeSlots.length;
                 const buttonText = this.isEditMode ? 'تحديث الجدول' : 'إضافة الجدول';
                 const iconClass = this.isEditMode ? 'fa-save' : 'fa-check';
-                submitBtn.html(`<i class="fas ${iconClass} me-2"></i>${buttonText}`);
+                const countText = count > 0 ? ` (${count} فترة)` : '';
+                submitBtn.html(`<i class="fas ${iconClass} me-2"></i>${buttonText}${countText}`);
             }
         },
 
-        // Improved alert system with SweetAlert2
         async showAlert(title, text, icon) {
             return await Swal.fire({
                 title: title,
@@ -1220,7 +1243,6 @@ $(document).ready(function() {
             });
         },
 
-        // Improved confirmation dialog
         async showConfirm(title, text, icon, confirmButtonText) {
             const result = await Swal.fire({
                 title: title,
@@ -1242,7 +1264,6 @@ $(document).ready(function() {
         }
     };
 
-    // Initialize the schedule page manager
     SchedulePageManager.init();
 });
 </script>

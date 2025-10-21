@@ -305,7 +305,9 @@
                                 <!-- FIX: Use clinic_slot times if available, otherwise fall back to schedule times -->
                                 <span class="fw-bold">
                                     {% if schedule.clinic_slot %}
-                                        {{ schedule.clinic_slot.start_time|to_12_hour }} - {{ schedule.clinic_slot.end_time|to_12_hour }}
+                                        {% for slot in schedule.merged_slots %}
+                                            <span class="fw-bold">{{ slot.start }} - {{ slot.end }}</span><br>
+                                        {% endfor %}
                                     {% else %}
                                         {{ schedule.start_time|to_12_hour }} - {{ schedule.end_time|to_12_hour }}
                                     {% endif %}
@@ -314,7 +316,6 @@
                             <td>
                                 <small class="text-muted">
                                     <i class="fas fa-calendar-check me-1"></i>
-                                    {{ schedule.valid_from|date:"Y-m-d" }} إلى {{ schedule.valid_to|date:"Y-m-d" }}
                                 </small>
                             </td>
                             <td>

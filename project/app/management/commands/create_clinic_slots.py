@@ -1,45 +1,34 @@
 from django.core.management.base import BaseCommand
-from app.models import Clinic, DaysOfWeek, ClinicSlot
-from datetime import datetime, date, timedelta
+from datetime import datetime, timedelta
+from app.models import Clinic, ClinicSlot  # 🔁 change 'app' to your actual app name
 
 class Command(BaseCommand):
-    help = 'Create default slots for all clinics'
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            '--clinic-id',
-            type=int,
-            help='Create slots for specific clinic ID only',
-        )
+    help = "Generate 1-hour clinic slots based on each clinic's open and close times"
 
     def handle(self, *args, **options):
-        if options['clinic_id']:
-            try:
-                clinic = Clinic.objects.get(id=options['clinic_id'])
-                self.create_slots_for_clinic(clinic)
-                self.stdout.write(f"Created slots for {clinic.name}")
-            except Clinic.DoesNotExist:
-                self.stdout.write(f"Clinic with ID {options['clinic_id']} not found")
-        else:
-            clinics = Clinic.objects.filter(is_active=True)
-            for clinic in clinics:
-                self.create_slots_for_clinic(clinic)
-                self.stdout.write(f"Created slots for {clinic.name}")
+        clinics = Clinic.objects.filter(is_active=True)
 
-    def create_slots_for_clinic(self, clinic):
-            current_time = clinic.default_open_time
-            
-            while current_time < clinic.default_close_time:
-                end_datetime = datetime.combine(date.today(), current_time) + timedelta(hours=clinic.slot_duration_hours)
-                end_time = end_datetime.time()
-                
-                if end_time <= clinic.default_close_time:
-                    slot, created = ClinicSlot.objects.get_or_create(
-                        clinic=clinic,
-                        start_time=current_time,
-                        end_time=end_time
-                    )
-                    if created:
-                        self.stdout.write(f"  Created: {slot}")
-                
-                current_time = end_time
+        for clinic in clinics:
+            self.stdout.write(self.style.WARNING(f"Creating slots for: {clinic.name}"))
+
+            # Delete old slots
+            ClinicSlot.objects.filter(clinic=clinic).delete()
+
+            open_time = datetime.combine(datetime.today(), clinic.default_open_time)
+            close_time = datetime.combine(datetime.today(), clinic.default_close_time)
+            slot_duration = timedelta(hours=1)
+
+            created = 0
+            while open_time + slot_duration <= close_time:
+                ClinicSlot.objects.create(
+                    clinic=clinic,
+                    start_time=open_time.time(),
+                    end_time=(open_time + slot_duration).time(),
+                    is_active=True
+                )
+                created += 1
+                open_time += slot_duration
+
+            self.stdout.write(self.style.SUCCESS(f"✅ Created {created} slots for {clinic.name}"))
+        
+        self.stdout.write(self.style.SUCCESS("🎯 All clinic slots have been generated successfully."))

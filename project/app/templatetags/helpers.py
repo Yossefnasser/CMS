@@ -77,3 +77,31 @@ def delete(request, model_name, condition):
         return JsonResponse(allJson, safe=False)
     else:
         allJson['Result'] = "Fail"
+from itertools import groupby
+from operator import attrgetter
+@register.filter
+def merge_continuous_slots(slots):
+    """
+    Takes a list of ClinicSlot objects sorted by start_time
+    and merges consecutive ones into (start, end) tuples.
+    """
+    if not slots:
+        return []
+
+    merged = []
+    current_start = slots[0].start_time
+    current_end = slots[0].end_time
+
+    for slot in slots[1:]:
+        if slot.start_time == current_end:
+            # extend the block
+            current_end = slot.end_time
+        else:
+            # save the block
+            merged.append((current_start, current_end))
+            # start new block
+            current_start = slot.start_time
+            current_end = slot.end_time
+
+    merged.append((current_start, current_end))
+    return merged

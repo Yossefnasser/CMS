@@ -509,7 +509,9 @@
                                 {% if schedule.clinic_slot %}
                                 <div class="time-slot">
                                     <i class="fas fa-clock"></i>
-                                    {{ schedule.clinic_slot.start_time }} - {{ schedule.clinic_slot.end_time }}
+                                        {% for slot in schedule.merged_slots %}
+                                            <span class="fw-bold">{{ slot.start }} - {{ slot.end }}</span><br>
+                                        {% endfor %}
                                 </div>
                                 {% endif %}
                             </div>

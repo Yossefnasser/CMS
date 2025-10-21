@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 from urllib import request
 from django.shortcuts import render
 from app.models import Appointment, Clinic, DaysOfWeek, Doctor, DoctorSchedule, Invoice, Specialization,ClinicSlot
@@ -6,7 +7,7 @@ from datetime import datetime
 from django.contrib import messages
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect, render
-from app.templatetags.helpers import check_if_post_input_valid, check_valid_text, get_id_hashed_of_object, get_id_of_object , delete
+from app.templatetags.helpers import check_if_post_input_valid, check_valid_text, get_id_hashed_of_object, get_id_of_object , delete, merge_continuous_slots
 from django.db.models import Q ,  Count, Sum
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from project.settings import CHAR_100, CHAR_50
@@ -93,7 +94,15 @@ def add_new_doctor(request):
     days_of_week = DaysOfWeek.objects.all()
     all_specializations     = Specialization.objects.filter(deleted_date__isnull=True)
     clinics                 = Clinic.objects.filter(deleted_date__isnull=True)
-    clinic_slots      = ClinicSlot.objects.filter()
+    clinic_slots      = ClinicSlot.objects.filter(deleted_date__isnull=True).order_by('start_time')
+    for s in doctor_schedules:
+        slots = s.clinic_slot.all().order_by('start_time')
+        merged = merge_continuous_slots(slots)
+        s.merged_slots = [
+            {"start": m[0].strftime("%I:%M %p"), "end": m[1].strftime("%I:%M %p")}
+            for m in merged
+        ]
+        
     context = {
         'data_to_insert'      : data_to_insert,
         'typeOfReq'           : typeOfReq,
@@ -217,42 +226,48 @@ def doctor_schedule(request, schedule_id=None):
             doctor_id       = request.POST.get('doctor_id')
             clinic_id       = request.POST.get('clinic')
             day_of_week_id  = request.POST.get('day_of_week')
-            clinic_slot_id  = request.POST.get('clinic_slot_id')
+            
             valid_from      = request.POST.get('valid_from')
             valid_to        = request.POST.get('valid_to')
             
             doctor          = Doctor.objects.get(id=doctor_id)
             clinic          = Clinic.objects.get(id=clinic_id)
             day_of_week     = DaysOfWeek.objects.get(id=day_of_week_id)
-            clinic_slot     = ClinicSlot.objects.get(id=clinic_slot_id)
             
+            slot_ids_str = request.POST.get('clinic_slot_ids', '[]')
+            slot_ids = json.loads(slot_ids_str)
+            
+            clinic_slots = ClinicSlot.objects.filter(id__in=slot_ids).order_by('start_time')
+
             if schedule_id is not None:
                 schedule = DoctorSchedule.objects.get(id=schedule_id)
                 schedule.doctor              = doctor
                 schedule.clinic              = clinic
                 schedule.day_of_week         = day_of_week
-                schedule.clinic_slot         = clinic_slot
                 schedule.valid_from          = valid_from
                 schedule.valid_to            = valid_to
                 schedule.save()
                 message = 'Doctor schedule updated successfully.'
+                schedule.clinic_slot.set(slot_ids)
+
             else:  
                 schedule = DoctorSchedule.objects.create(
                     doctor              = doctor,
                     clinic              = clinic,
                     day_of_week         = day_of_week,
-                    clinic_slot         = clinic_slot,
                     valid_from          = valid_from,
                     valid_to            = valid_to
                 )
+                schedule.clinic_slot.set(clinic_slots)
                 message = 'Doctor schedule created successfully.'
+            
 
             return JsonResponse({
                 "success": True,
                 "message": message,
                 "id": schedule.id,
-                "doctor": schedule.doctor.full_name
-            })
+                "doctor": schedule.doctor.full_name,
+                })
         except Exception as e:
             print(f"Error in doctor_schedule POST: {str(e)}")
             return JsonResponse({
@@ -293,7 +308,13 @@ def doctor_details(request):
     ).count()
 
     days_of_week = DaysOfWeek.objects.all()
-
+    for s in doctor_schedules:
+        slots = s.clinic_slot.all().order_by('start_time')
+        merged = merge_continuous_slots(slots)
+        s.merged_slots = [
+            {"start": m[0].strftime("%I:%M %p"), "end": m[1].strftime("%I:%M %p")}
+            for m in merged
+        ]
     context = {
         "doctor": doctor,
         "doctor_schedules": doctor_schedules,
@@ -363,7 +384,7 @@ def get_latest_appointments(request, doctor_id):
         latest_appointments = Appointment.objects.filter(
             doctor=doctor,
             deleted_date__isnull=True
-        )
+        ).order_by('-date')
         appointment_data = [appt.tojson()for appt in latest_appointments]
         return JsonResponse({
             'success': True,

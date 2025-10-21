@@ -957,31 +957,31 @@ $(document).ready(function() {
 };
 
 function getNextDate(dayName, sessionEndTime) {
-    const jsDay = dayMap[dayName];
-    if (jsDay === undefined) return "غير معروف";
+  const jsDay = dayMap[dayName];
+  if (jsDay === undefined) return "غير معروف";
 
-    const today = new Date();
-    const todayDay = today.getDay();
+  // 🧩 Fix: handle missing time
+  if (!sessionEndTime) return "غير محدد";
 
-    let diff = jsDay - todayDay;
-    if (diff < 0) diff += 7;
+  const today = new Date();
+  const todayDay = today.getDay();
 
-    // Parse session start hour and minute from "HH:MM"
-    const [sessionHour, sessionMinute] = sessionEndTime.split(':').map(Number);
+  let diff = jsDay - todayDay;
+  if (diff < 0) diff += 7;
 
-    if (diff === 0) {
-        const nowHour = today.getHours();
-        const nowMinute = today.getMinutes();
+  const [sessionHour, sessionMinute] = sessionEndTime.split(':').map(Number);
 
-        // If the current time has already passed the session time → move to next week
-        if (nowHour > sessionHour || (nowHour === sessionHour && nowMinute >= sessionMinute)) {
-            diff = 7;
-        }
+  if (diff === 0) {
+    const nowHour = today.getHours();
+    const nowMinute = today.getMinutes();
+    if (nowHour > sessionHour || (nowHour === sessionHour && nowMinute >= sessionMinute)) {
+      diff = 7;
     }
+  }
 
-    const nextDate = new Date(today);
-    nextDate.setDate(today.getDate() + diff);
-    return nextDate.toISOString().split("T")[0]; // "YYYY-MM-DD"
+  const nextDate = new Date(today);
+  nextDate.setDate(today.getDate() + diff);
+  return nextDate.toISOString().split("T")[0];
 }
 
 
@@ -994,31 +994,32 @@ $('#day_of_week').change(function() {
     const schedulesForDay = doctorSchedules.filter(sch => sch.day_id == selectedDayId);
 
         schedulesForDay.forEach(function(sch) {
-            console.log("sch.day_id:", sch.day, "type:", typeof sch.day_id);
-            const nextDate = getNextDate(sch.day, sch.end_time);
-             console.log("Next date for", sch.day, "is", nextDate);
-             console.log("Current date is", new Date().toISOString().split("T")[0]);
+            // 🧩 Loop over all merged slots for this day
+            sch.slots.forEach(function(slot) {
+            const nextDate = getNextDate(sch.day, slot.end_time);
+            console.log("Next date for", sch.day, "is", nextDate);
+
             detailsContainer.append(`
                 <div class="card p-3 mb-2">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <strong class="text-primary">التاريخ المتوقع:</strong><br>
-                            <span>${nextDate}</span>
-                        </div>
-                        <div class="col-md-4">
-                            <strong class="text-primary">الوقت:</strong><br>
-                            <span>${formatTimeTo12Hour(sch.start_time)} - ${formatTimeTo12Hour(sch.end_time)}</span>
-                        </div>
-                        <div class="col-md-4">
-                            <strong class="text-primary">العيادة:</strong><br>
-                            <span>${sch.clinic}</span>
-                        </div>
+                <div class="row">
+                    <div class="col-md-4">
+                    <strong class="text-primary">التاريخ المتوقع:</strong><br>
+                    <span>${nextDate}</span>
+                    </div>
+                    <div class="col-md-4">
+                    <strong class="text-primary">الوقت:</strong><br>
+                    <span>${slot.start_time} - ${slot.end_time}</span>
+                    </div>
+                    <div class="col-md-4">
+                    <strong class="text-primary">العيادة:</strong><br>
+                    <span>${sch.clinic}</span>
                     </div>
                 </div>
+                </div>
             `);
+            });
         });
-    });
-
+        });
     // Navigation buttons
     $('#changePatientBtn').click(() => goToStep(1));
     $('#backToStep1Btn').click(() => goToStep(1));
@@ -1044,7 +1045,9 @@ $('#day_of_week').change(function() {
             return;
         }
 
-        const nextDate = getNextDate(selectedSchedule.day, selectedSchedule.end_time);
+        const firstSlot = selectedSchedule.slots[0];
+
+        const nextDate = getNextDate(selectedSchedule.day, firstSlot.end_time);
 
         appointmentData = {
             doctor_id: $('#doctor').val(),
@@ -1055,7 +1058,7 @@ $('#day_of_week').change(function() {
             patient: selectedPatient,
             patient_phone: selectedPatient.phone,
             date: nextDate,
-            time: `${selectedSchedule.start_time} - ${selectedSchedule.end_time}`,
+            time: `${firstSlot.start_time} - ${firstSlot.end_time}`,
             day: selectedSchedule.day,
             type: $('#appointment_type option:selected').text(),
             service_type: selectedServiceType === 'consultation' ? 'استشارة' : 'كشف',
