@@ -169,7 +169,8 @@ def patient_details(request):
 def delete_patient(request):
     patient_id      = request.POST['id']
     delete(request, Patient, Q(id = patient_id))
-
+    appointments = Appointment.objects.filter(patient_id=patient_id, deleted_date__isnull=True)
+    delete(request, Appointment, Q(id__in = appointments.values_list('id', flat=True)))
     allJson             = {"Result": "Fail"}
     allJson['Result']   = "Success"
 
