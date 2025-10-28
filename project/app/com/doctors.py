@@ -88,6 +88,13 @@ def add_new_doctor(request):
         )
         days_of_week = DaysOfWeek.objects.all()
         print(" data to insert consultation_price , examination_price ", data_to_insert.consultation_price , data_to_insert.examination_price)
+        for s in doctor_schedules:
+            slots = s.clinic_slot.all().order_by('start_time')
+            merged = merge_continuous_slots(slots)
+            s.merged_slots = [
+                {"start": m[0].strftime("%I:%M %p"), "end": m[1].strftime("%I:%M %p")}
+                for m in merged
+            ]
     elif typeOfReq == 'new':
         data_to_insert      = None
         doctor_schedules    = None
@@ -95,13 +102,7 @@ def add_new_doctor(request):
     all_specializations     = Specialization.objects.filter(deleted_date__isnull=True)
     clinics                 = Clinic.objects.filter(deleted_date__isnull=True)
     clinic_slots      = ClinicSlot.objects.filter(deleted_date__isnull=True).order_by('start_time')
-    for s in doctor_schedules:
-        slots = s.clinic_slot.all().order_by('start_time')
-        merged = merge_continuous_slots(slots)
-        s.merged_slots = [
-            {"start": m[0].strftime("%I:%M %p"), "end": m[1].strftime("%I:%M %p")}
-            for m in merged
-        ]
+    
         
     context = {
         'data_to_insert'      : data_to_insert,
